@@ -1,11 +1,13 @@
 package fr.ebiz.computerDatabase.persistence;
 
+
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
 import com.mysql.jdbc.Connection;
+import com.mysql.jdbc.PreparedStatement;
 import com.mysql.jdbc.Statement;
 
 import fr.ebiz.computerDatabase.utils.Utils;
@@ -53,7 +55,6 @@ public final class DatabaseManager {
         if (DatabaseManager.instance == null) {
            // Le mot-clé synchronized sur ce bloc empêche toute instanciation
            // multiple même par différents "threads".
-           // Il est TRES important.
            synchronized(DatabaseManager.class) {
              if (DatabaseManager.instance == null) {
             	 DatabaseManager.instance = new DatabaseManager();
@@ -64,11 +65,28 @@ public final class DatabaseManager {
     }
 	
 	public ResultSet getCompanies() throws SQLException {
-	    return statement.executeQuery("SELECT id, name FROM company;");
+	    return statement.executeQuery("SELECT * FROM company;");
 	}
 	
-	public void executeQuery(String query) throws SQLException {
-		statement.executeQuery(query);
+	public ResultSet getComputers() throws SQLException {
+		return statement.executeQuery("SELECT * FROM computer;");
+	}
+	
+	public ResultSet getCompanyById(int id) throws SQLException {
+		PreparedStatement company = (PreparedStatement) connexion.prepareStatement("SELECT * FROM "+ Utils.COMPANY_TABLE +" WHERE id = ?");
+		company.setInt(1, id);
+		return company.executeQuery();
+	}
+	
+	public ResultSet getComputerById(int id) throws SQLException {
+		PreparedStatement computer = (PreparedStatement) connexion.prepareStatement("SELECT * FROM "+ Utils.COMPUTER_TABLE +" WHERE id = ?");
+		computer.setInt(1, id);
+		return computer.executeQuery();
+	}
+	
+	public int executeUpdate(String query) throws SQLException {
+		return statement.executeUpdate(query);
+		
 	}
 	
 	public void closeAll() throws SQLException {
