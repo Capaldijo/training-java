@@ -66,7 +66,7 @@ public class Computer {
 	}
 	
 	public String toString() {
-		return "id: " + this.id + ",name: " + this.name + ",introduced: "
+		return "id: " + this.id + ",name: " + this.name + ", introduced: "
 				+ this.introduced + ", discontinued: " + this.discontinued +
 				", company_id: " + this.company_id;
 	}
