@@ -34,6 +34,7 @@ public final class DatabaseManager {
 			props.setProperty("user", Utils.userDB);
 			props.setProperty("password", Utils.passwdDB);
 			props.setProperty("useSSL","false");
+			props.setProperty("zeroDateTimeBehavior","convertToNull");
 			
 			// Connection to Database
 		    connexion = (Connection) DriverManager.getConnection(Utils.urlDB, props);
@@ -64,31 +65,58 @@ public final class DatabaseManager {
         return DatabaseManager.instance;
     }
 	
-	public ResultSet getCompanies() throws SQLException {
-	    return statement.executeQuery("SELECT * FROM company;");
+	
+	/* ----- COMPANY REQUEST PART ----- */
+	
+	public ResultSet getCompanies(String query) throws SQLException {
+	    return statement.executeQuery(query);
 	}
 	
-	public ResultSet getComputers() throws SQLException {
-		return statement.executeQuery("SELECT * FROM computer;");
+	public ResultSet getCompanyById(String query, int id) throws SQLException {
+		PreparedStatement prepStatement = (PreparedStatement) connexion.prepareStatement(query);
+		prepStatement.setInt(1, id);
+		return prepStatement.executeQuery();
 	}
 	
-	public ResultSet getCompanyById(int id) throws SQLException {
-		PreparedStatement company = (PreparedStatement) connexion.prepareStatement("SELECT * FROM "+ Utils.COMPANY_TABLE +" WHERE id = ?");
-		company.setInt(1, id);
-		return company.executeQuery();
+	
+	/* ----- COMPUTER REQUEST PART ----- */
+	
+	public ResultSet getComputers(String query) throws SQLException {
+		return statement.executeQuery(query);
 	}
 	
-	public ResultSet getComputerById(int id) throws SQLException {
-		PreparedStatement computer = (PreparedStatement) connexion.prepareStatement("SELECT * FROM "+ Utils.COMPUTER_TABLE +" WHERE id = ?");
-		computer.setInt(1, id);
-		return computer.executeQuery();
+	public ResultSet getComputerById(String query, int id) throws SQLException {
+		PreparedStatement prepStatement = (PreparedStatement) connexion.prepareStatement(query);
+		prepStatement.setInt(1, id);
+		return prepStatement.executeQuery();
 	}
 	
-	public int executeUpdate(String query) throws SQLException {
-		return statement.executeUpdate(query);
-		
+	public int insertComputer(String query, String name, String intro, String discon, int compIdRef) throws SQLException {
+		PreparedStatement prepStatement = (PreparedStatement) connexion.prepareStatement(query);
+		prepStatement.setString(1, name);
+		prepStatement.setString(2, intro);
+		prepStatement.setString(3, discon);
+		prepStatement.setInt(4, compIdRef);
+		return prepStatement.executeUpdate();
 	}
 	
+	public int updateComputer(String query, int id, String name, String intro, String discon, int compIdRef) throws SQLException {
+		PreparedStatement prepStatement = (PreparedStatement) connexion.prepareStatement(query);
+		prepStatement.setString(1, name);
+		prepStatement.setString(2, intro);
+		prepStatement.setString(3, discon);
+		prepStatement.setInt(4, compIdRef);
+		prepStatement.setInt(5, id);
+		return prepStatement.executeUpdate();
+	}
+	
+	public int deleteComputer(String query, int id) throws SQLException {
+		PreparedStatement prepStatement = (PreparedStatement) connexion.prepareStatement(query);
+		prepStatement.setInt(1, id);
+		return prepStatement.executeUpdate();
+	}
+	
+	// Close first 
 	public void closeAll() throws SQLException {
 		statement.close();
         connexion.close();

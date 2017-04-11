@@ -11,11 +11,19 @@ import fr.ebiz.computerDatabase.utils.Utils;
 
 public class ComputerDAO {
 
-	public ComputerDAO(){}
+	private DateTimeFormatter formatter;
 	
-	public  Computer getComputer(int idComp) throws SQLException {
+	private String TABLE_NAME;
+	
+	public ComputerDAO() {
+		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+		TABLE_NAME = Utils.COMPUTER_TABLE;
+	}
+	
+	public Computer getComputer(int idComp) throws SQLException {
+		String query = "SELECT * FROM "+ TABLE_NAME +" WHERE id = ?";
 		
-		ResultSet resultat = DatabaseManager.getInstance().getComputerById(idComp);
+		ResultSet resultat = DatabaseManager.getInstance().getComputerById(query, idComp);
 		resultat.next();
 		
 		int id = resultat.getInt(Utils.COLUMN_ID);
@@ -24,7 +32,6 @@ public class ComputerDAO {
         String strDateDiscon = resultat.getString(Utils.COLUMN_DISCONTINUED);
         int compIdRef = resultat.getInt(Utils.COLUMN_COMPANYID);
         
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime dateIntro = null, dateDiscon = null;
         
         if(strDateIntro != null)
@@ -38,19 +45,55 @@ public class ComputerDAO {
 		return comp;
 	}
 	
-	public ResultSet getAllComputer() throws SQLException{
-		return DatabaseManager.getInstance().getComputers();
+	public ResultSet getAllComputers() throws SQLException{
+		String query = "SELECT * FROM " + TABLE_NAME;
+		return DatabaseManager.getInstance().getComputers(query);
 	}
 	
-	public void createComputer(Computer comp) {
-		
+	public int createComputer(Computer comp) throws SQLException {
+		String name = comp.getName();
+        LocalDateTime dateIntro = comp.getIntroduced();
+		LocalDateTime dateDiscon = comp.getDiscontinued();
+        int compIdRef = comp.getCompany_id();
+        
+        String strDateIntro = null, strDateDiscon = null;
+        
+        if(dateIntro != null)
+            strDateIntro = dateIntro.format(formatter);
+        
+        if(dateDiscon != null)
+            strDateDiscon = dateDiscon.format(formatter);
+        
+        String query = "INSERT INTO " + TABLE_NAME + " (name,introduced,discontinued,company_id) VALUES (?, ?, ?, ?)";
+        
+        return DatabaseManager.getInstance().insertComputer(query, name, strDateIntro, strDateDiscon, compIdRef);
 	}
 	
-	public void updateComputer(Computer comp) {
-		
+	public int updateComputer(Computer comp) throws SQLException {
+		int id = comp.getId();
+		String name = comp.getName();
+        LocalDateTime dateIntro = comp.getIntroduced();
+		LocalDateTime dateDiscon = comp.getDiscontinued();
+        int compIdRef = comp.getCompany_id();
+        
+        String strDateIntro = null, strDateDiscon = null;
+        
+        if(dateIntro != null)
+            strDateIntro = dateIntro.format(formatter);
+        
+        if(dateDiscon != null) 
+            strDateDiscon = dateDiscon.format(formatter);
+            
+        String query = "UPDATE " + TABLE_NAME + " SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
+        
+        return DatabaseManager.getInstance().updateComputer(query, id, name, strDateIntro, strDateDiscon, compIdRef);
 	}
 	
-	public void deleteComputer(Computer comp) {
+	public int deleteComputer(Computer comp) throws SQLException {
+		int id = comp.getId();
 		
+		String query = "DELETE FROM "+ TABLE_NAME + " WHERE id = ?";
+		
+		return DatabaseManager.getInstance().deleteComputer(query, id);
 	}
 }
