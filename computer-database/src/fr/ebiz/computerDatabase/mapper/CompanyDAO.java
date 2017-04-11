@@ -15,12 +15,12 @@ public class CompanyDAO {
 		TABLE_NAME = Utils.COMPANY_TABLE;
 	}
 	
-	public ResultSet getAllCompanies() throws SQLException{
+	public ResultSet findAll() throws SQLException{
 		String query = "SELECT * FROM " + TABLE_NAME;
 		return DatabaseManager.getInstance().getCompanies(query);
 	}
 	
-	public Company getCompany(int id) throws SQLException {
+	public Company find(int id) throws SQLException {
 		String query = "SELECT * FROM "+ TABLE_NAME +" WHERE id = ?";
 		
 		ResultSet resultat = DatabaseManager.getInstance().getCompanyById(query, id);

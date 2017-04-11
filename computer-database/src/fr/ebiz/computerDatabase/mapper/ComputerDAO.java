@@ -20,7 +20,7 @@ public class ComputerDAO {
 		TABLE_NAME = Utils.COMPUTER_TABLE;
 	}
 	
-	public Computer getComputer(int idComp) throws SQLException {
+	public Computer find(int idComp) throws SQLException {
 		String query = "SELECT * FROM "+ TABLE_NAME +" WHERE id = ?";
 		
 		ResultSet resultat = DatabaseManager.getInstance().getComputerById(query, idComp);
@@ -45,12 +45,12 @@ public class ComputerDAO {
 		return comp;
 	}
 	
-	public ResultSet getAllComputers() throws SQLException{
+	public ResultSet findAll() throws SQLException{
 		String query = "SELECT * FROM " + TABLE_NAME;
 		return DatabaseManager.getInstance().getComputers(query);
 	}
 	
-	public int createComputer(Computer comp) throws SQLException {
+	public int insert(Computer comp) throws SQLException {
 		String name = comp.getName();
         LocalDateTime dateIntro = comp.getIntroduced();
 		LocalDateTime dateDiscon = comp.getDiscontinued();
@@ -69,7 +69,7 @@ public class ComputerDAO {
         return DatabaseManager.getInstance().insertComputer(query, name, strDateIntro, strDateDiscon, compIdRef);
 	}
 	
-	public int updateComputer(Computer comp) throws SQLException {
+	public int update(Computer comp) throws SQLException {
 		int id = comp.getId();
 		String name = comp.getName();
         LocalDateTime dateIntro = comp.getIntroduced();
@@ -89,7 +89,7 @@ public class ComputerDAO {
         return DatabaseManager.getInstance().updateComputer(query, id, name, strDateIntro, strDateDiscon, compIdRef);
 	}
 	
-	public int deleteComputer(Computer comp) throws SQLException {
+	public int delete(Computer comp) throws SQLException {
 		int id = comp.getId();
 		
 		String query = "DELETE FROM "+ TABLE_NAME + " WHERE id = ?";
