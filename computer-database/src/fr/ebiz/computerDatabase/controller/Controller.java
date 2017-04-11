@@ -3,6 +3,8 @@ package fr.ebiz.computerDatabase.controller;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
+
 import fr.ebiz.computerDatabase.mapper.CompanyDAO;
 import fr.ebiz.computerDatabase.mapper.ComputerDAO;
 import fr.ebiz.computerDatabase.model.Company;
@@ -24,7 +26,6 @@ public class Controller {
 		computerDAO = new ComputerDAO();
 		companyDAO = new CompanyDAO();
 		view = new Cli();
-		init();
 	}
 	
 	public void init() {
@@ -32,16 +33,16 @@ public class Controller {
 		while(shouldKeepGoin) {
 			
 			switch(view.printMenu()) {
-				case 1:
+				case 1: // list companies
 					menuListCompanies();
 					break;
-				case 2: 
+				case 2: // list computers
 					menuListComputer();
 					break;
-				case 3:
+				case 3: // Create a computer
 					menuCreateComputer();
 					break;
-				case 4:
+				case 4: // quit
 					shouldKeepGoin = false;
 					view.print("Bye");
 					break;
@@ -49,30 +50,17 @@ public class Controller {
 					view.print("Error top menu");
 			}
 				
-				/* ------ DELETE COMPUTER ----- */
-//				Computer comp = new Computer(578, "coco", LocalDateTime.of(2012, Month.APRIL, 8, 12, 30, 02)
-//						,LocalDateTime.of(2016, Month.DECEMBER, 9, 12, 30, 02), 5);
-
-//				if(compdao.deleteComputer(comp) == 1)
-//					System.out.println("delete success");
-				
 				/* ------ UDPDATE COMPUTER ----- */
 //				Computer comp = new Computer(577, "test2", LocalDateTime.of(2012, Month.APRIL, 8, 12, 30, 02)
-//						,LocalDateTime.of(2016, Month.DECEMBER, 9, 12, 30, 02), 5);
+//						,LocalDateTime.of(2016, Month.DECEMBER, 9, 12, 30, 02, 5);
 //				
 //				if(compdao.updateComputer(comp) == 1)
 //					System.out.println("update success");
 				
-				/* ------ INSERT COMPUTER ----- */
-//				Computer comp2 = new Computer("test", null, null, 500);
-//				
-//				if(computerDAO.insert(comp2) == 1)
-//					System.out.println("Insert succes");
+				
 				
 			    
 	
-//			} catch (MySQLIntegrityConstraintViolationException ie){
-//				System.out.println("Impossible de créer le computer, champ company_id invalide");
 //			} catch ( SQLException e ) {
 //				e.printStackTrace();
 //			}
@@ -84,7 +72,7 @@ public class Controller {
 		}
 	} // init
 	
-	public void menuListCompanies() {
+	private void menuListCompanies() {
 		/* ------ GET ALL COMPANIES ----- */
 		try {
 			ResultSet resultat = companyDAO.findAll();
@@ -94,7 +82,7 @@ public class Controller {
 		}	
 	}
 	
-	public void menuListComputer() {
+	private void menuListComputer() {
 		/* ------ GET ALL COMPUTER ----- */
 		boolean stop = false;
 		while(!stop){
@@ -126,18 +114,21 @@ public class Controller {
 		}
 	}
 	
-	public void menuCreateComputer() {
+	private void menuCreateComputer() {
+		/* ------ INSERT COMPUTER ----- */
 		Computer computer = view.printInsertComputerAction();
 		try {
 			if(computer != null )
 				if(computerDAO.insert(computer) == 1)
-					view.print("\nInsert done");
+					view.print("Insert done");
+		} catch (MySQLIntegrityConstraintViolationException ie){
+			view.print("Creating computer failed, field company_id invalid");
 		} catch (SQLException e) {
-			view.print("\nError on insert");
+			view.print("Error on insert");
 		}
 	}
 	
-	public void menuShowDetails() {
+	private void menuShowDetails() {
 
 		int id = view.printShowDetailsAction();
 		
@@ -146,17 +137,21 @@ public class Controller {
 		try {
 			/* ------ GET COMPUTER BY ID ----- */
 			computer = computerDAO.find(id);
-			
-			/* ------ GET COMPANY BY ID ----- */
-			company = companyDAO.find(computer.getCompany_id());
+			if(computer != null){
+				/* ------ GET COMPANY BY ID ----- */
+				company = companyDAO.find(computer.getCompany_id());
+				
+				view.print(computer + ", which reference company [" + company + "]");
+			} else
+				view.print("The computer you requested does not exist.");
 		} catch (SQLException e) {
 			// catch error if company is null, no need to print
 		}
-		
-		view.print(computer + ", which reference company [" + company + "]");
 	}
 	
-	public void menuDeleteComputer() {
+	private void menuDeleteComputer() {
+		/* ------ DELETE COMPUTER ----- */
+		
 		int id = view.printDeleteComputerAction();
 		try {
 			if(computerDAO.delete(id) == 1)
