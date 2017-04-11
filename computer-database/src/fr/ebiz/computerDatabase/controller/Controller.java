@@ -28,7 +28,7 @@ public class Controller {
 	}
 	
 	public void init() {
-			
+		
 		while(shouldKeepGoin) {
 			
 			switch(view.printMenu()) {
@@ -102,6 +102,7 @@ public class Controller {
 				ResultSet resultat = computerDAO.findAll();
 				switch(view.printSubMenuComputers(resultat)){
 					case 1:
+						//show details of a computer
 						menuShowDetails();
 						break;
 					case 2:
@@ -109,6 +110,8 @@ public class Controller {
 						break;
 					case 3:
 						// delete computer
+						menuDeleteComputer();
+						break;
 					case 4:
 						// quit
 						stop = true;
@@ -126,8 +129,9 @@ public class Controller {
 	public void menuCreateComputer() {
 		Computer computer = view.printInsertComputerAction();
 		try {
-			if(computerDAO.insert(computer) == 1)
-				view.print("\nInsert done");
+			if(computer != null )
+				if(computerDAO.insert(computer) == 1)
+					view.print("\nInsert done");
 		} catch (SQLException e) {
 			view.print("\nError on insert");
 		}
@@ -149,7 +153,19 @@ public class Controller {
 			// catch error if company is null, no need to print
 		}
 		
-		view.print(computer + " which reference company [" + company + "]");
+		view.print(computer + ", which reference company [" + company + "]");
+	}
+	
+	public void menuDeleteComputer() {
+		int id = view.printDeleteComputerAction();
+		try {
+			if(computerDAO.delete(id) == 1)
+				view.print("delete done.");
+			else
+				view.print("No computer to delete.");
+		} catch (SQLException e) {
+			view.print("\nError on deleting computer");
+		}
 	}
 	
 }// class

@@ -89,11 +89,8 @@ public class ComputerDAO {
         return DatabaseManager.getInstance().updateComputer(query, id, name, strDateIntro, strDateDiscon, compIdRef);
 	}
 	
-	public int delete(Computer comp) throws SQLException {
-		int id = comp.getId();
-		
+	public int delete(int id) throws SQLException {
 		String query = "DELETE FROM "+ TABLE_NAME + " WHERE id = ?";
-		
 		return DatabaseManager.getInstance().deleteComputer(query, id);
 	}
 }

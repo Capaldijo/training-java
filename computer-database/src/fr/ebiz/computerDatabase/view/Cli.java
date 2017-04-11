@@ -103,7 +103,25 @@ public class Cli {
 	}
 	
 	public int printShowDetailsAction() {
-		this.print("\nChoose a computer id to show details");
+		return this.getIntChoice("\nChoose a computer id to show details");
+	}
+	
+	public int printUpdateComputerAction() {
+		return 0;
+	}
+	
+	public int printDeleteComputerAction() {
+		return this.getIntChoice("\nChoose a computer id to delete");
+	}
+	
+	public void print(String msg){
+		System.out.println(msg);
+	}
+	
+	
+	
+	public int getIntChoice(String msg){
+		this.print(msg);
 		boolean correct = false;
 		int response = 0;
 		while(!correct){
@@ -117,17 +135,5 @@ public class Cli {
 		}
 		
 		return response;
-	}
-	
-	public int printUpdateComputerAction() {
-		return 0;
-	}
-	
-	public int printDeleteComputerAction() {
-		return 0;
-	}
-	
-	public void print(String msg){
-		System.out.println(msg);
 	}
 }
