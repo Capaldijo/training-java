@@ -99,7 +99,10 @@ public final class DatabaseManager {
 		prepStatement.setString(1, name);
 		prepStatement.setString(2, intro);
 		prepStatement.setString(3, discon);
-		prepStatement.setInt(4, compIdRef);
+		if(compIdRef != 0)
+			prepStatement.setInt(4, compIdRef);
+		else
+			prepStatement.setString(4, null);
 		return prepStatement.executeUpdate();
 	}
 	
@@ -108,7 +111,10 @@ public final class DatabaseManager {
 		prepStatement.setString(1, name);
 		prepStatement.setString(2, intro);
 		prepStatement.setString(3, discon);
-		prepStatement.setInt(4, compIdRef);
+		if(compIdRef != 0)
+			prepStatement.setInt(4, compIdRef);
+		else
+			prepStatement.setString(4, null);
 		prepStatement.setInt(5, id);
 		return prepStatement.executeUpdate();
 	}

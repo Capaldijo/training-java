@@ -200,6 +200,7 @@ public class Computer {
      */
 	public String toString() {
 		return "ID: " + this.id + "\nName: " + this.name + "\nIntroduced: "
-				+ this.introduced + "\nDiscontinued: " + this.discontinued ;
+				+ this.introduced + "\nDiscontinued: " + this.discontinued
+				+ "\nCompany_id: " + this.company_id;
 	}
 }

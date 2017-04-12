@@ -150,6 +150,7 @@ public class Controller {
 			logger.error("[INSERT] Error on getting invalid Company by its ID");
 		} catch (SQLException e) {
 			view.print("Error on insert");
+			e.printStackTrace();
 			logger.error("Error inserting Computer");
 		}
 	}
@@ -221,10 +222,11 @@ public class Controller {
 		try {
 			Computer computer = computerDAO.find(idComputer);
 			computer = view.printUpdateComputerAction(computer);
-			if(computerDAO.update(computer) == 1){
-				view.print("Update success");
-				logger.info("Update computer done.\n");
-			}
+			if(computer != null)
+				if(computerDAO.update(computer) == 1){
+					view.print("Update success");
+					logger.info("Update computer done.\n");
+				}
 		} catch (SQLException e) {
 			view.print("The computer you try to update does not exist.");
 			logger.error("Error selecting a computer that does not exist.");
@@ -238,7 +240,7 @@ public class Controller {
 		try {
 			if(computerDAO.delete(id) == 1){
 				view.print("delete done.");
-				logger.info("insert computer done.\n");
+				logger.info("delete computer done.\n");
 			}
 			else{
 				view.print("No computer to delete.");

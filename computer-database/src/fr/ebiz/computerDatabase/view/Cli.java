@@ -87,12 +87,12 @@ public class Cli {
 		LocalDateTime discon = stringToDate("\nDiscontinued date:");
 		
 		//discontinued date can not be before introduced one
-		while(discon.isBefore(intro)) {
+		while(intro != null && discon.isBefore(intro)) {
 			this.print("\nDiscontinued date can not be before introduce one.");
 			discon = stringToDate("\nEnter the discontinued date again:");
 		}
 		
-		int compIdRed = this.getIntChoice("\nEnter a company id reference: ");
+		int compIdRed = this.getIntChoice("\nEnter a company id reference (for a null company: 0): ");
 		
 		computer = new Computer(name, intro, discon, compIdRed);
 		
@@ -129,8 +129,20 @@ public class Cli {
 		
 		this.print("Here is the computer's info you want to update:");
 		this.print(computer.toString());
+		String changeName = null, changeDateIntro = null,
+				changeDateDsicon = null, changeCompIdRef = null;
 		
+		String newName = null;
+		LocalDateTime intro = null, discon = null;
+		int compIdRef = 0;
+		do{
+			changeName = getStringChoice("\nDo you want to change the name ?");
+			
+		}while(changeName == null || (!changeName.toLowerCase().equals("yes") && !changeName.toLowerCase().equals("no")));
 		
+		do{
+			changeDateIntro = getStringChoice("\nDo you want to change the introduced date ?");
+		}while(changeDateIntro == null || (!changeDateIntro.toLowerCase().equals("yes") && !changeDateIntro.toLowerCase().equals("no")));
 		
 		return null;
 	}
@@ -208,7 +220,10 @@ public class Cli {
 		this.print(msg);
 		LocalDateTime time = null;
 		while(time == null) {
-			int year = getIntChoice("Enter the year:");
+			int year = getIntChoice("Enter the year (for a null date: 0):");
+			if(year == 0)
+				return null;
+				
 			while( year<1970 || year>2020) {
 				this.print("\nYear is too old or too far in the future.");
 				year = getIntChoice("Enter the year again:");
