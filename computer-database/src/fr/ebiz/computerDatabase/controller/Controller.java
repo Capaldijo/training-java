@@ -64,15 +64,22 @@ public class Controller {
 		}
 	} // init
 	
+	/*
+	 * Get all the data from computer 10 by 10
+	 * let choose the user to previous or next ou quit
+	 */
 	private void menuListCompanies() {
 		try {
 			int numPage = 0;
 			List<Company> list = null;
 			boolean stop = false;
 			while(!stop){
+				// get 10 companies in the list
 				list = companyDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
+				
+				// if list is empty bc the user gone to far in pages, get to previous half full list
 				if(list.isEmpty() && numPage > 0){
-					logger.info("Next was selected but Company's list is Empty, getting back to last page.\n");
+					logger.info("Next was selected but Company's list is Empty, getting back to last page.");
 					numPage-=Utils.PAGEABLE_NBLINE;
 					list = companyDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
 				}
@@ -80,7 +87,7 @@ public class Controller {
 					case 1:
 						if(numPage > 0)
 							numPage-=Utils.PAGEABLE_NBLINE;
-						logger.info("Previous was selected but already at first page.\n");
+						logger.info("Previous was selected but already at first page.");
 						break;
 					case 2:
 						if(!list.isEmpty())
@@ -99,6 +106,10 @@ public class Controller {
 		}
 	}
 	
+	/*
+	 * Only print info about computers:
+	 * 	List, Show details, Update or Delete
+	 */
 	private void menuListComputer() {
 		/* ------ GET ALL COMPUTER ----- */
 		boolean stop = false;
@@ -136,8 +147,11 @@ public class Controller {
 		}
 	}
 	
+	/*
+	 * let the user create a computer
+	 */
 	private void menuCreateComputer() {
-		/* ------ INSERT COMPUTER ----- */
+
 		Computer computer = view.printInsertComputerAction();
 		try {
 			if(computer != null )
@@ -155,6 +169,10 @@ public class Controller {
 		}
 	}
 	
+	/*
+	 * Get all the data from computer 10 by 10
+	 * let choose the user to previous or next ou quit
+	 */
 	private void pageableListComputer(){
 		/*---- LIST COMPUTER WITH PAGEABLE FEATURE -----*/
 		try {
@@ -162,7 +180,10 @@ public class Controller {
 			List<Computer> list = null;
 			boolean stop = false;
 			while(!stop){
+				// get 10 computers in the list
 				list = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
+				
+				// if list is empty bc the user gone to far in pages, get to previous half full list
 				if(list.isEmpty() && numPage > 0){
 					logger.info("Next was selected but Computer's list is Empty, getting back to last page.");
 					numPage-=Utils.PAGEABLE_NBLINE;
@@ -172,7 +193,7 @@ public class Controller {
 					case 1:
 						if(numPage > 0)
 							numPage-=Utils.PAGEABLE_NBLINE;
-						logger.info("Previous was selected but already at first page.\n");
+						logger.info("Previous was selected but already at first page.");
 						break;
 					case 2:
 						if(!list.isEmpty())
@@ -192,6 +213,10 @@ public class Controller {
 		}
 	}
 	
+	/*
+	 * Let the user choose the computer id he wants 
+	 * to get details of and print it
+	 */
 	private void menuShowDetails() {
 
 		int id = view.printShowDetailsAction();
@@ -215,12 +240,17 @@ public class Controller {
 		}
 	}
 	
+	/*
+	 * Update a computer, ask the user which computer
+	 * he wants to update with which fields
+	 */
 	private void menuUpdateComputer() {
-		/* ------ UDPDATE COMPUTER ----- */
 
 		int idComputer = view.getIntChoice("\nChoose a computer id to update: ");
 		try {
+			// find the computer chosen
 			Computer computer = computerDAO.find(idComputer);
+			// ask the user what to edit
 			computer = view.printUpdateComputerAction(computer);
 			if(computer != null)
 				if(computerDAO.update(computer) == 1){
@@ -233,11 +263,15 @@ public class Controller {
 		}
 	}
 	
+	/*
+	 * Delete the computer that the user chose
+	 */
 	private void menuDeleteComputer() {
-		/* ------ DELETE COMPUTER ----- */
 		
+		// ask the user to chose an id
 		int id = view.printDeleteComputerAction();
 		try {
+			// if delete success print success
 			if(computerDAO.delete(id) == 1){
 				view.print("delete done.");
 				logger.info("delete computer done.\n");

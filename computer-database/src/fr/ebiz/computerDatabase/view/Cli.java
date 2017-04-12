@@ -129,22 +129,54 @@ public class Cli {
 		
 		this.print("Here is the computer's info you want to update:");
 		this.print(computer.toString());
-		String changeName = null, changeDateIntro = null,
-				changeDateDsicon = null, changeCompIdRef = null;
+		String choice = null;
 		
-		String newName = null;
+		String name = null;
 		LocalDateTime intro = null, discon = null;
 		int compIdRef = 0;
 		do{
-			changeName = getStringChoice("\nDo you want to change the name ?");
+			choice = getStringChoice("\nDo you want to change the name ?");
+			if(choice.toLowerCase().equals("yes")){
+				name = getStringChoice("\nEnter a new name:");
+				computer.setName(name);
+			}
+		}while(choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
+		
+		do{			
+			choice = null;
+			do{
+				choice = getStringChoice("\nDo you want to change the introduced date ?");
+				if(choice.toLowerCase().equals("yes")){
+					intro = stringToDate("\nEnter a new introduced date:");
+					computer.setIntroduced(intro);
+				}
+			}while(choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 			
-		}while(changeName == null || (!changeName.toLowerCase().equals("yes") && !changeName.toLowerCase().equals("no")));
+			choice = null;
+			do{
+				choice = getStringChoice("\nDo you want to change the discontinued date ?");
+				if(choice.toLowerCase().equals("yes")){
+					discon = stringToDate("\nEnter a new discontinued date:");
+					if(computer.getIntroduced() != null && discon.isBefore(intro)){
+						this.print("Discontinued can not be before introduced one");
+						choice=null;
+					}
+					computer.setDiscontinued(discon);
+				}
+			}while(choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
+		}while((computer.getIntroduced() != null && computer.getDiscontinued() != null)
+				&& computer.getIntroduced().isAfter(computer.getDiscontinued()));
 		
+		choice = null;
 		do{
-			changeDateIntro = getStringChoice("\nDo you want to change the introduced date ?");
-		}while(changeDateIntro == null || (!changeDateIntro.toLowerCase().equals("yes") && !changeDateIntro.toLowerCase().equals("no")));
+			choice = getStringChoice("\nDo you want to change the company ref id ?");
+			if(choice.toLowerCase().equals("yes")){
+				compIdRef = getIntChoice("\nEnter a new company ref id (for a null company: 0):");
+				computer.setCompany_id(compIdRef);
+			}
+		}while(choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 		
-		return null;
+		return computer;
 	}
 	
 	/*

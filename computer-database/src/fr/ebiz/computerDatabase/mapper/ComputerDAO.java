@@ -28,7 +28,7 @@ public class ComputerDAO {
 		ResultSet resultat = DatabaseManager.getInstance().getComputerById(query, idComp);
 		resultat.next();
         
-        Computer comp = fromDBToComputer(resultat);
+        Computer comp = this.fromDBToComputer(resultat);
 		
 		return comp;
 	}
