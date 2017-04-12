@@ -44,8 +44,8 @@ public class Cli {
 	
 	/*
 	 * SubMenu for Computers. User can choose between list them
-	 * show details of one computer choosen 
-	 * update a computer choosen, delete a computer  
+	 * show details of one computer chosen 
+	 * update a computer chosen, delete a computer  
 	 * and return a int depending the user's choice
 	 */
 	public int printSubMenuComputers() throws SQLException {

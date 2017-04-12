@@ -27,7 +27,7 @@ public final class DatabaseManager {
 		super();
 		
 		try {
-			/* Chargement du driver JDBC pour MySQL */
+			/* Loading driver JDBC for MySQL */
 			Class.forName( "com.mysql.jdbc.Driver" );
 			
 			Properties props = new Properties();
