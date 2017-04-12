@@ -2,6 +2,9 @@ package fr.ebiz.computerDatabase.model;
 
 import java.time.LocalDateTime;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * <b>Computer is the class representing a computer in the database.</b>
@@ -22,6 +25,8 @@ import java.time.LocalDateTime;
  */
 public class Computer {
 
+	final Logger logger = LoggerFactory.getLogger(Computer.class);
+	
 	/**
      * The Computer's ID, that can't be changed.
      * 
@@ -124,6 +129,7 @@ public class Computer {
      *            The new Computer's name.
      */
 	public void setName(String name) {
+		logger.debug("Name set to {}. Old name was {}.", name, this.name);
 		this.name = name;
 	}
 
@@ -143,6 +149,7 @@ public class Computer {
      *            The new Computer's introduced date.
      */
 	public void setIntroduced(LocalDateTime introduced) {
+		logger.debug("Introduced date set to {}. Old date was {}.", introduced, this.introduced);
 		this.introduced = introduced;
 	}
 
@@ -162,6 +169,7 @@ public class Computer {
      *            The new Computer's discontinued date.
      */
 	public void setDiscontinued(LocalDateTime discontinued) {
+		logger.debug("Discontinued date set to {}. Old date was {}.", discontinued, this.discontinued);
 		this.discontinued = discontinued;
 	}
 
@@ -181,6 +189,7 @@ public class Computer {
      *            The new Company referenced ID.
      */
 	public void setCompany_id(int company_id) {
+		logger.debug("Company_id set to {}. Old company_id was {}.", company_id, this.company_id);
 		this.company_id = company_id;
 	}
 	
@@ -191,7 +200,6 @@ public class Computer {
      */
 	public String toString() {
 		return "ID: " + this.id + "\nName: " + this.name + "\nIntroduced: "
-				+ this.introduced + "\nDiscontinued: " + this.discontinued +
-				"\nCompany_id: " + this.company_id;
+				+ this.introduced + "\nDiscontinued: " + this.discontinued ;
 	}
 }

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.InputMismatchException;
+import java.util.List;
 import java.util.Scanner;
 
 import fr.ebiz.computerDatabase.model.Computer;
@@ -14,6 +15,11 @@ public class Cli {
 	
 	public Cli() {}
 	
+	/* 
+	 * Top menu in which we choose between list companies
+	 * list computers, create a computer or quit
+	 * and return the user's choice
+	 */
 	public int printMenu() {
 		while(true){
 			this.print("\n---- Menu Principal ----");
@@ -31,37 +37,18 @@ public class Cli {
 				case "4":
 					return 4;
 			default:
-					this.print("Please, choose between 1 to 4.\n");
+					this.print("Please, choose between 1 to 4.");
 			}
 		}
 	}
 	
-	public void printSubMenuCompanies(ResultSet companies) throws SQLException {
-		boolean stop = false;
-		while(!stop){
-			this.print("\n---- SubMenu Companies Listing ----");
-			this.print("1) List\n" + "2) Quit");
-			Scanner sc = new Scanner(System.in);
-			switch(sc.next()){
-				case "1":
-					while(companies.next()) {
-						int id = companies.getInt(Utils.COLUMN_ID);
-						String name = companies.getString(Utils.COLUMN_NAME);
-						
-						this.print("id: " + id + ", name: " + name);
-					}
-					break;
-				case "2":
-					this.print("Returning to top menu");;
-					stop = true;
-					break;
-			default:
-					this.print("Please, choose a correct answer.");
-			}
-		}
-	}
-	
-	public int printSubMenuComputers(ResultSet computers) throws SQLException {
+	/*
+	 * SubMenu for Computers. User can choose between list them
+	 * show details of one computer choosen 
+	 * update a computer choosen, delete a computer  
+	 * and return a int depending the user's choice
+	 */
+	public int printSubMenuComputers() throws SQLException {
 		while(true){
 			this.print("\n---- SubMenu Computer Listing ----");
 			this.print("1) List\n" +"2) Show computer details\n"+ 
@@ -69,33 +56,27 @@ public class Cli {
 			Scanner sc = new Scanner(System.in);
 			switch(sc.next()){
 				case "1":
-					while(computers.next()) {
-						int id = computers.getInt(Utils.COLUMN_ID);
-						String name = computers.getString(Utils.COLUMN_NAME);
-						String intro = computers.getString(Utils.COLUMN_INTRODUCED);
-						String discon = computers.getString(Utils.COLUMN_DISCONTINUED);
-						int company_id = computers.getInt(Utils.COLUMN_COMPANYID);
-						
-						this.print("id: " + id + ", name: " + name + 
-								", introduced: " + intro + ", discontinued: " +
-								discon + ", company_id: " + company_id);
-					}
-					break;
-				case "2":
 					return 1;
-				case "3":
+				case "2":
 					return 2;
-				case "4":
+				case "3":
 					return 3;
+				case "4":
+					return 4;
 				case "5":
 					this.print("Returning to top menu");;
-					return 4;
+					return 5;
 				default:
 					this.print("Please, choose a correct answer.");
 			}
 		}
 	}
 	
+	/*
+	 * Create a computer, enter its name, introduce and 
+	 * discontinued date, and its referenced company id
+	 * return the computer constructed by those fields
+	 */
 	public Computer printInsertComputerAction() {
 		Computer computer = null;;
 		
@@ -104,10 +85,13 @@ public class Cli {
 		String name = this.getStringChoice("\nEnter a name:");
 		LocalDateTime intro = stringToDate("\nIntroduced date:");
 		LocalDateTime discon = stringToDate("\nDiscontinued date:");
+		
+		//discontinued date can not be before introduced one
 		while(discon.isBefore(intro)) {
 			this.print("\nDiscontinued date can not be before introduce one.");
 			discon = stringToDate("\nEnter the discontinued date again:");
 		}
+		
 		int compIdRed = this.getIntChoice("\nEnter a company id reference: ");
 		
 		computer = new Computer(name, intro, discon, compIdRed);
@@ -115,23 +99,69 @@ public class Cli {
 		return computer;
 	}
 	
+	/*
+	 * Print all the List's element
+	 * And ask the user what he wants to do (Previous, Next, Quit)
+	 * 
+	 * return the user choice
+	 */
+	public int printPageableList(List<?> list){
+		for(Object elmt : list){
+			System.out.println(elmt.toString()+"\n\n--------------------------\n");
+		}
+		return getIntChoice("1) Previous   | 2) Next    | 3) Quit");
+	}
+	
+	/*
+	 * Ask the user to choose the ID of the computer
+	 * he wants to show details 
+	 * 
+	 * return the user's choice
+	 */
 	public int printShowDetailsAction() {
 		return this.getIntChoice("\nChoose a computer id to show details: ");
 	}
 	
-	public int printUpdateComputerAction() {
-		return 0;
+	/*
+	 * 
+	 */
+	public Computer printUpdateComputerAction(Computer computer) {
+		
+		this.print("Here is the computer's info you want to update:");
+		this.print(computer.toString());
+		
+		
+		
+		return null;
 	}
 	
+	/*
+	 * Ask the user to choose the ID of the computer
+	 * he wants to delete
+	 * 
+	 * return the user's choice
+	 */
 	public int printDeleteComputerAction() {
 		return this.getIntChoice("\nChoose a computer id to delete: ");
 	}
 	
+	/*
+	 * only print message when called by other classes
+	 * because only View is supposed to print messages
+	 */
 	public void print(String msg){
 		System.out.println(msg);
 	}
 	
-	
+	/*
+	 * Ask the user to enter a answer of type int
+	 * It keeps asking him if not type int
+	 * 
+	 * The string parameter is here only here to be print
+	 * nothing special
+	 * 
+	 * return the user's answer
+	 */
 	public int getIntChoice(String msg) {
 		this.print(msg);
 		boolean correct = false;
@@ -149,12 +179,31 @@ public class Cli {
 		return response;
 	}
 	
+	/*
+	 * Ask the user to enter a answer of type String
+	 * 
+	 * The string parameter is here only here to be print
+	 * nothing special
+	 * 
+	 * return the user's answer
+	 */
 	public String getStringChoice(String msg) {
 		this.print(msg);
 		Scanner sc = new Scanner(System.in);
 		return sc.next();
 	}
 	
+	/*
+	 * Method that ask the user the year, month, day,
+	 * hour and minute in order to build a LocalDateTime
+	 * object for the computer.
+	 * 
+	 * The string parameter is here only here to be print
+	 * nothing special
+	 * 
+	 * Return the LocalDateTime object built by
+	 * the user's given answers
+	 */
 	public LocalDateTime stringToDate(String msg) {
 		this.print(msg);
 		LocalDateTime time = null;

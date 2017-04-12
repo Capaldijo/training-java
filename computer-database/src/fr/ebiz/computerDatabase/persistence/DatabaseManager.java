@@ -66,11 +66,18 @@ public final class DatabaseManager {
     }
 	
 	
-	/* ----- COMPANY REQUEST PART ----- */
-	
-	public ResultSet getCompanies(String query) throws SQLException {
+	public ResultSet execQuery(String query) throws SQLException {
 	    return statement.executeQuery(query);
 	}
+	
+	public ResultSet execQueryPageable(String query, int numPage, int nbLine) throws SQLException {
+		PreparedStatement prepStatement = (PreparedStatement) connexion.prepareStatement(query);
+		prepStatement.setInt(1, numPage);
+		prepStatement.setInt(2, nbLine);
+		return prepStatement.executeQuery();
+	}
+	
+	/* ----- COMPANY REQUEST PART ----- */
 	
 	public ResultSet getCompanyById(String query, int id) throws SQLException {
 		PreparedStatement prepStatement = (PreparedStatement) connexion.prepareStatement(query);
@@ -80,10 +87,6 @@ public final class DatabaseManager {
 	
 	
 	/* ----- COMPUTER REQUEST PART ----- */
-	
-	public ResultSet getComputers(String query) throws SQLException {
-		return statement.executeQuery(query);
-	}
 	
 	public ResultSet getComputerById(String query, int id) throws SQLException {
 		PreparedStatement prepStatement = (PreparedStatement) connexion.prepareStatement(query);

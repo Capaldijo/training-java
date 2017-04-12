@@ -1,5 +1,8 @@
 package fr.ebiz.computerDatabase.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
   * <b>Company is the class representing a company in the database.</b>
   * <p>
@@ -13,6 +16,8 @@ package fr.ebiz.computerDatabase.model;
   * @author jojo
   */
 public class Company {
+	
+	final Logger logger = LoggerFactory.getLogger(Company.class);
 	
 	/**
       * The Company's ID, that can't be changed.
@@ -74,6 +79,7 @@ public class Company {
      *            The new Company's name.
      */
 	public void setName(String name) {
+		logger.debug("Name set to {}. Old name was {}.", name, this.name);
 		this.name = name;
 	}
 	
