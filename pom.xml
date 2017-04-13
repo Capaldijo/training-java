@@ -5,4 +5,29 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>war</packaging>
   <name>computer-database</name>
+ 
+  <reporting>
+    <plugin>
+ 		<groupId>org.apache.maven.plugins</groupId>
+ 		<artifactId>maven-checkstyle-plugin</artifactId>
+ 		<version>2.16</version>
+ 		<dependencies>
+  			<dependency>
+   				<groupId>com.puppycrawl.tools</groupId>
+   				<artifactId>checkstyle</artifactId>
+   				<version>6.9</version>
+  			</dependency>
+  			<dependency>
+   				<groupId>{groupId}</groupId>
+   				<artifactId>build-tools</artifactId>
+   				<version>{version}</version>
+  			</dependency>
+ 		</dependencies>
+ 		<configuration>
+  			<configLocation>checkstyle/checkstyle.xml</configLocation>
+  			<suppressionsLocation>checkstyle/suppressions.xml</suppressionsLocation>
+  			<propertyExpansion>checkstyle.suppressions.file=${checkstyle.suppressions.file}</propertyExpansion>
+ 		</configuration>
+	</plugin>
+  </reporting>
 </project>
