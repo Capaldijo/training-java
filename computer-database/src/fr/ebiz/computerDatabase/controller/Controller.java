@@ -87,7 +87,8 @@ public class Controller {
 					case 1:
 						if(numPage > 0)
 							numPage-=Utils.PAGEABLE_NBLINE;
-						logger.info("Previous was selected but already at first page.");
+						else
+							logger.info("Previous was selected but already at first page.");
 						break;
 					case 2:
 						if(!list.isEmpty())
@@ -193,7 +194,8 @@ public class Controller {
 					case 1:
 						if(numPage > 0)
 							numPage-=Utils.PAGEABLE_NBLINE;
-						logger.info("Previous was selected but already at first page.");
+						else
+							logger.info("Previous was selected but already at first page.");
 						break;
 					case 2:
 						if(!list.isEmpty())

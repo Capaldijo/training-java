@@ -18,6 +18,7 @@ public class ComputerDAO {
 	private String TABLE_NAME;
 	
 	public ComputerDAO() {
+		// formatter for the LocalDateTime computer's fields
 		formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
 		TABLE_NAME = Utils.COMPUTER_TABLE;
 	}
@@ -38,6 +39,12 @@ public class ComputerDAO {
 		return DatabaseManager.getInstance().execQuery(query);
 	}
 	
+	/*
+	 * Following the parameters, build a query that get 
+	 * only 10nth lines of the Computer's table and return them
+	 * 
+	 * Return a list of 10 Computer
+	 */
 	public List<Computer> findByPage(int numPage, int nbLine) throws SQLException {
 		String query = "SELECT * FROM " + TABLE_NAME + " LIMIT ?, ?";
 		ResultSet resultat = DatabaseManager.getInstance().execQueryPageable(query, numPage, nbLine);
@@ -50,6 +57,13 @@ public class ComputerDAO {
 		return list;
 	}
 	
+	/*
+	 * Insert the computer given in parameter
+	 * into the database. Get each of its parameters
+	 * in order to build the query.
+	 * 
+	 *  return the result of the query.
+	 */
 	public int insert(Computer comp) throws SQLException {
 		String name = comp.getName();
         LocalDateTime dateIntro = comp.getIntroduced();
@@ -69,6 +83,13 @@ public class ComputerDAO {
         return DatabaseManager.getInstance().insertComputer(query, name, strDateIntro, strDateDiscon, compIdRef);
 	}
 	
+	/*
+	 * Update the computer given in parameter
+	 * into the database. Get each of its parameters
+	 * in order to build the query.
+	 * 
+	 *  return the result of the query.
+	 */
 	public int update(Computer comp) throws SQLException {
 		int id = comp.getId();
 		String name = comp.getName();
@@ -94,6 +115,12 @@ public class ComputerDAO {
 		return DatabaseManager.getInstance().deleteComputer(query, id);
 	}
 	
+	/*
+	 * get a computer from the database and build it
+	 * as an instance of Computer class
+	 * 
+	 * return a Computer object
+	 */
 	public Computer fromDBToComputer(ResultSet resultat) throws SQLException {
 		int id = resultat.getInt(Utils.COLUMN_ID);
         String name = resultat.getString(Utils.COLUMN_NAME);

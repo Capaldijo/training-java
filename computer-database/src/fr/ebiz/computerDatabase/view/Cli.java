@@ -1,6 +1,5 @@
 package fr.ebiz.computerDatabase.view;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
@@ -9,11 +8,14 @@ import java.util.List;
 import java.util.Scanner;
 
 import fr.ebiz.computerDatabase.model.Computer;
-import fr.ebiz.computerDatabase.utils.Utils;
 
 public class Cli {
 	
-	public Cli() {}
+	private Scanner sc;
+	
+	public Cli() {
+		sc = new Scanner(System.in);
+	}
 	
 	/* 
 	 * Top menu in which we choose between list companies
@@ -26,15 +28,15 @@ public class Cli {
 			this.print("1) List companies\n"
 					+ "2) List computers\n" + "3) Create Computer\n"
 					+ "4) Quit");
-			Scanner sc = new Scanner(System.in);
 			switch(sc.next()){
-				case "1":
+				case "1": // List Companies
 					return 1;
-				case "2":
+				case "2": // List computers
 					return 2;
-				case "3":
+				case "3": // Create computer
 					return 3;
-				case "4":
+				case "4": // Quit
+					sc.close();
 					return 4;
 			default:
 					this.print("Please, choose between 1 to 4.");
@@ -53,7 +55,6 @@ public class Cli {
 			this.print("\n---- SubMenu Computer Listing ----");
 			this.print("1) List\n" +"2) Show computer details\n"+ 
 					"3) Update computer\n" + "4) Delete computer\n" + "5) Quit");
-			Scanner sc = new Scanner(System.in);
 			switch(sc.next()){
 				case "1":
 					return 1;
@@ -123,7 +124,11 @@ public class Cli {
 	}
 	
 	/*
+	 * Ask the user for each fields except the ID,
+	 * if he wants to change them. After that, return
+	 * the computer
 	 * 
+	 * return the Computer
 	 */
 	public Computer printUpdateComputerAction(Computer computer) {
 		
@@ -142,7 +147,7 @@ public class Cli {
 			}
 		}while(choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 		
-		do{			
+		do{ // check in the db if introduced date is before discontinued one			
 			choice = null;
 			do{
 				choice = getStringChoice("\nDo you want to change the introduced date ?");
@@ -211,15 +216,19 @@ public class Cli {
 		boolean correct = false;
 		int response = 0;
 		while(!correct){
-			Scanner sc = new Scanner(System.in);
 			try{
-				response = sc.nextInt();
-				correct=true;
+				if(sc.hasNextInt()){
+					response = sc.nextInt();
+					correct=true;
+				}
+				else{
+					this.print("Please, choose a correct answer.");
+					sc.nextLine();
+				}
 			}catch (InputMismatchException ime){
 				this.print("Please, choose a correct answer.");
 			}
 		}
-		
 		return response;
 	}
 	
@@ -233,8 +242,7 @@ public class Cli {
 	 */
 	public String getStringChoice(String msg) {
 		this.print(msg);
-		Scanner sc = new Scanner(System.in);
-		return sc.next();
+		return sc.nextLine();
 	}
 	
 	/*
