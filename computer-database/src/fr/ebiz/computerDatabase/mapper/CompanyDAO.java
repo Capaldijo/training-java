@@ -38,6 +38,12 @@ public class CompanyDAO {
 		return comp;
 	}
 
+	/*
+	 * Following the parameters, build a query that get 
+	 * only 10nth lines of the Company's table and return them
+	 * 
+	 * Return a list of 10 Company
+	 */
 	public List<Company> findByPage(int numPage, int nbLine) throws SQLException {
 		String query = "SELECT * FROM " + TABLE_NAME + " LIMIT ?, ?";
 		ResultSet resultat = DatabaseManager.getInstance().execQueryPageable(query, numPage, nbLine);
@@ -50,6 +56,12 @@ public class CompanyDAO {
 		return list;
 	}
 	
+	/*
+	 * get a computer from the database and build it
+	 * as an instance of Company class
+	 * 
+	 * return a Computer object
+	 */
 	public Company fromDBToComputer(ResultSet resultat) throws SQLException {
 		int id = resultat.getInt(Utils.COLUMN_ID);
         String name = resultat.getString(Utils.COLUMN_NAME);

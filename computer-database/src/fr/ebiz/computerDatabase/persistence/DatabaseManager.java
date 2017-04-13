@@ -30,6 +30,11 @@ public final class DatabaseManager {
 			/* Loading driver JDBC for MySQL */
 			Class.forName( "com.mysql.jdbc.Driver" );
 			
+			/* 
+			 * setting properties for the connection
+			 * useSSL set to false or else it does not connect
+			 * zeroDateTimeBehavior to avoid error with null date
+			 */
 			Properties props = new Properties();
 			props.setProperty("user", Utils.userDB);
 			props.setProperty("password", Utils.passwdDB);
@@ -125,7 +130,7 @@ public final class DatabaseManager {
 		return prepStatement.executeUpdate();
 	}
 	
-	// Close first 
+	// Close first statement then connection
 	public void closeAll() throws SQLException {
 		statement.close();
         connexion.close();

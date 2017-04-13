@@ -88,7 +88,7 @@ public class Cli {
 		LocalDateTime discon = stringToDate("\nDiscontinued date:");
 		
 		//discontinued date can not be before introduced one
-		while(intro != null && discon.isBefore(intro)) {
+		while((intro != null && discon != null) && discon.isBefore(intro)) {
 			this.print("\nDiscontinued date can not be before introduce one.");
 			discon = stringToDate("\nEnter the discontinued date again:");
 		}

@@ -84,17 +84,17 @@ public class Controller {
 					list = companyDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
 				}
 				switch(view.printPageableList(list)){
-					case 1:
+					case 1: // Previous Page
 						if(numPage > 0)
 							numPage-=Utils.PAGEABLE_NBLINE;
 						else
 							logger.info("Previous was selected but already at first page.");
 						break;
-					case 2:
+					case 2: // Next Page
 						if(!list.isEmpty())
 							numPage+=Utils.PAGEABLE_NBLINE;
 						break;
-					case 3:
+					case 3: // Quit
 						stop = true;
 						break;
 					default:
@@ -191,17 +191,17 @@ public class Controller {
 					list = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
 				}
 				switch(view.printPageableList(list)){
-					case 1:
+					case 1: // Previous Page
 						if(numPage > 0)
 							numPage-=Utils.PAGEABLE_NBLINE;
 						else
 							logger.info("Previous was selected but already at first page.");
 						break;
-					case 2:
+					case 2: // Next Page
 						if(!list.isEmpty())
 							numPage+=Utils.PAGEABLE_NBLINE;
 						break;
-					case 3:
+					case 3: // Quit
 						stop = true;
 						break;
 					default:
@@ -251,14 +251,22 @@ public class Controller {
 		int idComputer = view.getIntChoice("\nChoose a computer id to update: ");
 		try {
 			// find the computer chosen
-			Computer computer = computerDAO.find(idComputer);
+			Computer oldComputer = computerDAO.find(idComputer);
 			// ask the user what to edit
-			computer = view.printUpdateComputerAction(computer);
-			if(computer != null)
-				if(computerDAO.update(computer) == 1){
-					view.print("Update success");
-					logger.info("Update computer done.\n");
+			Computer newComputer = view.printUpdateComputerAction(oldComputer);
+			if(newComputer != null)
+				if(newComputer.equals(oldComputer))
+					view.print("Nothing to Update.");
+				 else{
+					if(computerDAO.update(newComputer) == 1){
+						view.print("Update success");
+						logger.info("Update computer done.\n");
+					} else{
+						view.print("Update error");
+						logger.info("Update computer error.\n");
+					}
 				}
+					
 		} catch (SQLException e) {
 			view.print("The computer you try to update does not exist.");
 			logger.error("Error selecting a computer that does not exist.");
