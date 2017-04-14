@@ -25,49 +25,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Computer {
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + company_id;
-		result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
-		result = prime * result + id;
-		result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
-		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Computer other = (Computer) obj;
-		if (company_id != other.company_id)
-			return false;
-		if (discontinued == null) {
-			if (other.discontinued != null)
-				return false;
-		} else if (!discontinued.equals(other.discontinued))
-			return false;
-		if (id != other.id)
-			return false;
-		if (introduced == null) {
-			if (other.introduced != null)
-				return false;
-		} else if (!introduced.equals(other.introduced))
-			return false;
-		if (name == null) {
-			if (other.name != null)
-				return false;
-		} else if (!name.equals(other.name))
-			return false;
-		return true;
-	}
-
 	final Logger logger = LoggerFactory.getLogger(Computer.class);
 	
 	/**
@@ -76,7 +33,7 @@ public class Computer {
      * @see Computer#Computer(int, String, LocalDateTime, LocalDateTime, int)
      * @see Computer#getId()
      */
-	private int id;
+	private Long id;
 	
 	/**
      * The Computer's name, that can be change.
@@ -138,7 +95,7 @@ public class Computer {
      * @see Company#id
      * @see Company#name
      */
-	public Computer(int id, String name, LocalDateTime intro,
+	public Computer(Long id, String name, LocalDateTime intro,
 			LocalDateTime discon, int company_id) {
 		this.id = id;
 		this.name = name;
@@ -152,7 +109,7 @@ public class Computer {
      * 
      * @return Computer's ID. 
      */
-	public int getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -241,9 +198,57 @@ public class Computer {
      * 
      * @return Computer to String. 
      */
+	@Override
 	public String toString() {
 		return "ID: " + this.id + "\nName: " + this.name + "\nIntroduced: "
 				+ this.introduced + "\nDiscontinued: " + this.discontinued
 				+ "\nCompany_id: " + this.company_id;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + company_id;
+		result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Computer other = (Computer) obj;
+		if (company_id != other.company_id)
+			return false;
+		if (discontinued == null) {
+			if (other.discontinued != null)
+				return false;
+		} else if (!discontinued.equals(other.discontinued))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (introduced == null) {
+			if (other.introduced != null)
+				return false;
+		} else if (!introduced.equals(other.introduced))
+			return false;
+		if (name == null) {
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		return true;
+	}
+
 }

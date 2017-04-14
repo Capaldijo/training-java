@@ -24,21 +24,18 @@ public class CompanyDAO {
 	
 	public ResultSet findAll() throws SQLException{
 		String query = "SELECT * FROM " + TABLE_NAME;
-		return this.execQuery(query);
+		return coMysql.createStatement().executeQuery(query);
 	}
 	
-	public Company find(int id) throws SQLException {
+	public ResultSet find(int id) throws SQLException {
 		String query = "SELECT * FROM "+ TABLE_NAME +" WHERE id = ?";
 		
-		ResultSet resultat = this.getCompanyById(query, id);
-		resultat.next();
+		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
+		prepStatement.setInt(1, id);
 		
-		int idComp = resultat.getInt(Utils.COLUMN_ID);
-        String name = resultat.getString(Utils.COLUMN_NAME);
-        
-        Company comp = new Company(idComp, name);
+		ResultSet resultat = prepStatement.executeQuery();
 		
-		return comp;
+		return resultat;
 	}
 
 	/*
@@ -53,20 +50,10 @@ public class CompanyDAO {
 		return resultat;
 	}
 	
-	public ResultSet execQuery(String query) throws SQLException {
-	    return coMysql.createStatement().executeQuery(query);
-	}
-	
 	public ResultSet execQueryPageable(String query, int numPage, int nbLine) throws SQLException {
 		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
 		prepStatement.setInt(1, numPage);
 		prepStatement.setInt(2, nbLine);
-		return prepStatement.executeQuery();
-	}
-	
-	public ResultSet getCompanyById(String query, int id) throws SQLException {
-		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
-		prepStatement.setInt(1, id);
 		return prepStatement.executeQuery();
 	}
 }

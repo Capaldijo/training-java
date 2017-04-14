@@ -38,7 +38,7 @@ public class ComputerDAO {
 	
 	public ResultSet findAll() throws SQLException {
 		String query = "SELECT * FROM " + TABLE_NAME;
-		return this.execQuery(query);
+		return coMysql.createStatement().executeQuery(query);
 	}
 	
 	/*
@@ -49,7 +49,12 @@ public class ComputerDAO {
 	 */
 	public ResultSet findByPage(int numPage, int nbLine) throws SQLException {
 		String query = "SELECT * FROM " + TABLE_NAME + " LIMIT ?, ?";
-		ResultSet resultat = this.execQueryPageable(query, numPage, nbLine);
+		
+		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
+		prepStatement.setInt(1, numPage);
+		prepStatement.setInt(2, nbLine);
+		
+		ResultSet resultat = prepStatement.executeQuery();
 		
 		return resultat;
 	}
@@ -62,6 +67,34 @@ public class ComputerDAO {
 	 *  return the result of the query.
 	 */
 	public int insert(Computer comp) throws SQLException {
+		return this.insertOrUpdate(comp,0);
+	}
+	
+	/*
+	 * Update the computer given in parameter
+	 * into the database. Get each of its parameters
+	 * in order to build the query.
+	 * 
+	 *  return the result of the query.
+	 */
+	public int update(Computer comp) throws SQLException {
+		return this.insertOrUpdate(comp,1);
+	}
+	
+	public int delete(int id) throws SQLException {
+		String query = "DELETE FROM "+ TABLE_NAME + " WHERE id = ?";
+		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
+		prepStatement.setInt(1, id);
+		return prepStatement.executeUpdate();
+	}
+	
+	public ResultSet getComputerById(String query, int id) throws SQLException {
+		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
+		prepStatement.setInt(1, id);
+		return prepStatement.executeQuery();
+	}
+	
+	public int insertOrUpdate(Computer comp, int typeOfRequest) throws SQLException {
 		String name = comp.getName();
         LocalDateTime dateIntro = comp.getIntroduced();
 		LocalDateTime dateDiscon = comp.getDiscontinued();
@@ -75,88 +108,24 @@ public class ComputerDAO {
         if(dateDiscon != null)
             strDateDiscon = dateDiscon.format(formatter);
         
-        String query = "INSERT INTO " + TABLE_NAME + " (name,introduced,discontinued,company_id) VALUES (?, ?, ?, ?)";
+        String query = null;
+        if(typeOfRequest == 0)// if Insert
+        	query = "INSERT INTO " + TABLE_NAME + " (name,introduced,discontinued,company_id) VALUES (?, ?, ?, ?)";
+        else
+        	 query = "UPDATE " + TABLE_NAME + " SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
         
-        return this.insertComputer(query, name, strDateIntro, strDateDiscon, compIdRef);
-	}
-	
-	/*
-	 * Update the computer given in parameter
-	 * into the database. Get each of its parameters
-	 * in order to build the query.
-	 * 
-	 *  return the result of the query.
-	 */
-	public int update(Computer comp) throws SQLException {
-		int id = comp.getId();
-		String name = comp.getName();
-        LocalDateTime dateIntro = comp.getIntroduced();
-		LocalDateTime dateDiscon = comp.getDiscontinued();
-        int compIdRef = comp.getCompany_id();
-        
-        String strDateIntro = null, strDateDiscon = null;
-        
-        if(dateIntro != null)
-            strDateIntro = dateIntro.format(formatter);
-        
-        if(dateDiscon != null) 
-            strDateDiscon = dateDiscon.format(formatter);
-            
-        String query = "UPDATE " + TABLE_NAME + " SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
-        
-        return this.updateComputer(query, id, name, strDateIntro, strDateDiscon, compIdRef);
-	}
-	
-	public int delete(int id) throws SQLException {
-		String query = "DELETE FROM "+ TABLE_NAME + " WHERE id = ?";
-		return this.deleteComputer(query, id);
-	}
-	
-	public ResultSet execQuery(String query) throws SQLException {
-	    return coMysql.createStatement().executeQuery(query);
-	}
-	
-	public ResultSet execQueryPageable(String query, int numPage, int nbLine) throws SQLException {
-		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
-		prepStatement.setInt(1, numPage);
-		prepStatement.setInt(2, nbLine);
-		return prepStatement.executeQuery();
-	}
-	
-	public ResultSet getComputerById(String query, int id) throws SQLException {
-		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
-		prepStatement.setInt(1, id);
-		return prepStatement.executeQuery();
-	}
-	
-	public int insertComputer(String query, String name, String intro, String discon, int compIdRef) throws SQLException {
-		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
+        PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
 		prepStatement.setString(1, name);
-		prepStatement.setString(2, intro);
-		prepStatement.setString(3, discon);
+		prepStatement.setString(2, strDateIntro);
+		prepStatement.setString(3, strDateDiscon);
 		if(compIdRef != 0)
 			prepStatement.setInt(4, compIdRef);
 		else
 			prepStatement.setString(4, null);
+		
+		if(typeOfRequest != 0)// if Update we have one more parameter
+			prepStatement.setLong(5, comp.getId());
 		return prepStatement.executeUpdate();
 	}
 	
-	public int updateComputer(String query, int id, String name, String intro, String discon, int compIdRef) throws SQLException {
-		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
-		prepStatement.setString(1, name);
-		prepStatement.setString(2, intro);
-		prepStatement.setString(3, discon);
-		if(compIdRef != 0)
-			prepStatement.setInt(4, compIdRef);
-		else
-			prepStatement.setString(4, null);
-		prepStatement.setInt(5, id);
-		return prepStatement.executeUpdate();
-	}
-	
-	public int deleteComputer(String query, int id) throws SQLException {
-		PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
-		prepStatement.setInt(1, id);
-		return prepStatement.executeUpdate();
-	}
 }

@@ -22,6 +22,6 @@ public interface Utils {
 	
 	public final String COLUMN_COMPANYID = "company_id";
 	
-	public final int PAGEABLE_NBLINE = 10;
+	public final int PAGEABLE_NBLINE = 12;
 
 }

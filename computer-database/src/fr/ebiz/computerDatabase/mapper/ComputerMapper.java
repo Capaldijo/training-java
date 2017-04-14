@@ -10,9 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.ebiz.computerDatabase.model.Company;
 import fr.ebiz.computerDatabase.model.Computer;
-import fr.ebiz.computerDatabase.service.Service;
 import fr.ebiz.computerDatabase.utils.Utils;
 
 public class ComputerMapper {
@@ -33,7 +31,7 @@ public class ComputerMapper {
 	 * return a Computer object
 	 */
 	public Computer fromDBToComputer(ResultSet resultat) throws SQLException {
-		int id = resultat.getInt(Utils.COLUMN_ID);
+		Long id = resultat.getLong(Utils.COLUMN_ID);
         String name = resultat.getString(Utils.COLUMN_NAME);
         String strDateIntro = resultat.getString(Utils.COLUMN_INTRODUCED);
         String strDateDiscon = resultat.getString(Utils.COLUMN_DISCONTINUED);

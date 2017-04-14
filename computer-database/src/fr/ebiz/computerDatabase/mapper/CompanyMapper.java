@@ -24,7 +24,7 @@ public class CompanyMapper {
 	 * return a company object
 	 */
 	public Company fromDBToCompany(ResultSet resultat) throws SQLException {
-		int id = resultat.getInt(Utils.COLUMN_ID);
+		Long id = resultat.getLong(Utils.COLUMN_ID);
         String name = resultat.getString(Utils.COLUMN_NAME);
         
 		return new Company(id, name);

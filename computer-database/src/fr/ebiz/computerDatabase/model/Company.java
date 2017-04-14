@@ -25,7 +25,7 @@ public class Company {
       * @see Company#Company(int, String)
       * @see Company#getId()
       */
-	private int id;
+	private Long id;
 	
 	/**
       * The Company's name, that can be change.
@@ -49,7 +49,7 @@ public class Company {
      * @see Company#id
      * @see Company#name
      */
-	public Company(int id, String name) {
+	public Company(Long id, String name) {
 		this.name = name;
 		this.id = id;
 	}
@@ -59,7 +59,7 @@ public class Company {
      * 
      * @return Company's ID. 
      */
-	public int getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -88,6 +88,7 @@ public class Company {
      * 
      * @return Company to String. 
      */
+	@Override
 	public String toString() {
 		return "id: " + this.id + ", name: "
 				+ this.name;

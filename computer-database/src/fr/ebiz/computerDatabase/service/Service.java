@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -268,8 +267,9 @@ public class Service {
 			computer = computerMapper.fromDBToComputer(res);
 			if(computer != null){
 				/* ------ GET COMPANY BY ID ----- */
-				company = companyDAO.find(computer.getCompany_id());
-				
+				res = companyDAO.find(computer.getCompany_id());
+				res.next();
+				company = companyMapper.fromDBToCompany(res);
 				view.print(computer + ", which reference company [" + company + "]");
 			}
 				
