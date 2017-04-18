@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import com.mysql.jdbc.Connection;
 import com.mysql.jdbc.PreparedStatement;
 
+import fr.ebiz.computerDatabase.exceptions.ConnectionException;
 import fr.ebiz.computerDatabase.utils.Utils;
 
 public class CompanyDAO {
@@ -14,7 +15,7 @@ public class CompanyDAO {
 
 	private Connection coMysql;
 
-	public CompanyDAO() {
+	public CompanyDAO() throws ConnectionException {
 		TABLE_NAME = Utils.COMPANY_TABLE;
 		coMysql = ConnectionMYSQL.getInstance().getConnection();
 	}

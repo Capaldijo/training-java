@@ -8,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.ebiz.computerDatabase.exceptions.ConnectionException;
 import fr.ebiz.computerDatabase.mapper.CompanyMapper;
 import fr.ebiz.computerDatabase.model.Company;
 import fr.ebiz.computerDatabase.model.CompanyDTO;
@@ -21,7 +22,7 @@ public class CompanyService {
 
 	private CompanyMapper companyMapper;
 
-	public CompanyService() {
+	public CompanyService() throws ConnectionException {
 		companyDAO = new CompanyDAO();
 		companyMapper = new CompanyMapper();
 	}

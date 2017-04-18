@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
+import fr.ebiz.computerDatabase.exceptions.ConnectionException;
 import fr.ebiz.computerDatabase.mapper.CompanyMapper;
 import fr.ebiz.computerDatabase.mapper.ComputerMapper;
 import fr.ebiz.computerDatabase.model.Company;
@@ -37,7 +38,7 @@ public class Service {
 
 	private Cli view;
 
-	public Service() {
+	public Service() throws ConnectionException {
 		computerDAO = new ComputerDAO();
 		companyDAO = new CompanyDAO();
 		computerMapper = new ComputerMapper();
@@ -70,11 +71,10 @@ public class Service {
 		} // while(shouldKeepGoin)
 		try {
 			ConnectionMYSQL.getInstance().closeAll();
-		} catch (SQLException e) {
-			view.print("Error on close DB");
-			logger.error("Error on close DB");
 		} catch (NullPointerException npe) {
 			logger.error("Error on closing to DB.");
+		} catch (ConnectionException e) {
+			logger.error(e.getMessage());
 		}
 	} // init
 
@@ -259,7 +259,7 @@ public class Service {
 	 */
 	private void showDetails() {
 
-		int id = view.printShowDetailsAction();
+		Long id = view.printShowDetailsAction();
 
 		Computer computer = null;
 		Company company = null;
@@ -290,7 +290,7 @@ public class Service {
 	 */
 	private void updateComputer() {
 
-		int idComputer = view.getIntChoice("\nChoose a computer id to update: ");
+		Long idComputer = view.getIntChoice("\nChoose a computer id to update: ");
 
 		try {
 			// find the computer chosen

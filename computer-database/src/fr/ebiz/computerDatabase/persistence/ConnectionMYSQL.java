@@ -6,6 +6,7 @@ import java.util.Properties;
 
 import com.mysql.jdbc.Connection;
 
+import fr.ebiz.computerDatabase.exceptions.ConnectionException;
 import fr.ebiz.computerDatabase.utils.Utils;
 
 public final class ConnectionMYSQL {
@@ -17,7 +18,7 @@ public final class ConnectionMYSQL {
 
 	private Connection connexion = null;
 
-	private ConnectionMYSQL() {
+	private ConnectionMYSQL() throws ConnectionException {
 		super();
 
 		try {
@@ -39,13 +40,13 @@ public final class ConnectionMYSQL {
 			connexion = (Connection) DriverManager.getConnection(Utils.urlDB, props);
 
 		} catch (ClassNotFoundException e) {
-			System.out.println("Error loading JDBC Driver");
+			throw new ConnectionException("[DRIVER] Error loading JDBC Driver");
 		} catch (SQLException e) {
-			System.out.println("Error connecting to DB");
+			throw new ConnectionException("[DB] Error connecting to DB");
 		}
 	}
 
-	public final static ConnectionMYSQL getInstance() {
+	public final static ConnectionMYSQL getInstance() throws ConnectionException {
 		// Le "Double-Checked Singleton"/"Singleton doublement vérifié" permet
 		// d'éviter un appel coûteux à synchronized,
 		// une fois que l'instanciation est faite.
@@ -65,7 +66,11 @@ public final class ConnectionMYSQL {
 		return connexion;
 	}
 
-	public void closeAll() throws SQLException {
-		connexion.close();
+	public void closeAll() throws ConnectionException {
+		try {
+			connexion.close();
+		} catch (SQLException e) {
+			throw new ConnectionException("[CLOSING] Error closing DB");
+		}
 	}
 }

@@ -5,17 +5,14 @@
     <welcome-file>/WEB-INF/dashboard.jsp</welcome-file>
   </welcome-file-list>
   <error-page>
-    <!-- Forbidden directory listing -->
     <error-code>403</error-code>
     <location>/WEB-INF/403.jsp</location>
   </error-page>
   <error-page>
-    <!-- Missing resource -->
     <error-code>404</error-code>
     <location>/WEB-INF/404.jsp</location>
   </error-page>
   <error-page>
-    <!-- Uncaught exception -->
     <error-code>500</error-code>
     <location>/WEB-INF/500.jsp</location>
   </error-page>

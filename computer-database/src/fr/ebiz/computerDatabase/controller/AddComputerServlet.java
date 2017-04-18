@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import fr.ebiz.computerDatabase.exceptions.ConnectionException;
+import fr.ebiz.computerDatabase.exceptions.DAOException;
+import fr.ebiz.computerDatabase.exceptions.ServiceException;
 import fr.ebiz.computerDatabase.model.CompanyDTO;
 import fr.ebiz.computerDatabase.model.ComputerDTO;
 import fr.ebiz.computerDatabase.service.CompanyService;
@@ -31,8 +34,6 @@ public class AddComputerServlet extends HttpServlet {
 	 */
 	public AddComputerServlet() {
 		super();
-		computerService = new ComputerService();
-		companyService = new CompanyService();
 	}
 
 	/**
@@ -42,9 +43,15 @@ public class AddComputerServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		List<CompanyDTO> companiesDTO = companyService.getCompanies();
-		request.setAttribute("companies", companiesDTO);
-		this.getServletContext().getRequestDispatcher(Utils.ADD_VIEW).forward(request, response);
+		try {
+			companyService = new CompanyService();
+			List<CompanyDTO> companiesDTO = companyService.getCompanies();
+			request.setAttribute("companies", companiesDTO);
+			this.getServletContext().getRequestDispatcher(Utils.ADD_VIEW).forward(request, response);
+		} catch (ConnectionException e) {
+			System.out.println(e.getMessage());
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
 	}
 
 	/**
@@ -63,8 +70,13 @@ public class AddComputerServlet extends HttpServlet {
 									.discontinued(discontinued)
 									.companyId(companyId)
 									.build();
-		
-		computerService.addComputer(computerDTO);
+		try {
+			computerService = new ComputerService();
+			computerService.addComputer(computerDTO);
+		} catch (ServiceException | ConnectionException | DAOException e) {
+			System.out.println(e.getMessage());
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
 	}
 
 }
