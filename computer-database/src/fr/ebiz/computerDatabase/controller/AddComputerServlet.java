@@ -22,7 +22,7 @@ import fr.ebiz.computerDatabase.utils.Utils;
 /**
  * Servlet implementation class AddComputerServlet
  */
-@WebServlet(name = "addComputer", urlPatterns = { "/addComputer" })
+@WebServlet(name = "addComputer", urlPatterns = { "/add_computer" })
 public class AddComputerServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
@@ -61,10 +61,10 @@ public class AddComputerServlet extends HttpServlet {
 	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String name = request.getParameter("computerName");
-		String introduced = request.getParameter("computerIntro");
-		String discontinued = request.getParameter("computerDiscon");
-		String companyId = request.getParameter("companyId");
+		String name = request.getParameter(Utils.PARAM_COMPUTER_NAME);
+		String introduced = request.getParameter(Utils.PARAM_COMPUTER_INTRODUCED);
+		String discontinued = request.getParameter(Utils.PARAM_COMPUTER_DISCONTINUED);
+		String companyId = request.getParameter(Utils.PARAM_COMPUTER_COMPANYID);
 		
 		ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder(name)
 									.introduced(introduced)
@@ -74,7 +74,7 @@ public class AddComputerServlet extends HttpServlet {
 		try {
 			computerService = new ComputerService();
 			computerService.addComputer(computerDTO);
-		} catch (ServiceException | ConnectionException | DAOException e) {
+		} catch (ServiceException | ConnectionException | DAOException | MapperException e) {
 			System.out.println(e.getMessage());
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}

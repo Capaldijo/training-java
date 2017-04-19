@@ -2,7 +2,7 @@ package fr.ebiz.computerDatabase.persistence;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 import com.mysql.jdbc.Connection;
@@ -21,7 +21,7 @@ public class ComputerDAO {
 
     public ComputerDAO() throws ConnectionException {
         // formatter for the LocalDateTime computer's fields
-        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+        formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         coMysql = ConnectionMYSQL.getInstance().getConnection();
     }
 
@@ -113,10 +113,10 @@ public class ComputerDAO {
         return prepStatement.executeUpdate();
     }
 
-    public int insertOrUpdate(Computer comp, int typeOfRequest) throws DAOException {
+    private int insertOrUpdate(Computer comp, int typeOfRequest) throws DAOException {
         String name = comp.getName();
-        LocalDateTime dateIntro = comp.getIntroduced();
-        LocalDateTime dateDiscon = comp.getDiscontinued();
+        LocalDate dateIntro = comp.getIntroduced();
+        LocalDate dateDiscon = comp.getDiscontinued();
         int compIdRef = comp.getCompany_id();
 
         String strDateIntro = null, strDateDiscon = null;

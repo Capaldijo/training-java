@@ -2,8 +2,9 @@ package fr.ebiz.computerDatabase.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,14 +21,14 @@ public class ComputerMapper {
 
     final Logger logger = LoggerFactory.getLogger(ComputerMapper.class);
 
-    private DateTimeFormatter formatterDB;
+    private static DateTimeFormatter formatterDB;
 
-    private DateTimeFormatter formatterWEB;
+    private static DateTimeFormatter formatterWEB;
 
     public ComputerMapper() {
         // formatter for the LocalDateTime computer's fields
         formatterDB = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-        formatterWEB = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        formatterWEB = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     }
 
     /*
@@ -45,19 +46,21 @@ public class ComputerMapper {
             String strDateDiscon = resultat.getString(Utils.COLUMN_DISCONTINUED);
             int compIdRef = resultat.getInt(Utils.COLUMN_COMPANYID);
 
-            LocalDateTime dateIntro = null, dateDiscon = null;
+            LocalDate dateIntro = null, dateDiscon = null;
 
             if (strDateIntro != null)
-                dateIntro = LocalDateTime.parse(strDateIntro, formatterDB);
+                dateIntro = LocalDate.parse(strDateIntro, formatterDB);
 
             if (strDateDiscon != null)
-                dateDiscon = LocalDateTime.parse(strDateDiscon, formatterDB);
+                dateDiscon = LocalDate.parse(strDateDiscon, formatterDB);
 
             computer = new Computer.ComputerBuilder(name).introduced(dateIntro).discontinued(dateDiscon)
                     .companyId(compIdRef).id(id).build();
 
         } catch(SQLException e) {
             throw new MapperException("[FDBTCOMP] Error on accessing data.");
+        } catch(DateTimeParseException e) {
+            throw new MapperException("[FDBTCOMP] Error on parsing date.");
         }
         return computer;
     }
@@ -85,29 +88,40 @@ public class ComputerMapper {
         if (computer.getIntroduced() != null)
             builder.introduced(computer.getIntroduced().format(formatterWEB));
         else
-            builder.introduced("");
+            builder.introduced("null");
         if (computer.getDiscontinued() != null)
             builder.discontinued(computer.getDiscontinued().format(formatterWEB));
         else
-            builder.discontinued("");
+            builder.discontinued("null");
 
         computerDTO = builder.build();
         return computerDTO;
     }
 
-    public Computer toModel(ComputerDTO computerDTO) {
+    public Computer toModel(ComputerDTO computerDTO) throws MapperException {
         Computer computer = null;
+        
+        Long id = 0L;
+        LocalDate intro = null, discon = null;
+        try{
+            if (computerDTO.getId() != null)
+                id = Long.parseLong(computerDTO.getId());
+            if (computerDTO.getIntroduced().trim() != "")
+                intro = LocalDate.parse(computerDTO.getIntroduced(), formatterWEB);
+            if (computerDTO.getDiscontinued().trim() != "")
+                discon = LocalDate.parse(computerDTO.getDiscontinued(), formatterWEB);
+            int compIdRef = Integer.parseInt(computerDTO.getCompany_id());
 
-        LocalDateTime intro = null, discon = null;
-
-        if (computerDTO.getIntroduced().trim() != "")
-            intro = LocalDateTime.parse(computerDTO.getIntroduced(), formatterWEB);
-        if (computerDTO.getDiscontinued().trim() != "")
-            discon = LocalDateTime.parse(computerDTO.getDiscontinued(), formatterWEB);
-        int compIdRef = Integer.parseInt(computerDTO.getCompany_id());
-
-        computer = new Computer.ComputerBuilder(computerDTO.getName()).introduced(intro).discontinued(discon)
-                .companyId(compIdRef).build();
+            computer = new Computer.ComputerBuilder(computerDTO.getName())
+                        .id(id)
+                        .introduced(intro)
+                        .discontinued(discon)
+                        .companyId(compIdRef)
+                        .build();
+            
+        } catch(DateTimeParseException e) {
+            throw new MapperException("[TOMODEL] Error on parsing date.");
+        }
 
         return computer;
     }

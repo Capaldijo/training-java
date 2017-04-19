@@ -36,7 +36,7 @@ public class ComputerService {
 	 * Create a computer, enter its name, introduce and discontinued date, and
 	 * its referenced company id return the computer constructed by those fields
 	 */
-	public void addComputer(ComputerDTO computerDTO) throws ServiceException, DAOException {
+	public void addComputer(ComputerDTO computerDTO) throws ServiceException, DAOException, MapperException {
 		if(!ComputerValidator.isValid(computerDTO))
 			throw new ServiceException("[VALIDATION] The computer you tried to add is not valid.");
 		else{
@@ -74,15 +74,17 @@ public class ComputerService {
 	 * which fields
 	 */
 	public void updateComputer(ComputerDTO computerDTO) throws DAOException, MapperException, ServiceException {
-	    Long idComputer = Long.parseLong(computerDTO.getId());
-		// find the computer chosen
-		ResultSet res = computerDAO.find(idComputer);
-		try {
-            res.next();
-            Computer oldComputer = computerMapper.fromDBToComputer(res);
-        } catch (SQLException e) {
-            throw new ServiceException("[UPDATECOMPUTER] Error on accessing data.");
-        }
+	    if (!ComputerValidator.isValid(computerDTO))
+	        throw new ServiceException("[VALIDATION] The computer you tried to update is not valid.");
+	    else{
+            Computer computer = computerMapper.toModel(computerDTO);
+            computerDAO.update(computer);
+            if (computerDAO.update(computer) == 1) {
+                logger.info("Update computer done.\n");
+            } else {
+                logger.error("Update computer error.\n");
+            }
+	    }            
 
 	}
 }

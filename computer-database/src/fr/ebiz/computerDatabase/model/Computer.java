@@ -1,5 +1,6 @@
 package fr.ebiz.computerDatabase.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import org.slf4j.Logger;
@@ -46,17 +47,17 @@ public class Computer {
 	 * The Computer's introduced date, that can be change.
 	 * 
 	 * @see Computer#getIntroduced()
-	 * @see Computer#setIntroduced(LocalDateTime)
+	 * @see Computer#setIntroduced(LocalDate)
 	 */
-	private LocalDateTime introduced;
+	private LocalDate introduced;
 
 	/**
 	 * The Computer's discontinued date, that can be change.
 	 * 
 	 * @see Computer#getDiscontinued()
-	 * @see Computer#setDiscontinued(LocalDateTime)
+	 * @see Computer#setDiscontinued(LocalDate)
 	 */
-	private LocalDateTime discontinued;
+	private LocalDate discontinued;
 
 	/**
 	 * The Computer's referenced company's id, that can be change.
@@ -117,7 +118,7 @@ public class Computer {
 	 * 
 	 * @return Computer's introduced date.
 	 */
-	public LocalDateTime getIntroduced() {
+	public LocalDate getIntroduced() {
 		return introduced;
 	}
 
@@ -127,7 +128,7 @@ public class Computer {
 	 * @param name
 	 *            The new Computer's introduced date.
 	 */
-	public void setIntroduced(LocalDateTime introduced) {
+	public void setIntroduced(LocalDate introduced) {
 		logger.debug("Introduced date set to {}. Old date was {}.", introduced, this.introduced);
 		this.introduced = introduced;
 	}
@@ -137,7 +138,7 @@ public class Computer {
 	 * 
 	 * @return Computer's discontinued date.
 	 */
-	public LocalDateTime getDiscontinued() {
+	public LocalDate getDiscontinued() {
 		return discontinued;
 	}
 
@@ -147,7 +148,7 @@ public class Computer {
 	 * @param name
 	 *            The new Computer's discontinued date.
 	 */
-	public void setDiscontinued(LocalDateTime discontinued) {
+	public void setDiscontinued(LocalDate discontinued) {
 		logger.debug("Discontinued date set to {}. Old date was {}.", discontinued, this.discontinued);
 		this.discontinued = discontinued;
 	}
@@ -235,9 +236,9 @@ public class Computer {
 		
 		private Long id;
 		
-		private LocalDateTime introduced;
+		private LocalDate introduced;
 		
-		private LocalDateTime discontinued;
+		private LocalDate discontinued;
 		
 		private int company_id;
 		
@@ -250,12 +251,12 @@ public class Computer {
 			return this;
 		}
 		
-		public ComputerBuilder introduced(LocalDateTime introduced) {
+		public ComputerBuilder introduced(LocalDate introduced) {
 			this.introduced = introduced;
 			return this;
 		}
 		
-		public ComputerBuilder discontinued(LocalDateTime discontinued) {
+		public ComputerBuilder discontinued(LocalDate discontinued) {
 			this.discontinued = discontinued;
 			return this;
 		}

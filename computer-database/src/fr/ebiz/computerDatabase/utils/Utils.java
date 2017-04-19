@@ -29,7 +29,20 @@ public interface Utils {
 
 	public static String DASHBOARD_VIEW = "/WEB-INF/dashboard.jsp";
 
-	public static String ADD_VIEW = "/WEB-INF/addComputer.jsp";
+	public static String ADD_VIEW = "/WEB-INF/add_computer.jsp";
 	
-	public static String EDIT_VIEW = "/WEB-INF/editComputer.jsp";
+	public static String EDIT_VIEW = "/WEB-INF/edit_computer.jsp";
+	
+	// ---- Var for JSP ----
+	
+	public static String PARAM_COMPUTER_ID = "id";
+	
+	public static String PARAM_COMPUTER_NAME = "computerName";
+	
+	public static String PARAM_COMPUTER_INTRODUCED = "computerIntro";
+	
+	public static String PARAM_COMPUTER_DISCONTINUED = "computerDiscon";
+	
+	public static String PARAM_COMPUTER_COMPANYID = "companyId";
+	
 }
