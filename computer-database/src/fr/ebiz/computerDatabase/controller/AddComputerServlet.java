@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import fr.ebiz.computerDatabase.exceptions.ConnectionException;
 import fr.ebiz.computerDatabase.exceptions.DAOException;
+import fr.ebiz.computerDatabase.exceptions.MapperException;
 import fr.ebiz.computerDatabase.exceptions.ServiceException;
 import fr.ebiz.computerDatabase.model.CompanyDTO;
 import fr.ebiz.computerDatabase.model.ComputerDTO;
@@ -48,7 +49,7 @@ public class AddComputerServlet extends HttpServlet {
 			List<CompanyDTO> companiesDTO = companyService.getCompanies();
 			request.setAttribute("companies", companiesDTO);
 			this.getServletContext().getRequestDispatcher(Utils.ADD_VIEW).forward(request, response);
-		} catch (ConnectionException e) {
+		} catch (ConnectionException | DAOException | MapperException e) {
 			System.out.println(e.getMessage());
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}

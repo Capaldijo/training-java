@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.mysql.jdbc.exceptions.jdbc4.MySQLIntegrityConstraintViolationException;
 
 import fr.ebiz.computerDatabase.exceptions.ConnectionException;
+import fr.ebiz.computerDatabase.exceptions.DAOException;
+import fr.ebiz.computerDatabase.exceptions.MapperException;
 import fr.ebiz.computerDatabase.mapper.CompanyMapper;
 import fr.ebiz.computerDatabase.mapper.ComputerMapper;
 import fr.ebiz.computerDatabase.model.Company;
@@ -46,7 +48,7 @@ public class Service {
 		view = new Cli();
 	}
 
-	public void init() {
+	public void init() throws DAOException, MapperException {
 
 		while (shouldKeepGoin) {
 
@@ -119,7 +121,7 @@ public class Service {
 					view.print("Error choice listing Computer.");
 				}
 			}
-		} catch (SQLException e) {
+		} catch (DAOException | MapperException e) {
 			view.print("Error on Page chosen");
 			logger.error("Error on listing's arguments on Table Company");
 		}
@@ -128,7 +130,7 @@ public class Service {
 	/*
 	 * Only print info about computers: List, Show details, Update or Delete
 	 */
-	private void listComputer() {
+	private void listComputer() throws DAOException, MapperException {
 		/* ------ GET ALL COMPUTER ----- */
 		boolean stop = false;
 		while (!stop) {
@@ -169,7 +171,7 @@ public class Service {
 	 * Create a computer, enter its name, introduce and discontinued date, and
 	 * its referenced company id return the computer constructed by those fields
 	 */
-	private void createComputer() {
+	private void createComputer() throws DAOException {
 
 		view.print("\n---- Create a Computer ----");
 
@@ -189,77 +191,62 @@ public class Service {
 							.companyId(compIdRed)
 							.build();
 
-		try {
-			if (computer != null)
-				if (computerDAO.insert(computer) == 1) {
-					view.print("Insert done");
-					logger.info("insert computer done.\n");
-				}
-		} catch (MySQLIntegrityConstraintViolationException ie) {
-			view.print("Creating computer failed, field company_id invalid");
-			logger.error("[INSERT] Error on getting invalid Company by its ID");
-		} catch (SQLException e) {
-			view.print("Error on insert");
-			e.printStackTrace();
-			logger.error("Error inserting Computer");
-		}
+		if (computer != null)
+			if (computerDAO.insert(computer) == 1) {
+				view.print("Insert done");
+				logger.info("insert computer done.\n");
+			}
 	}
 
 	/*
 	 * Get all the data from computer 10 by 10 let choose the user to previous
 	 * or next ou quit
 	 */
-	private void pageableListComputer() {
-		/*---- LIST COMPUTER WITH PAGEABLE FEATURE -----*/
-		try {
-			int numPage = 0;
-			List<Computer> list = null;
-			ResultSet res = null;
-			boolean stop = false;
-			while (!stop) {
-				// get 10 computers in the list
-				res = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
-				list = computerMapper.fromDBToComputers(res);
-				// if list is empty bc the user gone to far in pages, get to
-				// previous half full list
-				if (list.isEmpty() && numPage > 0) {
-					logger.info("Next was selected but Computer's list is Empty, getting back to last page.");
-					numPage -= Utils.PAGEABLE_NBLINE;
-					res = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
-					list = computerMapper.fromDBToComputers(res);
-				}
-				switch (view.printPageableList(list)) {
-				case 1: // Previous Page
-					if (numPage > 0)
-						numPage -= Utils.PAGEABLE_NBLINE;
-					else
-						logger.info("Previous was selected but already at first page.");
-					break;
-				case 2: // Next Page
-					if (!list.isEmpty())
-						numPage += Utils.PAGEABLE_NBLINE;
-					break;
-				case 3: // Quit
-					stop = true;
-					break;
-				default:
-					view.print("Error choice listing Computer.");
+	private void pageableListComputer() throws DAOException, MapperException {
+		int numPage = 0;
+        List<Computer> list = null;
+        ResultSet res = null;
+        boolean stop = false;
+        while (!stop) {
+        	// get 10 computers in the list
+        	res = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
+        	list = computerMapper.fromDBToComputers(res);
+        	// if list is empty bc the user gone to far in pages, get to
+        	// previous half full list
+        	if (list.isEmpty() && numPage > 0) {
+        		logger.info("Next was selected but Computer's list is Empty, getting back to last page.");
+        		numPage -= Utils.PAGEABLE_NBLINE;
+        		res = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
+        		list = computerMapper.fromDBToComputers(res);
+        	}
+        	switch (view.printPageableList(list)) {
+        	case 1: // Previous Page
+        		if (numPage > 0)
+        			numPage -= Utils.PAGEABLE_NBLINE;
+        		else
+        			logger.info("Previous was selected but already at first page.");
+        		break;
+        	case 2: // Next Page
+        		if (!list.isEmpty())
+        			numPage += Utils.PAGEABLE_NBLINE;
+        		break;
+        	case 3: // Quit
+        		stop = true;
+        		break;
+        	default:
+        		view.print("Error choice listing Computer.");
 
-				}
-			}
-		} catch (SQLException e) {
-			view.print("Error on Page choosen");
-			logger.error("Error on listing's arguments on Table Computer");
-		}
+        	}
+        }
 	}
 
 	/*
 	 * Let the user choose the computer id he wants to get details of and print
 	 * it
 	 */
-	private void showDetails() {
+	private void showDetails() throws DAOException, MapperException {
 
-		Long id = view.printShowDetailsAction();
+		Long id = (long) view.printShowDetailsAction();
 
 		Computer computer = null;
 		Company company = null;
@@ -288,9 +275,9 @@ public class Service {
 	 * Update a computer, ask the user which computer he wants to update with
 	 * which fields
 	 */
-	private void updateComputer() {
+	private void updateComputer() throws DAOException, MapperException {
 
-		Long idComputer = view.getIntChoice("\nChoose a computer id to update: ");
+		Long idComputer = (long) view.getIntChoice("\nChoose a computer id to update: ");
 
 		try {
 			// find the computer chosen

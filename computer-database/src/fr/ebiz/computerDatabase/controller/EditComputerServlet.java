@@ -51,10 +51,10 @@ public class EditComputerServlet extends HttpServlet {
 			companyService = new CompanyService();
 			List<CompanyDTO> companiesDTO = companyService.getCompanies();
 			
-			request.setAttribute("computerId", id);
+			request.setAttribute("computer", computer);
 			request.setAttribute("companies", companiesDTO);
 			
-			this.getServletContext().getRequestDispatcher(Utils.ADD_VIEW).forward(request, response);
+			this.getServletContext().getRequestDispatcher(Utils.EDIT_VIEW).forward(request, response);
 		} catch (ConnectionException | DAOException | MapperException | ServiceException e) {
 			System.out.println(e.getMessage());
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

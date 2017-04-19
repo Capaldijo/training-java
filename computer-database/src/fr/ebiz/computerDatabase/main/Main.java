@@ -1,6 +1,8 @@
 package fr.ebiz.computerDatabase.main;
 
 import fr.ebiz.computerDatabase.exceptions.ConnectionException;
+import fr.ebiz.computerDatabase.exceptions.DAOException;
+import fr.ebiz.computerDatabase.exceptions.MapperException;
 import fr.ebiz.computerDatabase.service.*; 
 
 public class Main {
@@ -10,7 +12,7 @@ public class Main {
 		try {
 			service = new Service();
 			service.init();
-		} catch (ConnectionException e) {
+		} catch (ConnectionException | DAOException | MapperException e) {
 		}
 	}
 

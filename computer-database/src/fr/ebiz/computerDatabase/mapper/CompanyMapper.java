@@ -8,6 +8,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.ebiz.computerDatabase.exceptions.MapperException;
 import fr.ebiz.computerDatabase.model.Company;
 import fr.ebiz.computerDatabase.model.CompanyDTO;
 import fr.ebiz.computerDatabase.utils.Utils;
@@ -25,14 +26,20 @@ public class CompanyMapper {
 	 * 
 	 * return a company object
 	 */
-	public Company fromDBToCompany(ResultSet resultat) throws SQLException {
-		Long id = resultat.getLong(Utils.COLUMN_ID);
-		String name = resultat.getString(Utils.COLUMN_NAME);
+	public Company fromDBToCompany(ResultSet resultat) throws MapperException {
+		Long id = 0L;
+		String name = null;
+        try {
+            id = resultat.getLong(Utils.COLUMN_ID);
+            name = resultat.getString(Utils.COLUMN_NAME);
+        } catch (SQLException e) {
+            throw new MapperException("[FDBTCOMP] Error on accessing data.");
+        }
 
 		return new Company(id, name);
 	}
 
-	public List<Company> fromDBToCompanies(ResultSet resultat) {
+	public List<Company> fromDBToCompanies(ResultSet resultat) throws MapperException {
 		List<Company> list = new ArrayList<>();
 
 		try {
@@ -40,7 +47,7 @@ public class CompanyMapper {
 				list.add(fromDBToCompany(resultat));
 			}
 		} catch (SQLException sqle) {
-			logger.error("Error on reading data from db.");
+		    logger.error("Error on reading data from db.");
 		}
 
 		return list;

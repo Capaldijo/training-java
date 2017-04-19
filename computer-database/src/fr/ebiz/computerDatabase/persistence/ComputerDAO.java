@@ -33,6 +33,9 @@ public class ComputerDAO {
             PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
             prepStatement.setLong(1, idComp);
             resultat = prepStatement.executeQuery();
+            if (!resultat.isBeforeFirst()) {
+                throw new DAOException("[FIND] No data for request.");
+            }
         } catch (SQLException e) {
             throw new DAOException("[FIND] Error on accessing data.");
         }
@@ -43,10 +46,13 @@ public class ComputerDAO {
     public ResultSet findAll() throws DAOException {
         String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company "
                 + "FROM computer as c LEFT JOIN company as comp ON c.id = comp.id";
-        
+
         ResultSet resultat = null;
         try {
             resultat = coMysql.createStatement().executeQuery(query);
+            if (!resultat.isBeforeFirst()) {
+                throw new DAOException("[FINDALL] No data for request.");
+            }
         } catch (SQLException e) {
             throw new DAOException("[FINDALL] Error on accessing data.");
         }
@@ -70,8 +76,11 @@ public class ComputerDAO {
             prepStatement.setInt(2, nbLine);
 
             resultat = prepStatement.executeQuery();
+            if (!resultat.isBeforeFirst()) {
+                throw new DAOException("[FINDBYPAGE] No data for request.");
+            }
         } catch (SQLException e) {
-          throw new DAOException("[FINDBYPAGE] Error on accessing data.");
+            throw new DAOException("[FINDBYPAGE] Error on accessing data.");
         }
 
         return resultat;

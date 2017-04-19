@@ -8,9 +8,9 @@
 <title>Computer Database</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <!-- Bootstrap -->
-<link href="../css/bootstrap.min.css" rel="stylesheet" media="screen">
-<link href="../css/font-awesome.css" rel="stylesheet" media="screen">
-<link href="../css/main.css" rel="stylesheet" media="screen">
+<link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+<link href="css/font-awesome.css" rel="stylesheet" media="screen">
+<link href="css/main.css" rel="stylesheet" media="screen">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" />
 </head>
 <body>
@@ -24,16 +24,16 @@
             <div class="row">
                 <div class="col-xs-8 col-xs-offset-2 box">
                     <div class="label label-default pull-right">
-                        id: 0
+                        id: ${computer.id}
                     </div>
                     <h1>Edit Computer</h1>
 
                     <form action="editComputer" method="POST">
-                        <input type="hidden" value="${computerId}" id="id" name="id" />
+                        <input type="hidden" value="${computer.id}" id="id" name="id" />
                         <fieldset>
                             <div class="form-group">
                                 <label for="computerName">Computer name</label>
-                                <input type="text" class="form-control" id="computerName" name="computerName" placeholder="Computer name">
+                                <input type="text" class="form-control" id="computerName" name="computerName" value="${computer.name}" placeholder="Computer name">
                             </div>
                             <div class="form-group">
                                 <label for="introduced">Introduced date</label>
@@ -48,7 +48,14 @@
                                 <select class="form-control" id="companyId" name="companyId">
                                     <option value="0">---</option>
                                     <c:forEach var="company"  items="${companies}" >
-										<option value="${company.id}">${company.name}</option>
+										<c:choose>
+											<c:when test="${company.id == computer.company_id}">
+												<option value="${company.id}" selected>${company.name}</option>
+											</c:when>
+											<c:otherwise>
+												<option value="${company.id}">${company.name}</option>
+											</c:otherwise>
+										</c:choose>
 									</c:forEach>
                                 </select>
                             </div>            

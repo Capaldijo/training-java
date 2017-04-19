@@ -30,4 +30,6 @@ public interface Utils {
 	public static String DASHBOARD_VIEW = "/WEB-INF/dashboard.jsp";
 
 	public static String ADD_VIEW = "/WEB-INF/addComputer.jsp";
+	
+	public static String EDIT_VIEW = "/WEB-INF/editComputer.jsp";
 }

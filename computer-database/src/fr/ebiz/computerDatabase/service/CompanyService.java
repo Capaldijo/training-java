@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.ebiz.computerDatabase.exceptions.ConnectionException;
+import fr.ebiz.computerDatabase.exceptions.DAOException;
+import fr.ebiz.computerDatabase.exceptions.MapperException;
 import fr.ebiz.computerDatabase.mapper.CompanyMapper;
 import fr.ebiz.computerDatabase.model.Company;
 import fr.ebiz.computerDatabase.model.CompanyDTO;
@@ -27,32 +29,22 @@ public class CompanyService {
 		companyMapper = new CompanyMapper();
 	}
 
-	public List<CompanyDTO> getCompanies() {
+	public List<CompanyDTO> getCompanies() throws DAOException, MapperException {
 		List<CompanyDTO> list = new ArrayList<>();
 
-		try {
-			ResultSet dbCompanies = companyDAO.findAll();
-			List<Company> listCompany = companyMapper.fromDBToCompanies(dbCompanies);
-			list = companyMapper.toDTO(listCompany);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		ResultSet dbCompanies = companyDAO.findAll();
+        List<Company> listCompany = companyMapper.fromDBToCompanies(dbCompanies);
+        list = companyMapper.toDTO(listCompany);
 
 		return list;
 	}
 
-	public CompanyDTO getCompany(int id) {
+	public CompanyDTO getCompany(int id) throws DAOException, MapperException {
 		CompanyDTO companyDTO = new CompanyDTO();
 
-		try {
-			ResultSet dbCompany = companyDAO.find(id);
-			Company company = companyMapper.fromDBToCompany(dbCompany);
-			companyDTO = companyMapper.toDTO(company);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		ResultSet dbCompany = companyDAO.find(id);
+		Company company = companyMapper.fromDBToCompany(dbCompany);
+		companyDTO = companyMapper.toDTO(company);
 
 		return companyDTO;
 	}
