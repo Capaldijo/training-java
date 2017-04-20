@@ -42,9 +42,24 @@ public class ComputerDAO {
 
         return resultat;
     }
+    
+    public ResultSet count() throws DAOException {
+        String query = "SELECT COUNT(*) as count FROM " + Utils.COMPUTER_TABLE;
+        ResultSet resultat = null;
+        
+        try {
+            resultat = coMysql.createStatement().executeQuery(query);
+            if (!resultat.isBeforeFirst()) {
+                throw new DAOException("[COUNT] No data for request.");
+            }
+        } catch (SQLException e) {
+            throw new DAOException("[COUNT] Error on accessing data.");
+        }
+        return resultat;
+    }
 
     public ResultSet findAll() throws DAOException {
-        String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company "
+        String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id "
                 + "FROM computer as c LEFT JOIN company as comp ON c.id = comp.id";
 
         ResultSet resultat = null;
@@ -66,7 +81,7 @@ public class ComputerDAO {
      * Return a list of 10 Computer
      */
     public ResultSet findByPage(int numPage, int nbLine) throws DAOException {
-        String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company "
+        String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id "
                 + "FROM computer as c LEFT JOIN company as comp ON c.id = comp.id LIMIT ?, ?";
 
         ResultSet resultat = null;
@@ -81,6 +96,30 @@ public class ComputerDAO {
             }
         } catch (SQLException e) {
             throw new DAOException("[FINDBYPAGE] Error on accessing data.");
+        }
+
+        return resultat;
+    }
+    
+    public ResultSet searchByPage(String search, int numPage, int nbLine) throws DAOException {
+        String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id FROM " +
+                    "computer as c LEFT JOIN company as comp ON c.id = comp.id WHERE c.name LIKE ? OR " + 
+                    "comp.name LIKE ? LIMIT ?, ?";
+        ResultSet resultat = null;
+        try {
+            PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
+            prepStatement.setString(1, '%'+search+'%');
+            prepStatement.setString(2, '%'+search+'%');
+            prepStatement.setInt(3, numPage);
+            prepStatement.setInt(4, nbLine);
+
+            resultat = prepStatement.executeQuery();
+            if (!resultat.isBeforeFirst()) {
+                throw new DAOException("[SEARCHBYPAGE] No data for request.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DAOException("[SEARCHBYPAGE] Error on accessing data.");
         }
 
         return resultat;

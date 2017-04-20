@@ -20,7 +20,7 @@ public class CompanyDAO {
 		TABLE_NAME = Utils.COMPANY_TABLE;
 		coMysql = ConnectionMYSQL.getInstance().getConnection();
 	}
-
+	
 	public ResultSet findAll() throws DAOException {
 		String query = "SELECT * FROM " + TABLE_NAME;
 		

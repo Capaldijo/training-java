@@ -23,7 +23,7 @@ public interface Utils {
 
 	public static final String COLUMN_COMPANYID = "company_id";
 
-	public static final int PAGEABLE_NBLINE = 12;
+	public static final int PAGEABLE_NBLINE = 10;
 
 	// ---- Var for Servlet ----
 

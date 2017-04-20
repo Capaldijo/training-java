@@ -17,8 +17,6 @@ public class ComputerValidator {
 
         LocalDate intro = null, discon = null;
 
-        System.out.println(computer);
-
         try {
             /*
              * If called before update, check if id is != "null" && is type of

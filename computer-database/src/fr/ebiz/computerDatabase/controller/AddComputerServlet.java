@@ -24,60 +24,43 @@ import fr.ebiz.computerDatabase.utils.Utils;
  */
 @WebServlet(name = "addComputer", urlPatterns = { "/add_computer" })
 public class AddComputerServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private ComputerService computerService;
+    private static ComputerService computerService;
 
-	private CompanyService companyService;
+    private static CompanyService companyService;
 
-	/**
-	 * @see HttpServlet#HttpServlet()
-	 */
-	public AddComputerServlet() {
-		super();
-	}
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-	/**
-	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+        try {
+            companyService = new CompanyService();
+            List<CompanyDTO> companiesDTO = companyService.getCompanies();
+            request.setAttribute("companies", companiesDTO);
+            this.getServletContext().getRequestDispatcher(Utils.ADD_VIEW).forward(request, response);
+        } catch (ConnectionException | DAOException | MapperException e) {
+            System.out.println(e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+    }
 
-		try {
-			companyService = new CompanyService();
-			List<CompanyDTO> companiesDTO = companyService.getCompanies();
-			request.setAttribute("companies", companiesDTO);
-			this.getServletContext().getRequestDispatcher(Utils.ADD_VIEW).forward(request, response);
-		} catch (ConnectionException | DAOException | MapperException e) {
-			System.out.println(e.getMessage());
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		}
-	}
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String name = request.getParameter(Utils.PARAM_COMPUTER_NAME);
+        String introduced = request.getParameter(Utils.PARAM_COMPUTER_INTRODUCED);
+        String discontinued = request.getParameter(Utils.PARAM_COMPUTER_DISCONTINUED);
+        String companyId = request.getParameter(Utils.PARAM_COMPUTER_COMPANYID);
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		String name = request.getParameter(Utils.PARAM_COMPUTER_NAME);
-		String introduced = request.getParameter(Utils.PARAM_COMPUTER_INTRODUCED);
-		String discontinued = request.getParameter(Utils.PARAM_COMPUTER_DISCONTINUED);
-		String companyId = request.getParameter(Utils.PARAM_COMPUTER_COMPANYID);
-		
-		ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder(name)
-									.introduced(introduced)
-									.discontinued(discontinued)
-									.companyId(companyId)
-									.build();
-		try {
-			computerService = new ComputerService();
-			computerService.addComputer(computerDTO);
-		} catch (ServiceException | ConnectionException | DAOException | MapperException e) {
-			System.out.println(e.getMessage());
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-		}
-	}
+        ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder(name).introduced(introduced)
+                .discontinued(discontinued).companyId(companyId).build();
+        try {
+            computerService = new ComputerService();
+            computerService.addComputer(computerDTO);
+        } catch (ServiceException | ConnectionException | DAOException | MapperException e) {
+            System.out.println(e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
+        doGet(request, response);
+    }
 
 }

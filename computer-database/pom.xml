@@ -87,6 +87,21 @@
 	     <consoleOutput>true</consoleOutput>
 	   </configuration>
 	 </plugin>
+	 
+	 <!-- Tomcat plugin -->
+	 <plugin>
+	  <groupId>org.apache.tomcat.maven</groupId>
+	  <artifactId>tomcat7-maven-plugin</artifactId>
+	  <version>2.2</version>
+	  <configuration>
+	   <path>/computer_database</path>
+	   <update>true</update>
+	   <url>http://localhost:8080/manager/text</url>
+	   <server>tomcatServer</server>
+	   <username>tomcat</username>
+	   <password>tomcatuser</password>
+	  </configuration>
+	 </plugin>
     </plugins>
   </build>
 </project>

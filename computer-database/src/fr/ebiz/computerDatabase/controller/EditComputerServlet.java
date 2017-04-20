@@ -26,9 +26,9 @@ import fr.ebiz.computerDatabase.utils.Utils;
 public class EditComputerServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     
-	private CompanyService companyService;
+	private static CompanyService companyService;
 	
-	private ComputerService computerService;
+	private static ComputerService computerService;
 	
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -72,6 +72,7 @@ public class EditComputerServlet extends HttpServlet {
             System.out.println(e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+        this.getServletContext().getRequestDispatcher(Utils.DASHBOARD_VIEW).forward(request, response);
 	}
 
 }

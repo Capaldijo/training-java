@@ -32,14 +32,14 @@ public class ComputerMapper {
     }
 
     /*
-     * get a computer from the database and build it as an instance of Computer
-     * class
+     * Build a Computer from the different data from the ResultSet pass
+     * in parameter.
      * 
      * return a Computer object
      */
     public Computer fromDBToComputer(ResultSet resultat) throws MapperException {
         Computer computer = null;
-        try{
+        try {
             Long id = resultat.getLong(Utils.COLUMN_ID);
             String name = resultat.getString(Utils.COLUMN_NAME);
             String strDateIntro = resultat.getString(Utils.COLUMN_INTRODUCED);
@@ -57,14 +57,20 @@ public class ComputerMapper {
             computer = new Computer.ComputerBuilder(name).introduced(dateIntro).discontinued(dateDiscon)
                     .companyId(compIdRef).id(id).build();
 
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             throw new MapperException("[FDBTCOMP] Error on accessing data.");
-        } catch(DateTimeParseException e) {
+        } catch (DateTimeParseException e) {
             throw new MapperException("[FDBTCOMP] Error on parsing date.");
         }
         return computer;
     }
-
+    
+    /*
+     * Build a List of Computer from the different data from the ResultSet pass
+     * in parameter.
+     * 
+     * return a List of Computer object
+     */
     public List<Computer> fromDBToComputers(ResultSet resultat) throws MapperException {
         List<Computer> list = new ArrayList<>();
 
@@ -76,6 +82,39 @@ public class ComputerMapper {
             logger.error("Error on reading data from db.");
         }
 
+        return list;
+    }
+    
+    public ComputerDTO fromDBToDTO(ResultSet resultat) throws MapperException {
+        ComputerDTO computer = null;
+        try {
+            String id = resultat.getString(Utils.COLUMN_ID);
+            String name = resultat.getString(Utils.COLUMN_NAME);
+            String dateIntro = resultat.getString(Utils.COLUMN_INTRODUCED);
+            String dateDiscon = resultat.getString(Utils.COLUMN_DISCONTINUED);
+            String compIdRef = resultat.getString(Utils.COLUMN_COMPANYID);
+
+            computer = new ComputerDTO.ComputerDTOBuilder(name).introduced(dateIntro).discontinued(dateDiscon)
+                    .companyId(compIdRef).id(id).build();
+
+        } catch (SQLException e) {
+            throw new MapperException("[FDBTODTO] Error on accessing data.");
+        } catch (DateTimeParseException e) {
+            throw new MapperException("[FDBTODTO] Error on parsing date.");
+        }
+        return computer;
+    }
+    
+    public List<ComputerDTO> fromDBToDTOs(ResultSet resultat) throws MapperException {
+        List<ComputerDTO> list = new ArrayList<>();
+
+        try {
+            while (resultat.next()) {
+                list.add(fromDBToDTO(resultat));
+            }
+        } catch (SQLException sqle) {
+            logger.error("Error on reading data from db.");
+        }
         return list;
     }
 
@@ -97,13 +136,22 @@ public class ComputerMapper {
         computerDTO = builder.build();
         return computerDTO;
     }
+    
+    public List<ComputerDTO> toDTO(List<Computer> listComputer) {
+        List<ComputerDTO> listComputerDTO = new ArrayList<>();
+        
+        for(Computer computer : listComputer)
+            listComputerDTO.add(toDTO(computer));
+        
+        return listComputerDTO;
+    }
 
     public Computer toModel(ComputerDTO computerDTO) throws MapperException {
         Computer computer = null;
-        
+
         Long id = 0L;
         LocalDate intro = null, discon = null;
-        try{
+        try {
             if (computerDTO.getId() != null)
                 id = Long.parseLong(computerDTO.getId());
             if (computerDTO.getIntroduced().trim() != "")
@@ -112,14 +160,10 @@ public class ComputerMapper {
                 discon = LocalDate.parse(computerDTO.getDiscontinued(), formatterWEB);
             int compIdRef = Integer.parseInt(computerDTO.getCompany_id());
 
-            computer = new Computer.ComputerBuilder(computerDTO.getName())
-                        .id(id)
-                        .introduced(intro)
-                        .discontinued(discon)
-                        .companyId(compIdRef)
-                        .build();
-            
-        } catch(DateTimeParseException e) {
+            computer = new Computer.ComputerBuilder(computerDTO.getName()).id(id).introduced(intro).discontinued(discon)
+                    .companyId(compIdRef).build();
+
+        } catch (DateTimeParseException e) {
             throw new MapperException("[TOMODEL] Error on parsing date.");
         }
 
