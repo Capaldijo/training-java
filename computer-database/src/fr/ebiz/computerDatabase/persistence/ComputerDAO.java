@@ -57,6 +57,28 @@ public class ComputerDAO {
         }
         return resultat;
     }
+    
+    public ResultSet countSearch(String search) throws DAOException {
+        String query = "SELECT COUNT(*) as count FROM " +
+                "computer as c LEFT JOIN company as comp ON c.id = comp.id WHERE c.name LIKE ? OR " + 
+                "comp.name LIKE ?";
+        ResultSet resultat = null;
+        
+        try {
+            PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
+            prepStatement.setString(1, '%'+search+'%');
+            prepStatement.setString(2, '%'+search+'%');
+
+            resultat = prepStatement.executeQuery();
+            if (!resultat.isBeforeFirst()) {
+                throw new DAOException("[COUNTSEARCH] No data for request.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DAOException("[COUNTSEARCH] Error on accessing data.");
+        }
+        return resultat;
+    }
 
     public ResultSet findAll() throws DAOException {
         String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id "
@@ -82,7 +104,7 @@ public class ComputerDAO {
      */
     public ResultSet findByPage(int numPage, int nbLine) throws DAOException {
         String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id "
-                + "FROM computer as c LEFT JOIN company as comp ON c.id = comp.id LIMIT ?, ?";
+                + "FROM computer as c LEFT JOIN company as comp ON c.company_id = comp.id LIMIT ?, ?";
 
         ResultSet resultat = null;
         try {
@@ -103,7 +125,7 @@ public class ComputerDAO {
     
     public ResultSet searchByPage(String search, int numPage, int nbLine) throws DAOException {
         String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id FROM " +
-                    "computer as c LEFT JOIN company as comp ON c.id = comp.id WHERE c.name LIKE ? OR " + 
+                    "computer as c LEFT JOIN company as comp ON c.company_id = comp.id WHERE c.name LIKE ? OR " + 
                     "comp.name LIKE ? LIMIT ?, ?";
         ResultSet resultat = null;
         try {

@@ -26,16 +26,11 @@ import fr.ebiz.computerDatabase.utils.Utils;
 public class AddComputerServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    private static ComputerService computerService;
-
-    private static CompanyService companyService;
-
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
         try {
-            companyService = new CompanyService();
-            List<CompanyDTO> companiesDTO = companyService.getCompanies();
+            List<CompanyDTO> companiesDTO = CompanyService.getInstance().getCompanies();
             request.setAttribute("companies", companiesDTO);
             this.getServletContext().getRequestDispatcher(Utils.ADD_VIEW).forward(request, response);
         } catch (ConnectionException | DAOException | MapperException e) {
@@ -54,8 +49,7 @@ public class AddComputerServlet extends HttpServlet {
         ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder(name).introduced(introduced)
                 .discontinued(discontinued).companyId(companyId).build();
         try {
-            computerService = new ComputerService();
-            computerService.addComputer(computerDTO);
+            ComputerService.getInstance().addComputer(computerDTO);
         } catch (ServiceException | ConnectionException | DAOException | MapperException e) {
             System.out.println(e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

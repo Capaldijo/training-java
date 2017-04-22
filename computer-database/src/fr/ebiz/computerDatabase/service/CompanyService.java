@@ -1,7 +1,6 @@
 package fr.ebiz.computerDatabase.service;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,36 +15,50 @@ import fr.ebiz.computerDatabase.model.Company;
 import fr.ebiz.computerDatabase.model.CompanyDTO;
 import fr.ebiz.computerDatabase.persistence.CompanyDAO;
 
-public class CompanyService {
+public final class CompanyService {
 
-	final Logger logger = LoggerFactory.getLogger(CompanyService.class);
+    private static volatile CompanyService instance = null;
 
-	private CompanyDAO companyDAO;
+    final Logger logger = LoggerFactory.getLogger(CompanyService.class);
 
-	private CompanyMapper companyMapper;
+    private CompanyDAO companyDAO;
 
-	public CompanyService() throws ConnectionException {
-		companyDAO = new CompanyDAO();
-		companyMapper = new CompanyMapper();
-	}
+    private CompanyMapper companyMapper;
 
-	public List<CompanyDTO> getCompanies() throws DAOException, MapperException {
-		List<CompanyDTO> list = new ArrayList<>();
+    private CompanyService() throws ConnectionException {
+        companyDAO = new CompanyDAO();
+        companyMapper = new CompanyMapper();
+    }
 
-		ResultSet dbCompanies = companyDAO.findAll();
+    public final static CompanyService getInstance() throws ConnectionException {
+
+        if (CompanyService.instance == null) {
+            synchronized (CompanyService.class) {
+                if (CompanyService.instance == null) {
+                    CompanyService.instance = new CompanyService();
+                }
+            }
+        }
+        return CompanyService.instance;
+    }
+
+    public List<CompanyDTO> getCompanies() throws DAOException, MapperException {
+        List<CompanyDTO> list = new ArrayList<>();
+
+        ResultSet dbCompanies = companyDAO.findAll();
         List<Company> listCompany = companyMapper.fromDBToCompanies(dbCompanies);
         list = companyMapper.toDTO(listCompany);
 
-		return list;
-	}
+        return list;
+    }
 
-	public CompanyDTO getCompany(int id) throws DAOException, MapperException {
-		CompanyDTO companyDTO = new CompanyDTO();
+    public CompanyDTO getCompany(int id) throws DAOException, MapperException {
+        CompanyDTO companyDTO = new CompanyDTO();
 
-		ResultSet dbCompany = companyDAO.find(id);
-		Company company = companyMapper.fromDBToCompany(dbCompany);
-		companyDTO = companyMapper.toDTO(company);
+        ResultSet dbCompany = companyDAO.find(id);
+        Company company = companyMapper.fromDBToCompany(dbCompany);
+        companyDTO = companyMapper.toDTO(company);
 
-		return companyDTO;
-	}
+        return companyDTO;
+    }
 }

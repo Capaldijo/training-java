@@ -22,41 +22,41 @@ import fr.ebiz.computerDatabase.utils.Utils;
  */
 @WebServlet(name = "dashboard", urlPatterns = { "/dashboard" })
 public class DashboardServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private static ComputerService computerService;
-	
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-	    
-	    try {
-	        String nbPage = request.getParameter("numPage");
-	        String search = request.getParameter("search");
-	        
-	        computerService = new ComputerService();
-            int count = computerService.getNbComputer();
-            request.setAttribute("nbComputer", count);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        try {
+            String numPage = request.getParameter("numPage");
+            String search = request.getParameter("search");
+            String nbLine = request.getParameter("nbLine");
+
+            int count = 0;
+
+            int numP = 0, nbL = Utils.PAGEABLE_NBLINE;
+
+            if (numPage != null)
+                numP = Integer.parseInt(numPage);
             
-            List <ComputerDTO> listComputerDTO = null;
-            if (search != null) {
-                listComputerDTO = computerService.getResearchByPage("0", search);
-                request.setAttribute("computers", listComputerDTO);
-            } else {
-                if (nbPage != null){
-                    listComputerDTO = computerService.getComputersByPage(nbPage);
-                } else {
-                    listComputerDTO = computerService.getComputersByPage("0");
-                }
-                request.setAttribute("computers", listComputerDTO);
-            }
+            if (nbLine != null)
+                nbL = Integer.parseInt(nbLine);
+            
+            if (search == null)
+                search = "";
+                
+            count = ComputerService.getInstance().getNbComputer(search);
+            List<ComputerDTO> listComputerDTO = ComputerService.getInstance().getComputersByPage(numP, search, nbL);
+            
+            request.setAttribute("nbComputer", count);
+            request.setAttribute("computers", listComputerDTO);
+            request.setAttribute("numPage", numP);
+            request.setAttribute("search", search);
+            request.setAttribute("nbLine", nbL);
 
             this.getServletContext().getRequestDispatcher(Utils.DASHBOARD_VIEW).forward(request, response);
-        } catch (ConnectionException | ServiceException | MapperException | DAOException e) {
+        } catch (ConnectionException | ServiceException | MapperException | DAOException | NumberFormatException e) {
             System.out.println(e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-	}
-
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {	    
-	}
-
+    }
 }

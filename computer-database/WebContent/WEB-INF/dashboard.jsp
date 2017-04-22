@@ -100,15 +100,8 @@
 
     <footer class="navbar-fixed-bottom">
         <div class="container text-center">
-            <ul class="pagination">
-                <myTag:pagination list="page" target="dashboard"/>
-        	</ul>
-		
-	        <div class="btn-group btn-group-sm pull-right" role="group" >
-	            <button type="button" class="btn btn-default">10</button>
-	            <button type="button" class="btn btn-default">50</button>
-	            <button type="button" class="btn btn-default">100</button>
-	        </div>
+          <myTag:pagination target="dashboard" numPage="${numPage}"
+           nbComputer="${nbComputer}" nbLine="${nbLine}" search="${search}"/>
 		</div>
     </footer>
 <script src="js/jquery.min.js"></script>

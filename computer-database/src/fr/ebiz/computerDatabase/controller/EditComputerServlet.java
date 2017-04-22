@@ -24,22 +24,15 @@ import fr.ebiz.computerDatabase.utils.Utils;
  */
 @WebServlet(name = "editComputer", urlPatterns = { "/edit_computer" })
 public class EditComputerServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-    
-	private static CompanyService companyService;
-	
-	private static ComputerService computerService;
-	
+	private static final long serialVersionUID = 1L;	
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		try {
 			String id = request.getParameter("id");
 			
-			computerService = new ComputerService();
-			ComputerDTO computer = computerService.getComputer(id);
+			ComputerDTO computer = ComputerService.getInstance().getComputer(id);
 			
-			companyService = new CompanyService();
-			List<CompanyDTO> companiesDTO = companyService.getCompanies();
+			List<CompanyDTO> companiesDTO = CompanyService.getInstance().getCompanies();
 			
 			request.setAttribute("computer", computer);
 			request.setAttribute("companies", companiesDTO);
@@ -66,13 +59,12 @@ public class EditComputerServlet extends HttpServlet {
                                     .companyId(companyId)
                                     .build();
         try {
-            computerService = new ComputerService();
-            computerService.updateComputer(computerDTO);
+            ComputerService.getInstance().updateComputer(computerDTO);
+            this.getServletContext().getRequestDispatcher(Utils.DASHBOARD_VIEW).forward(request, response);
         } catch (ServiceException | ConnectionException | DAOException | MapperException e) {
             System.out.println(e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
-        this.getServletContext().getRequestDispatcher(Utils.DASHBOARD_VIEW).forward(request, response);
 	}
 
 }

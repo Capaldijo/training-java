@@ -1,7 +1,6 @@
 package fr.ebiz.computerDatabase.validator;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 

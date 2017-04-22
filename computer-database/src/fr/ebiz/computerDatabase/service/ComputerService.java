@@ -16,10 +16,11 @@ import fr.ebiz.computerDatabase.mapper.ComputerMapper;
 import fr.ebiz.computerDatabase.model.Computer;
 import fr.ebiz.computerDatabase.model.ComputerDTO;
 import fr.ebiz.computerDatabase.persistence.ComputerDAO;
-import fr.ebiz.computerDatabase.utils.Utils;
 import fr.ebiz.computerDatabase.validator.ComputerValidator;
 
-public class ComputerService {
+public final class ComputerService {
+
+    private static volatile ComputerService instance = null;
 
     final Logger logger = LoggerFactory.getLogger(ComputerService.class);
 
@@ -27,14 +28,26 @@ public class ComputerService {
 
     private ComputerMapper computerMapper;
 
-    public ComputerService() throws ConnectionException {
+    private ComputerService() throws ConnectionException {
         computerDAO = new ComputerDAO();
         computerMapper = new ComputerMapper();
     }
 
+    public final static ComputerService getInstance() throws ConnectionException {
+
+        if (ComputerService.instance == null) {
+            synchronized (ComputerService.class) {
+                if (ComputerService.instance == null) {
+                    ComputerService.instance = new ComputerService();
+                }
+            }
+        }
+        return ComputerService.instance;
+    }
+
     /*
-     * Check if ComputerDTO is Valid, if so map it to a Computer and insert into db
-     * else throw an ServiceException. 
+     * Check if ComputerDTO is Valid, if so map it to a Computer and insert into
+     * db else throw an ServiceException.
      */
     public void addComputer(ComputerDTO computerDTO) throws ServiceException, DAOException, MapperException {
         if (!ComputerValidator.isValid(computerDTO))
@@ -49,9 +62,9 @@ public class ComputerService {
     }
 
     /*
-     * Check first if the String passed is type of Long, if so, go get the Computer
-     * map it to ComputerDTO and return it.
-     * Else throw an ServiceException.
+     * Check first if the String passed is type of Long, if so, go get the
+     * Computer map it to ComputerDTO and return it. Else throw an
+     * ServiceException.
      */
     public ComputerDTO getComputer(String id) throws DAOException, MapperException, ServiceException {
         ComputerDTO computerDTO = null;
@@ -75,8 +88,8 @@ public class ComputerService {
     }
 
     /*
-     * Check if the ComputerDTO is valid first, if so, update it into db
-     * else throw an ServiceException
+     * Check if the ComputerDTO is valid first, if so, update it into db else
+     * throw an ServiceException
      */
     public void updateComputer(ComputerDTO computerDTO) throws DAOException, MapperException, ServiceException {
         if (!ComputerValidator.isValid(computerDTO))
@@ -91,44 +104,40 @@ public class ComputerService {
             }
         }
     }
-    
-    public List<ComputerDTO> getComputersByPage(String numPage) throws ServiceException, MapperException, DAOException {
+
+    public List<ComputerDTO> getComputersByPage(int numPage, String research, int nbLine) throws ServiceException, MapperException, DAOException {
         List<ComputerDTO> listComputerDTO = new ArrayList<>();
-        try{
-            int num = Integer.parseInt(numPage);
-            ResultSet res = computerDAO.findByPage(num, Utils.PAGEABLE_NBLINE);
+
+        try {
+            ResultSet res = null;
+
+            if (!research.equals(""))
+                res = computerDAO.searchByPage(research, numPage, nbLine);
+            else
+                res = computerDAO.findByPage(numPage, nbLine);
+
             listComputerDTO = computerMapper.fromDBToDTOs(res);
-        } catch(NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new ServiceException("[GETCOMPUTERBYPAGE] Error on ID given.");
         }
-        
+
         return listComputerDTO;
     }
-    
-    public List<ComputerDTO> getResearchByPage(String numPage, String research) throws ServiceException, MapperException, DAOException {
-        List<ComputerDTO> listComputerDTO = new ArrayList<>();
-        try{
-            int num = Integer.parseInt(numPage);
-            ResultSet res = computerDAO.searchByPage(research, num, Utils.PAGEABLE_NBLINE);
-            listComputerDTO = computerMapper.fromDBToDTOs(res);
-        } catch(NumberFormatException e) {
-            throw new ServiceException("[GETCOMPUTERBYPAGE] Error on ID given.");
-        }
-        
-        return listComputerDTO;
-    }
-    
-    public int getNbComputer() throws ServiceException, DAOException {
+
+    public int getNbComputer(String research) throws ServiceException, DAOException {
         int count = 0;
-        
-        try{
-            ResultSet res = computerDAO.count();
+        ResultSet res = null;
+        try {
+            if (research.equals(""))
+                res = computerDAO.count();
+            else
+                res = computerDAO.countSearch(research);
             res.next();
             count = res.getInt("count");
         } catch (SQLException e) {
             throw new ServiceException("[GETNBCOMPUTER] Error on accessing data.");
         }
-        
+
         return count;
     }
 }
