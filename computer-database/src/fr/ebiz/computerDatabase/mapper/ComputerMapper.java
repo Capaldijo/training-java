@@ -94,6 +94,11 @@ public class ComputerMapper {
             String dateDiscon = resultat.getString(Utils.COLUMN_DISCONTINUED);
             String compIdRef = resultat.getString(Utils.COLUMN_COMPANYID);
             
+            if(dateIntro != null)
+                dateIntro = dateIntro.split(" ")[0];
+            if(dateDiscon != null)
+                dateDiscon = dateDiscon.split(" ")[0];
+            
             computer = new ComputerDTO.ComputerDTOBuilder(name).introduced(dateIntro).discontinued(dateDiscon)
                     .companyId(compIdRef).id(id).build();
 

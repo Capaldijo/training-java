@@ -15,6 +15,11 @@ import fr.ebiz.computerDatabase.model.Company;
 import fr.ebiz.computerDatabase.model.CompanyDTO;
 import fr.ebiz.computerDatabase.persistence.CompanyDAO;
 
+/*
+ * Company service is a singleton class. that will handle
+ * all the Company service part, get all or one company
+ * using the CompanyDAO class and CompanyMapper class
+ */
 public final class CompanyService {
 
     private static volatile CompanyService instance = null;
@@ -42,6 +47,10 @@ public final class CompanyService {
         return CompanyService.instance;
     }
 
+    /*
+     * Return, in a list, all the Companies stored in the database
+     * mapped into CompanyDTO objects.
+     */
     public List<CompanyDTO> getCompanies() throws DAOException, MapperException {
         List<CompanyDTO> list = new ArrayList<>();
 
@@ -52,6 +61,10 @@ public final class CompanyService {
         return list;
     }
 
+    /*
+     * Return the company of that correspond to the 
+     * given id in parameter, into a mapped CompanyDTO. 
+     */
     public CompanyDTO getCompany(int id) throws DAOException, MapperException {
         CompanyDTO companyDTO = new CompanyDTO();
 

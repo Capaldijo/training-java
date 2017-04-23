@@ -7,9 +7,9 @@
 <%@ attribute name="nbLine" required="false" type="java.lang.String" description="Text to use in the second cell." %>
 <%@ attribute name="search" required="false" type="java.lang.String" description="Text to use in the second cell." %>
 
-<fmt:parseNumber var="lastLines" type="number" integerOnly="true" value="${Math.floor(nbComputer/nbLine)*nbLine}"/>
+<fmt:parseNumber var="lastPage" type="number" integerOnly="true" value="${Math.floor(nbComputer/nbLine)*nbLine}"/>
 
-<c:set var="lastPage" value="${Math.ceil(nbComputer/nbLine)}"/>
+<c:set var="nbPages" value="${Math.ceil(nbComputer/nbLine)}"/>
 
 <c:choose>
 	<c:when test="${numPage != 0}">
@@ -21,14 +21,23 @@
 </c:choose>
 
 <c:choose>
-	<c:when test="${currentPage == 1}">
-		<c:set var="loopPage" value="1" />
-	</c:when>
-	<c:when test="${currentPage == lastPage}">
-		<c:set var="loopPage" value="${lastPage-4}" />
+	<c:when test="${nbPages >= 4}">
+		<c:set var="iteration" value="4" />
 	</c:when>
 	<c:otherwise>
-		<c:set var="loopPage" value="${currentPage-2}" />
+		<c:set var="iteration" value="${nbPages-1}" />
+	</c:otherwise>
+</c:choose>
+
+<c:choose>
+	<c:when test="${currentPage == 1}">
+		<c:set var="loopPagination" value="1" />
+	</c:when>
+	<c:when test="${currentPage == nbPages}">
+		<c:set var="loopPagination" value="${nbPages-iteration}" />
+	</c:when>
+	<c:otherwise>
+		<c:set var="loopPagination" value="${currentPage-(iteration/2)}" />
 	</c:otherwise>
 </c:choose>
 
@@ -39,14 +48,17 @@
 	    </a>
 	</li>
 	
-	<c:forEach begin="${loopPage}" end="${loopPage+4}" varStatus="loop">
+	<c:forEach begin="${loopPagination}" end="${loopPagination+iteration}" varStatus="loop">
 		<c:choose>
-			<c:when test="${(loopPage) <= 0}">
+			<c:when test="${(loopPagination) == 1}">
+				<li><a href="${target}?search=${search}&numPage=${(loop.index-1)*nbLine}&nbLine=${nbLine}">${loop.index}</a></li>
+			</c:when>
+			<c:when test="${(currentPage-1) <= 1}">
 				<li><a href="${target}?search=${search}&numPage=${(loop.index)*nbLine}&nbLine=${nbLine}">${loop.index+1}</a></li>
 			</c:when>
-			<c:when test="${(loopPage+4) >= lastPage+1}">
+			<c:when test="${(loopPagination+iteration) >= nbPages+1}">
 				<li><a href="${target}?search=${search}&numPage=${(loop.index-2)*nbLine}&nbLine=${nbLine}">${loop.index-1}</a></li>
-			</c:when>
+			</c:when> 
 			<c:otherwise>
 				<li><a href="${target}?search=${search}&numPage=${(loop.index-1)*nbLine}&nbLine=${nbLine}">${loop.index}</a></li>
 			</c:otherwise>
@@ -54,7 +66,7 @@
 	</c:forEach>
 	
 	<li>
-		<a href="${target}?search=${search}&numPage=${lastLines}&nbLine=${nbLine}" aria-label="Next">
+		<a href="${target}?search=${search}&numPage=${lastPage}&nbLine=${nbLine}" aria-label="Next">
 		    <span aria-hidden="true">&raquo;</span>
 		</a>
 	</li>

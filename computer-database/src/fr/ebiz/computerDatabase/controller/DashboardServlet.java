@@ -43,7 +43,7 @@ public class DashboardServlet extends HttpServlet {
             
             if (search == null)
                 search = "";
-                
+            
             count = ComputerService.getInstance().getNbComputer(search);
             List<ComputerDTO> listComputerDTO = ComputerService.getInstance().getComputersByPage(numP, search, nbL);
             

@@ -60,7 +60,8 @@ public class EditComputerServlet extends HttpServlet {
                                     .build();
         try {
             ComputerService.getInstance().updateComputer(computerDTO);
-            this.getServletContext().getRequestDispatcher(Utils.DASHBOARD_VIEW).forward(request, response);
+            
+            response.sendRedirect("dashboard");
         } catch (ServiceException | ConnectionException | DAOException | MapperException e) {
             System.out.println(e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

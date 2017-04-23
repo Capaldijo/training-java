@@ -21,6 +21,10 @@ public class CompanyDAO {
 		coMysql = ConnectionMYSQL.getInstance().getConnection();
 	}
 	
+	/*
+	 * Return all the company stored in the database
+	 * into a ResultSet object.
+	 */
 	public ResultSet findAll() throws DAOException {
 		String query = "SELECT * FROM " + TABLE_NAME;
 		
@@ -36,6 +40,10 @@ public class CompanyDAO {
 		return resultat;
 	}
 
+	/*
+	 * Following the given ID, return the company corresponding into
+	 * a ResultSet object.
+	 */
 	public ResultSet find(int id) throws DAOException {
 		String query = "SELECT * FROM " + TABLE_NAME + " WHERE id = ?";
 		
@@ -57,7 +65,7 @@ public class CompanyDAO {
 
 	/*
 	 * Following the parameters, build a query that get only 10nth lines of the
-	 * Company's table and return them
+	 * Company's table and return them into a ResultSet object
 	 * 
 	 * Return a list of 10 Company
 	 */

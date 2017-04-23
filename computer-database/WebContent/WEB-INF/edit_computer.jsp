@@ -28,7 +28,7 @@
                     </div>
                     <h1>Edit Computer</h1>
 
-                    <form action="edit_computer" method="POST">
+                    <form action="edit_computer" method="POST" id="editForm">
                         <input type="hidden" value="${computer.id}" id="id" name="id" />
                         <fieldset>
                             <div class="form-group">
@@ -71,6 +71,7 @@
         </div>
     </section>
     <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.validate.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script>
 		$(function() {
@@ -92,8 +93,17 @@
 				format: 'YYYY-MM-DD',
 				defaultDate: discon
 			});
+
+			$('#editForm').validate({
+		        rules: {
+		        	computerName: {
+		                alphanumeric: true
+		            }
+		        }
+		    });
 		});
 	</script>
+	<script src="js/additional-methods.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
 </body>

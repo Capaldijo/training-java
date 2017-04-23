@@ -18,6 +18,11 @@ import fr.ebiz.computerDatabase.model.ComputerDTO;
 import fr.ebiz.computerDatabase.persistence.ComputerDAO;
 import fr.ebiz.computerDatabase.validator.ComputerValidator;
 
+/*
+ * Computer service is a singleton class. that will handle
+ * all the Computer service part, get all or one company
+ * using the ComputerDAO class and ComputerMapper class
+ */
 public final class ComputerService {
 
     private static volatile ComputerService instance = null;
@@ -46,8 +51,9 @@ public final class ComputerService {
     }
 
     /*
-     * Check if ComputerDTO is Valid, if so map it to a Computer and insert into
-     * db else throw an ServiceException.
+     * Add a computer into the database.
+     * Check if ComputerDTO is Valid, if so map it to a Computer and insert it
+     * into db else throw an ServiceException.
      */
     public void addComputer(ComputerDTO computerDTO) throws ServiceException, DAOException, MapperException {
         if (!ComputerValidator.isValid(computerDTO))
@@ -62,6 +68,7 @@ public final class ComputerService {
     }
 
     /*
+     * Return a Computer by its ID given in parameter.
      * Check first if the String passed is type of Long, if so, go get the
      * Computer map it to ComputerDTO and return it. Else throw an
      * ServiceException.
@@ -88,6 +95,7 @@ public final class ComputerService {
     }
 
     /*
+     * Update a computer into the database.
      * Check if the ComputerDTO is valid first, if so, update it into db else
      * throw an ServiceException
      */
@@ -105,6 +113,12 @@ public final class ComputerService {
         }
     }
 
+    /*
+     * Return a list of ComputerDTO objects.
+     * If the research parameter is empty, get all the computers
+     * depending the current page. If not, get the computers 
+     * depending the given research parameter.
+     */
     public List<ComputerDTO> getComputersByPage(int numPage, String research, int nbLine) throws ServiceException, MapperException, DAOException {
         List<ComputerDTO> listComputerDTO = new ArrayList<>();
 
@@ -124,6 +138,11 @@ public final class ComputerService {
         return listComputerDTO;
     }
 
+    /*
+     * Return the number of all the computers stored in the database if
+     * research parameter is empty, else return the number of computers 
+     * corresponding to the research.
+     */
     public int getNbComputer(String research) throws ServiceException, DAOException {
         int count = 0;
         ResultSet res = null;

@@ -60,7 +60,7 @@ public class ComputerDAO {
     
     public ResultSet countSearch(String search) throws DAOException {
         String query = "SELECT COUNT(*) as count FROM " +
-                "computer as c LEFT JOIN company as comp ON c.id = comp.id WHERE c.name LIKE ? OR " + 
+                "computer as c LEFT JOIN company as comp ON c.company_id = comp.id WHERE c.name LIKE ? OR " + 
                 "comp.name LIKE ?";
         ResultSet resultat = null;
         
@@ -123,6 +123,12 @@ public class ComputerDAO {
         return resultat;
     }
     
+    /*
+     * Following the parameters, build a query, depending the research,
+     *  that get only 10nth lines of the Computer's table and return them
+     * 
+     * Return a list of 10 Computer
+     */
     public ResultSet searchByPage(String search, int numPage, int nbLine) throws DAOException {
         String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id FROM " +
                     "computer as c LEFT JOIN company as comp ON c.company_id = comp.id WHERE c.name LIKE ? OR " + 
@@ -167,6 +173,10 @@ public class ComputerDAO {
         return this.insertOrUpdate(comp, 1);
     }
 
+    /*
+     * According to the given id in parameter,
+     * build the query, find and delete it from the database.
+     */
     public int delete(int id) throws SQLException {
         String query = "DELETE FROM " + Utils.COMPUTER_TABLE + " WHERE id = ?";
         PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(query);
