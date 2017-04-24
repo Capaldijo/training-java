@@ -15,17 +15,17 @@ import fr.ebiz.computerDatabase.model.ComputerDTO;
 
 public class ComputerMapperTest {
 
-    ComputerMapper computerMapper = null;
+    private ComputerMapper computerMapper = null;
     
-    ComputerDTO computerDTO = null;
-    Computer computer = null;
+    private ComputerDTO computerDTO = null;
+    private Computer computer = null;
     
-    String intro = "1995-05-04";
-    String discon = "2005-06-04";
+    private String intro = "1995-05-04";
+    private String discon = "2005-06-04";
     
-    LocalDate introDate = null, disconDate = null;
+    private LocalDate introDate = null, disconDate = null;
     
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
     @Before
     public void beforeTest() {

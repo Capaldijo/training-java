@@ -10,16 +10,16 @@ import fr.ebiz.computerDatabase.validator.ComputerValidator;
 
 public class ComputerValidatorTest {
 
-    ComputerDTO computerValidName = null;
-    ComputerDTO computerValidNameId = null;
-    ComputerDTO computerValidAll = null;
-    ComputerDTO computerInvalidId = null;
-    ComputerDTO computerInvalidNameNull = null;
-    ComputerDTO computerInvalideNameTag = null;
-    ComputerDTO computerInvalidIntroDate = null;
-    ComputerDTO computerInvalidDisconDate = null;
-    ComputerDTO computerInvalidOrderDates = null;
-    ComputerDTO computerInvalidCompanyId = null;
+    private ComputerDTO computerValidName = null;
+    private ComputerDTO computerValidNameId = null;
+    private ComputerDTO computerValidAll = null;
+    private ComputerDTO computerInvalidId = null;
+    private ComputerDTO computerInvalidNameNull = null;
+    private ComputerDTO computerInvalideNameTag = null;
+    private ComputerDTO computerInvalidIntroDate = null;
+    private ComputerDTO computerInvalidDisconDate = null;
+    private ComputerDTO computerInvalidOrderDates = null;
+    private ComputerDTO computerInvalidCompanyId = null;
 
     @Before
     public void beforeTest() {
