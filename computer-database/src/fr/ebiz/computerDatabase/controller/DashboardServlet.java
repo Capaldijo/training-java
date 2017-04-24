@@ -18,7 +18,7 @@ import fr.ebiz.computerDatabase.service.ComputerService;
 import fr.ebiz.computerDatabase.utils.Utils;
 
 /**
- * Servlet implementation class DashboardServlet
+ * Servlet implementation class DashboardServlet.
  */
 @WebServlet(name = "dashboard", urlPatterns = { "/dashboard" })
 public class DashboardServlet extends HttpServlet {
@@ -35,18 +35,21 @@ public class DashboardServlet extends HttpServlet {
 
             int numP = 0, nbL = Utils.PAGEABLE_NBLINE;
 
-            if (numPage != null)
+            if (numPage != null) {
                 numP = Integer.parseInt(numPage);
-            
-            if (nbLine != null)
+            }
+
+            if (nbLine != null) {
                 nbL = Integer.parseInt(nbLine);
-            
-            if (search == null)
+            }
+
+            if (search == null) {
                 search = "";
-            
+            }
+
             count = ComputerService.getInstance().getNbComputer(search);
             List<ComputerDTO> listComputerDTO = ComputerService.getInstance().getComputersByPage(numP, search, nbL);
-            
+
             request.setAttribute("nbComputer", count);
             request.setAttribute("computers", listComputerDTO);
             request.setAttribute("numPage", numP);
@@ -58,5 +61,9 @@ public class DashboardServlet extends HttpServlet {
             System.out.println(e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
     }
 }

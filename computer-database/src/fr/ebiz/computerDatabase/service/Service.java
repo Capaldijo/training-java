@@ -18,7 +18,7 @@ import fr.ebiz.computerDatabase.model.Company;
 import fr.ebiz.computerDatabase.model.Computer;
 import fr.ebiz.computerDatabase.persistence.CompanyDAO;
 import fr.ebiz.computerDatabase.persistence.ComputerDAO;
-import fr.ebiz.computerDatabase.persistence.ConnectionMYSQL;
+import fr.ebiz.computerDatabase.persistence.ConnectionDB;
 import fr.ebiz.computerDatabase.utils.Utils;
 import fr.ebiz.computerDatabase.view.Cli;
 
@@ -46,7 +46,7 @@ public class Service {
         view = new Cli();
     }
 
-    public void init() throws DAOException, MapperException {
+    public void init() throws DAOException, MapperException, SQLException {
 
         while (shouldKeepGoin) {
 
@@ -70,7 +70,7 @@ public class Service {
 
         } // while(shouldKeepGoin)
         try {
-            ConnectionMYSQL.getInstance().closeAll();
+            ConnectionDB.getInstance().closeAll();
         } catch (NullPointerException npe) {
             logger.error("Error on closing to DB.");
         } catch (ConnectionException e) {
@@ -103,14 +103,16 @@ public class Service {
                 }
                 switch (view.printPageableList(list)) {
                 case 1: // Previous Page
-                    if (numPage > 0)
+                    if (numPage > 0) {
                         numPage -= Utils.PAGEABLE_NBLINE;
-                    else
+                    } else {
                         logger.info("Previous was selected but already at first page.");
+                    }
                     break;
                 case 2: // Next Page
-                    if (!list.isEmpty())
+                    if (!list.isEmpty()) {
                         numPage += Utils.PAGEABLE_NBLINE;
+                    }
                     break;
                 case 3: // Quit
                     stop = true;
@@ -128,39 +130,34 @@ public class Service {
     /*
      * Only print info about computers: List, Show details, Update or Delete
      */
-    private void listComputer() throws DAOException, MapperException {
+    private void listComputer() throws DAOException, MapperException, SQLException {
         /* ------ GET ALL COMPUTER ----- */
         boolean stop = false;
         while (!stop) {
-            try {
-                switch (view.printSubMenuComputers()) {
-                case 1:
-                    // pageable list computer
-                    pageableListComputer();
-                    break;
-                case 2:
-                    // show details of a computer
-                    showDetails();
-                    break;
-                case 3:
-                    // update computer
-                    updateComputer();
-                    break;
-                case 4:
-                    // delete computer
-                    deleteComputer();
-                    break;
-                case 5:
-                    // quit
-                    stop = true;
-                    break;
-                default:
-                    view.print("Error top menu");
+            switch (view.printSubMenuComputers()) {
+            case 1:
+                // pageable list computer
+                pageableListComputer();
+                break;
+            case 2:
+                // show details of a computer
+                showDetails();
+                break;
+            case 3:
+                // update computer
+                updateComputer();
+                break;
+            case 4:
+                // delete computer
+                deleteComputer();
+                break;
+            case 5:
+                // quit
+                stop = true;
+                break;
+            default:
+                view.print("Error top menu");
 
-                }
-            } catch (SQLException e) {
-                view.print("Error on request findAll companies");
-                logger.error("Error request select all Companies");
             }
         }
     }
@@ -186,11 +183,12 @@ public class Service {
         Computer computer = new Computer.ComputerBuilder(name).introduced(intro).discontinued(discon)
                 .companyId(compIdRed).build();
 
-        if (computer != null)
+        if (computer != null) {
             if (computerDAO.insert(computer) == 1) {
                 view.print("Insert done");
                 logger.info("insert computer done.\n");
             }
+        }
     }
 
     /*
@@ -216,14 +214,16 @@ public class Service {
             }
             switch (view.printPageableList(list)) {
             case 1: // Previous Page
-                if (numPage > 0)
+                if (numPage > 0) {
                     numPage -= Utils.PAGEABLE_NBLINE;
-                else
+                } else {
                     logger.info("Previous was selected but already at first page.");
+                }
                 break;
             case 2: // Next Page
-                if (!list.isEmpty())
+                if (!list.isEmpty()) {
                     numPage += Utils.PAGEABLE_NBLINE;
+                }
                 break;
             case 3: // Quit
                 stop = true;
@@ -324,8 +324,9 @@ public class Service {
                         } else if (computer.getIntroduced() != null && discon.isBefore(computer.getIntroduced())) {
                             view.print("Discontinued can not be before introduced one");
                             choice = null;
-                        } else
+                        } else {
                             computer.setDiscontinued(discon);
+                        }
                     }
                 } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
             } while ((intro != null && discon != null) && intro.isAfter(discon));
@@ -339,7 +340,7 @@ public class Service {
                 }
             } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 
-            if (computer != null)
+            if (computer != null) {
                 if (computerDAO.update(computer) == 1) {
                     view.print("Update success");
                     logger.info("Update computer done.\n");
@@ -347,7 +348,7 @@ public class Service {
                     view.print("Update error");
                     logger.info("Update computer error.\n");
                 }
-
+            }
         } catch (SQLException e) {
             view.print("The computer you try to update does not exist.");
             logger.error("Error selecting a computer that does not exist.");
@@ -376,21 +377,21 @@ public class Service {
         }
     }
 
-    /*
+    /**
      * Method that ask the user the year, month, day, hour and minute in order
      * to build a LocalDateTime object for the computer.
-     * 
      * The string parameter is here only here to be print nothing special
-     * 
-     * Return the LocalDateTime object built by the user's given answers
+     * @param msg print to the user
+     * @return the LocalDateTime object built by the user's given answers
      */
     public LocalDate stringToDate(String msg) {
         view.print(msg);
         LocalDate time = null;
         while (time == null) {
             int year = view.getIntChoice("Enter the year (for a null date: 0):");
-            if (year == 0)
+            if (year == 0) {
                 return null;
+            }
 
             while (year < 1970 || year > 2020) {
                 view.print("\nYear is too old or too far in the future.");
@@ -417,5 +418,4 @@ public class Service {
         }
         return time;
     }
-
-}// class
+}

@@ -30,12 +30,21 @@ public final class CompanyService {
 
     private CompanyMapper companyMapper;
 
+    /**
+     * Constructor.
+     * @throws ConnectionException error on db
+     */
     private CompanyService() throws ConnectionException {
         companyDAO = new CompanyDAO();
         companyMapper = new CompanyMapper();
     }
 
-    public final static CompanyService getInstance() throws ConnectionException {
+    /**
+     * GetInstance.
+     * @return CompanyService instance
+     * @throws ConnectionException error on db
+     */
+    public static CompanyService getInstance() throws ConnectionException {
 
         if (CompanyService.instance == null) {
             synchronized (CompanyService.class) {
@@ -47,9 +56,12 @@ public final class CompanyService {
         return CompanyService.instance;
     }
 
-    /*
-     * Return, in a list, all the Companies stored in the database
+    /**
+     * Get, in a list, all the Companies stored in the database
      * mapped into CompanyDTO objects.
+     * @throws DAOException error on dao
+     * @throws MapperException error on mapper
+     * @return list of companyDTO
      */
     public List<CompanyDTO> getCompanies() throws DAOException, MapperException {
         List<CompanyDTO> list = new ArrayList<>();
@@ -61,9 +73,13 @@ public final class CompanyService {
         return list;
     }
 
-    /*
-     * Return the company of that correspond to the 
-     * given id in parameter, into a mapped CompanyDTO. 
+    /**
+     * Get the company of that correspond to the
+     * given id in parameter, into a mapped CompanyDTO.
+     * @param id id to found
+     * @throws DAOException error on dao
+     * @throws MapperException error on mapper
+     * @return ComputerDTO
      */
     public CompanyDTO getCompany(int id) throws DAOException, MapperException {
         CompanyDTO companyDTO = new CompanyDTO();

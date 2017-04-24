@@ -20,7 +20,7 @@ import fr.ebiz.computerDatabase.service.ComputerService;
 import fr.ebiz.computerDatabase.utils.Utils;
 
 /**
- * Servlet implementation class AddComputerServlet
+ * Servlet implementation class AddComputerServlet.
  */
 @WebServlet(name = "addComputer", urlPatterns = { "/add_computer" })
 public class AddComputerServlet extends HttpServlet {

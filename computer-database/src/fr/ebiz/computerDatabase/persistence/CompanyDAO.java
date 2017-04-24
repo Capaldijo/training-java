@@ -18,7 +18,7 @@ public class CompanyDAO {
 
 	public CompanyDAO() throws ConnectionException {
 		TABLE_NAME = Utils.COMPANY_TABLE;
-		coMysql = ConnectionMYSQL.getInstance().getConnection();
+		coMysql = ConnectionDB.getInstance().getConnection();
 	}
 	
 	/*

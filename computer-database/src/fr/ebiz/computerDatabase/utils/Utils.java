@@ -2,47 +2,48 @@ package fr.ebiz.computerDatabase.utils;
 
 public interface Utils {
 
-	// ---- Var For DataBase
-	public static final String urlDB = "jdbc:mysql://localhost:3306/computer-database-db";
+    // ---- Var For DataBase
 
-	public static final String userDB = "admincdb";
+    String URLDB = "jdbc:mysql://localhost:3306/computer-database-db";
 
-	public static final String passwdDB = "qwerty1234";
+    String USERDB = "admincdb";
 
-	public static final String COMPANY_TABLE = "company";
+    String PASSWDDB = "qwerty1234";
 
-	public static final String COMPUTER_TABLE = "computer";
+    String COMPANY_TABLE = "company";
 
-	public static final String COLUMN_ID = "id";
+    String COMPUTER_TABLE = "computer";
 
-	public static final String COLUMN_NAME = "name";
+    String COLUMN_ID = "id";
 
-	public static final String COLUMN_INTRODUCED = "introduced";
+    String COLUMN_NAME = "name";
 
-	public static final String COLUMN_DISCONTINUED = "discontinued";
+    String COLUMN_INTRODUCED = "introduced";
 
-	public static final String COLUMN_COMPANYID = "company_id";
+    String COLUMN_DISCONTINUED = "discontinued";
 
-	public static final int PAGEABLE_NBLINE = 10;
+    String COLUMN_COMPANYID = "company_id";
 
-	// ---- Var for Servlet ----
+    int PAGEABLE_NBLINE = 10;
 
-	public static String DASHBOARD_VIEW = "/WEB-INF/dashboard.jsp";
+    // ---- Var for Servlet ----
 
-	public static String ADD_VIEW = "/WEB-INF/add_computer.jsp";
-	
-	public static String EDIT_VIEW = "/WEB-INF/edit_computer.jsp";
-	
-	// ---- Var for JSP ----
-	
-	public static String PARAM_COMPUTER_ID = "id";
-	
-	public static String PARAM_COMPUTER_NAME = "computerName";
-	
-	public static String PARAM_COMPUTER_INTRODUCED = "computerIntro";
-	
-	public static String PARAM_COMPUTER_DISCONTINUED = "computerDiscon";
-	
-	public static String PARAM_COMPUTER_COMPANYID = "companyId";
-	
+    String DASHBOARD_VIEW = "/WEB-INF/dashboard.jsp";
+
+    String ADD_VIEW = "/WEB-INF/add_computer.jsp";
+
+    String EDIT_VIEW = "/WEB-INF/edit_computer.jsp";
+
+    // ---- Var for JSP ----
+
+    String PARAM_COMPUTER_ID = "id";
+
+    String PARAM_COMPUTER_NAME = "computerName";
+
+    String PARAM_COMPUTER_INTRODUCED = "computerIntro";
+
+    String PARAM_COMPUTER_DISCONTINUED = "computerDiscon";
+
+    String PARAM_COMPUTER_COMPANYID = "companyId";
+
 }
