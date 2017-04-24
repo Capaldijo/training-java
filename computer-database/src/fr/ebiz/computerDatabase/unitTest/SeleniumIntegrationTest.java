@@ -1,5 +1,6 @@
 package fr.ebiz.computerDatabase.unitTest;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import java.util.concurrent.TimeUnit;
@@ -7,8 +8,13 @@ import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.Select;
 
 public class SeleniumIntegrationTest {
 
@@ -23,10 +29,17 @@ public class SeleniumIntegrationTest {
         /*
          * For Windaube Users, go get your driver here and chose the v0.15.0
          * https://github.com/mozilla/geckodriver/releases
+         * 
+         * System.setProperty("webdriver.gecko.driver","src/test/resources/seleniumDriver/geckodriver");
+         * 
+         * driver = new FirefoxDriver();
+         *  Test done on Chrome because the firefox driver is not fully compatible with firefox v53
          */
-        System.setProperty("webdriver.gecko.driver","src/test/resources/geckoDriver/geckodriver");
         
-        driver = new FirefoxDriver();
+        System.setProperty("webdriver.chrome.driver","src/test/resources/seleniumDriver/chromedriver");
+        
+        driver = new ChromeDriver();
+        
         driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
     }
 
@@ -34,14 +47,51 @@ public class SeleniumIntegrationTest {
     public void testWelcomePage() throws Exception {
         driver.get(baseUrl);
         
-        Thread.sleep(2000);
+        String actualUrl = driver.getCurrentUrl();
+        
+        assertEquals("Correct URL is open", baseUrl, actualUrl);
     }
     
     @Test
     public void testAddComputer() throws Exception {
         driver.get(addUrl);
         
-        Thread.sleep(1000);
+        
+        String actualUrl = driver.getCurrentUrl();
+        
+        assertEquals("Correct URL is open", addUrl, actualUrl);
+        
+        WebElement inputName = driver.findElement(By.id("computerName"));
+        WebElement inputIntro = driver.findElement(By.id("introduced"));
+        WebElement inputDiscon = driver.findElement(By.id("discontinued"));
+        Select inputSelect = new Select(driver.findElement(By.id("companyId")));
+        
+        inputName.sendKeys("TestSelenium");
+        
+        /*
+         * Because of dateTimePicker, we must click first so 
+         * that it puts default value, clear the input
+         * and then add the date we want
+         */
+        inputIntro.click();
+        inputIntro.clear();
+        inputIntro.sendKeys("1995-04-05");
+        
+        /*
+         * Still because of dateTimepicker that overlap over the next input because
+         * of previous click, throw an exception. To fix this, click on another
+         * input in order to get it works.
+         */
+        inputName.click();
+        
+        inputDiscon.click();
+        inputDiscon.clear();
+        inputDiscon.sendKeys("2005-06-05");
+        
+        // Select the fifth option in the select
+        inputSelect.selectByIndex(4);
+
+        driver.findElement(By.id("submitAdd")).sendKeys(Keys.ENTER);
     }
 
     @After

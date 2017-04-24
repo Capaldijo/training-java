@@ -8,10 +8,20 @@ $(function() {
 		format: 'YYYY-MM-DD',
 	});
 	
-	$('#addForm').validate({
-        rules: {
+	$('#addForm').bootstrapValidator({
+		feedbackIcons: {
+            valid: 'glyphicon glyphicon-ok',
+            invalid: 'glyphicon glyphicon-remove',
+            validating: 'glyphicon glyphicon-refresh'
+        },
+		fields: {
         	computerName: {
-                alphanumeric: true
+        		validators: {
+        			regexp: {
+        				regexp: /^[a-zA-Z\s_0-9\-.]+/,
+        				message: 'You can only type in alphabetical and numerical characters.'
+        			}
+        		}
             }
         }
     });

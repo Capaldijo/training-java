@@ -11,7 +11,8 @@
 <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
 <link href="css/font-awesome.css" rel="stylesheet" media="screen">
 <link href="css/main.css" rel="stylesheet" media="screen">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/css/bootstrapValidator.min.css" rel="stylesheet" media="screen">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/css/bootstrap-datetimepicker.min.css" media="screen"/>
 </head>
 <body>
     <header class="navbar navbar-inverse navbar-fixed-top">
@@ -33,7 +34,7 @@
                         <fieldset>
                             <div class="form-group">
                                 <label for="computerName">Computer name</label>
-                                <input type="text" class="form-control" id="computerName" name="computerName" value="${computer.name}" placeholder="Computer name" maxlength="20" required>
+                                <input type="text" class="form-control" id="computerName" name="computerName" value="${computer.name}" placeholder="Computer name" maxlength="25" required>
                             </div>
                             <div class="form-group">
                                 <label for="introduced">Introduced date</label>
@@ -71,7 +72,6 @@
         </div>
     </section>
     <script src="js/jquery.min.js"></script>
-    <script src="js/jquery.validate.min.js"></script>
 	<script src="js/bootstrap.min.js"></script>
 	<script>
 		$(function() {
@@ -94,16 +94,26 @@
 				defaultDate: discon
 			});
 
-			$('#editForm').validate({
-		        rules: {
+			$('#editForm').bootstrapValidator({
+				feedbackIcons: {
+		            valid: 'glyphicon glyphicon-ok',
+		            invalid: 'glyphicon glyphicon-remove',
+		            validating: 'glyphicon glyphicon-refresh'
+		        },
+				fields: {
 		        	computerName: {
-		                alphanumeric: true
+		        		validators: {
+		        			regexp: {
+		        				regexp: /^[a-zA-Z\s_0-9\-.]+/,
+		        				message: 'You can only type in alphabetical and numerical characters.'
+		        			}
+		        		}
 		            }
 		        }
 		    });
 		});
 	</script>
-	<script src="js/additional-methods.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-validator/0.5.3/js/bootstrapValidator.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.6/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.37/js/bootstrap-datetimepicker.min.js"></script>
 </body>
