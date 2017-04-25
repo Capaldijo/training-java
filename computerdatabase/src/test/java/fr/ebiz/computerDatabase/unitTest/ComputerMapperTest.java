@@ -8,10 +8,10 @@ import java.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
-import fr.ebiz.computerDatabase.exceptions.MapperException;
-import fr.ebiz.computerDatabase.mapper.ComputerMapper;
-import fr.ebiz.computerDatabase.model.Computer;
-import fr.ebiz.computerDatabase.model.ComputerDTO;
+import fr.ebiz.computerdatabase.exceptions.MapperException;
+import fr.ebiz.computerdatabase.mapper.ComputerMapper;
+import fr.ebiz.computerdatabase.model.Computer;
+import fr.ebiz.computerdatabase.model.ComputerDTO;
 
 public class ComputerMapperTest {
 
@@ -36,21 +36,21 @@ public class ComputerMapperTest {
         computerMapper = new ComputerMapper();
 
         computerDTO = new ComputerDTO.Builder("test")
-                            .id("1")
-                            .introduced(intro)
-                            .discontinued(discon)
-                            .companyId("5")
-                            .build();
+                .id("1")
+                .introduced(intro)
+                .discontinued(discon)
+                .companyId("5")
+                .build();
 
         introDate = LocalDate.parse(intro, formatter);
         disconDate = LocalDate.parse(discon, formatter);
 
         computer = new Computer.Builder("test")
-                        .id(1L)
-                        .introduced(introDate)
-                        .discontinued(disconDate)
-                        .companyId(5)
-                        .build();
+                .id(1L)
+                .introduced(introDate)
+                .discontinued(disconDate)
+                .companyId(5)
+                .build();
     }
 
     /**
@@ -59,7 +59,7 @@ public class ComputerMapperTest {
     @Test
     public void testToDTO() {
         try {
-            assertEquals("Testing to DTO", computer, computerMapper.toModel(computerDTO));
+            assertEquals("Testing to DTO", computer, computerMapper.toComputer(computerDTO));
         } catch (MapperException e) {
             e.printStackTrace();
         }

@@ -6,8 +6,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import fr.ebiz.computerDatabase.model.ComputerDTO;
-import fr.ebiz.computerDatabase.validator.ComputerValidator;
+import fr.ebiz.computerdatabase.model.ComputerDTO;
+import fr.ebiz.computerdatabase.validator.ComputerValidator;
 
 public class ComputerValidatorTest {
 
