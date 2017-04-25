@@ -37,7 +37,7 @@ public class SeleniumIntegrationTest {
          *  Test done on Chrome because the firefox driver is not fully compatible with firefox v53
          */
 
-        System.setProperty("webdriver.chrome.driver", "src/test/resources/seleniumDriver/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "src/test/resources/seleniumdriver/chromedriver");
 
         driver = new ChromeDriver();
 

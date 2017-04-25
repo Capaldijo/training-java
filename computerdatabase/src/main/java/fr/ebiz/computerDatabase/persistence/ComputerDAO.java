@@ -1,12 +1,11 @@
 package fr.ebiz.computerDatabase.persistence;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.PreparedStatement;
 
 import fr.ebiz.computerDatabase.exceptions.ConnectionException;
 import fr.ebiz.computerDatabase.exceptions.DAOException;
@@ -40,7 +39,7 @@ public class ComputerDAO {
 
         ResultSet resultat = null;
         try {
-            PreparedStatement prepStatement = (PreparedStatement) co.prepareStatement(query);
+            PreparedStatement prepStatement = co.prepareStatement(query);
             prepStatement.setLong(1, idComp);
             resultat = prepStatement.executeQuery();
             if (!resultat.isBeforeFirst()) {
@@ -86,7 +85,7 @@ public class ComputerDAO {
         ResultSet resultat = null;
 
         try {
-            PreparedStatement prepStatement = (PreparedStatement) co.prepareStatement(query);
+            PreparedStatement prepStatement = co.prepareStatement(query);
             prepStatement.setString(1, '%' + search + '%');
             prepStatement.setString(2, '%' + search + '%');
 
@@ -136,7 +135,7 @@ public class ComputerDAO {
 
         ResultSet resultat = null;
         try {
-            PreparedStatement prepStatement = (PreparedStatement) co.prepareStatement(query);
+            PreparedStatement prepStatement = co.prepareStatement(query);
             prepStatement.setInt(1, numPage);
             prepStatement.setInt(2, nbLine);
 
@@ -166,7 +165,7 @@ public class ComputerDAO {
                 + "comp.name LIKE ? LIMIT ?, ?";
         ResultSet resultat = null;
         try {
-            PreparedStatement prepStatement = (PreparedStatement) co.prepareStatement(query);
+            PreparedStatement prepStatement = co.prepareStatement(query);
             prepStatement.setString(1, '%' + search + '%');
             prepStatement.setString(2, '%' + search + '%');
             prepStatement.setInt(3, numPage);
@@ -213,7 +212,7 @@ public class ComputerDAO {
         PreparedStatement prepStatement;
         int res = 0;
         try {
-            prepStatement = (PreparedStatement) co.prepareStatement(query);
+            prepStatement = co.prepareStatement(query);
             prepStatement.setString(1, name);
             prepStatement.setString(2, strDateIntro);
             prepStatement.setString(3, strDateDiscon);
@@ -254,12 +253,12 @@ public class ComputerDAO {
         }
 
         String query = "UPDATE " + Utils.COMPUTER_TABLE
-                    + " SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
+                + " SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
 
         PreparedStatement prepStatement;
         int res = 0;
         try {
-            prepStatement = (PreparedStatement) co.prepareStatement(query);
+            prepStatement = co.prepareStatement(query);
             prepStatement.setString(1, name);
             prepStatement.setString(2, strDateIntro);
             prepStatement.setString(3, strDateDiscon);
@@ -286,7 +285,7 @@ public class ComputerDAO {
      */
     public int delete(int id) throws SQLException {
         String query = "DELETE FROM " + Utils.COMPUTER_TABLE + " WHERE id = ?";
-        PreparedStatement prepStatement = (PreparedStatement) co.prepareStatement(query);
+        PreparedStatement prepStatement = co.prepareStatement(query);
         prepStatement.setInt(1, id);
         return prepStatement.executeUpdate();
     }

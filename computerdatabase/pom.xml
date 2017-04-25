@@ -1,74 +1,89 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>computer-database</groupId>
-  <artifactId>computer-database</artifactId>
-  <version>0.2.1</version>
+  <groupId>fr.ebiz</groupId>
+  <artifactId>computerdatabase</artifactId>
+  <version>0.2.1-SNAPSHOT</version>
   <packaging>war</packaging>
-  <name>computer-database</name>
+  <name>computerdatabase</name>
   
   <properties>
 	<slf4j.version>1.7.25</slf4j.version>
+	<logback.version>1.2.3</logback.version>
 	<mysqlConnector.version>5.1.41</mysqlConnector.version>
-	<JUnit.version>4.12</JUnit.version>
+	<junit.version>4.12</junit.version>
 	<mockito.version>1.9.5</mockito.version>
-	<tomcatServletAPI.version>8.0.43</tomcatServletAPI.version>
 	<jstl.version>1.2</jstl.version>
 	<selenium.version>3.3.1</selenium.version>
+	<checkstyle.version>2.17</checkstyle.version>
+	<direcheckstyle>src/main/resources</direcheckstyle>
   </properties>
   
   <dependencies>
-    
-    <!-- Logger slf4j -->
+  
+	
+	<dependency>
+		<groupId>javax.servlet</groupId>
+		<artifactId>javax.servlet-api</artifactId>
+		<version>3.1.0</version>
+		<scope>compile</scope>
+	</dependency>
+  
+  	<!-- Logger slf4j -->
     <dependency>
 		<groupId>org.slf4j</groupId>
 		<artifactId>slf4j-api</artifactId>
 		<version>${slf4j.version}</version>
 		<scope>compile</scope>
     </dependency>
-    <dependency>
-		<groupId>org.slf4j</groupId>
-		<artifactId>slf4j-simple</artifactId>
-		<version>${slf4j.version}</version>
-		<scope>compile</scope>
-    </dependency>
     
-    <!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+    <!--  Logback  -->
+    <dependency>
+		 <groupId>ch.qos.logback</groupId>
+		 <artifactId>logback-classic</artifactId>
+		 <version>${logback.version}</version>
+	 </dependency>
+	 <dependency>
+		 <groupId>ch.qos.logback</groupId>
+		 <artifactId>logback-core</artifactId>
+		 <version>${logback.version}</version>
+	 </dependency>
+    
+    <!-- HikariCP -->
+    <dependency>
+	    <groupId>com.zaxxer</groupId>
+	    <artifactId>HikariCP</artifactId>
+	    <version>2.6.1</version>
+	    <scope>compile</scope>
+	</dependency>
+  
+  	<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
 	<dependency>
 	    <groupId>mysql</groupId>
 	    <artifactId>mysql-connector-java</artifactId>
 	    <version>${mysqlConnector.version}</version>
-	    <scope>compile</scope>
 	</dependency>
-	
-	<!-- JUnit -->
+  
+  	<!-- JSTL -->
 	<dependency>
-	  	<groupId>junit</groupId>
-	  	<artifactId>junit</artifactId>
-	  	<version>${JUnit.version}</version>
-	  	<scope>test</scope>
+	    <groupId>javax.servlet</groupId>
+	    <artifactId>jstl</artifactId>
+	    <version>${jstl.version}</version>
 	</dependency>
-	
-	<!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
+  
+  	<!-- JUnit -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  
+  	<!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
 	<dependency>
 	    <groupId>org.mockito</groupId>
 	    <artifactId>mockito-all</artifactId>
 	    <version>${mockito.version}</version>
 	    <scope>test</scope>
-	</dependency>
-		
-	<!-- https://mvnrepository.com/artifact/org.apache.tomcat/tomcat-servlet-api -->
-	<dependency>
-	    <groupId>org.apache.tomcat</groupId>
-	    <artifactId>tomcat-servlet-api</artifactId>
-	    <version>${tomcatServletAPI.version}</version>
-	    <scope>compile</scope>
-	</dependency>	
-	
-	<!-- JSTL -->
-	<dependency>
-	    <groupId>javax.servlet</groupId>
-	    <artifactId>jstl</artifactId>
-	    <version>${jstl.version}</version>
 	</dependency>
 	
 	<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
@@ -78,19 +93,28 @@
 	    <version>${selenium.version}</version>
 	    <scope>test</scope>
 	</dependency>
+    
+  </dependencies>  
 
-	
-  </dependencies>
-  
   <build>
-    <sourceDirectory>src</sourceDirectory>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/webapp</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+      </resource>
+    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-war-plugin</artifactId>
         <version>3.0.0</version>
-        <configuration>
-          <warSourceDirectory>WebContent</warSourceDirectory>
-        </configuration>
       </plugin>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -105,10 +129,11 @@
       <plugin>
 	   <groupId>org.apache.maven.plugins</groupId>
 	   <artifactId>maven-checkstyle-plugin</artifactId>
+	   <version>${checkstyle.version}</version>
 	   <configuration>
-	     <propertyExpansion>config_loc=${basedir}test/resources/checkstyle</propertyExpansion>
-	     <configLocation>${basedir}test/resources/checkstyle/checkstyle.xml</configLocation>
-	      <suppressionsLocation>${basedir}test/resources/checkstyle/suppressions.xml</suppressionsLocation>
+	     <propertyExpansion>config_loc=${direcheckstyle}test/resources/checkstyle</propertyExpansion>
+	     <configLocation>${direcheckstyle}test/resources/checkstyle/checkstyle.xml</configLocation>
+	      <suppressionsLocation>${direcheckstyle}test/resources/checkstyle/suppressions.xml</suppressionsLocation>
 	     <includeTestSourceDirectory>true</includeTestSourceDirectory>
 	     <consoleOutput>true</consoleOutput>
 	   </configuration>
@@ -128,6 +153,7 @@
 	   <password>tomcatuser</password>
 	  </configuration>
 	 </plugin>
+      
     </plugins>
   </build>
 </project>

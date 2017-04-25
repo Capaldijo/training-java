@@ -42,8 +42,10 @@
             </div>
         </div>
 
-        <form id="deleteForm" action="#" method="POST">
+        <form id="deleteForm" action="dashboard" method="POST">
             <input type="hidden" name="selection" value="">
+            <input type="hidden" value="${search}" name="search" />
+            <input type="hidden" value="${nbLine}" name="nbLine" />
         </form>
 
         <div class="container" style="margin-top: 10px;">
