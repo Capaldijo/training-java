@@ -38,6 +38,10 @@ public class CLIController {
 
     private Cli view;
 
+    /**
+     * Constructor CLIController.
+     * @throws ConnectionException error on co to db
+     */
     public CLIController() throws ConnectionException {
         computerDAO = new ComputerDAO();
         companyDAO = new CompanyDAO();
@@ -46,6 +50,12 @@ public class CLIController {
         view = new Cli();
     }
 
+    /**
+     * Init method.
+     * @throws DAOException Error on getting data from db.
+     * @throws MapperException Error on mapping data.
+     * @throws SQLException Error on getting data.
+     */
     public void init() throws DAOException, MapperException, SQLException {
 
         while (shouldKeepGoin) {
@@ -78,9 +88,9 @@ public class CLIController {
         }
     } // init
 
-    /*
+    /**
      * Get all the data from computer 10 by 10 let choose the user to previous
-     * or next ou quit
+     * or next ou quit.
      */
     private void listCompanies() {
         try {
@@ -127,8 +137,11 @@ public class CLIController {
         }
     }
 
-    /*
-     * Only print info about computers: List, Show details, Update or Delete
+    /**
+     * Only print info about computers: List, Show details, Update or Delete.
+     * @throws DAOException Error on getting data from db.
+     * @throws MapperException Error on mapping data.
+     * @throws SQLException Error on getting data.
      */
     private void listComputer() throws DAOException, MapperException, SQLException {
         /* ------ GET ALL COMPUTER ----- */
@@ -162,9 +175,10 @@ public class CLIController {
         }
     }
 
-    /*
+    /**
      * Create a computer, enter its name, introduce and discontinued date, and
-     * its referenced company id return the computer constructed by those fields
+     * its referenced company id return the computer constructed by those fields.
+     * @throws DAOException Error on getting data to DB.
      */
     private void createComputer() throws DAOException {
 
@@ -191,9 +205,11 @@ public class CLIController {
         }
     }
 
-    /*
+    /**
      * Get all the data from computer 10 by 10 let choose the user to previous
-     * or next ou quit
+     * or next ou quit.
+     * @throws DAOException Error on getting data from DB.
+     * @throws MapperException Error on mapping data.
      */
     private void pageableListComputer() throws DAOException, MapperException {
         int numPage = 0;
@@ -235,9 +251,11 @@ public class CLIController {
         }
     }
 
-    /*
+    /**
      * Let the user choose the computer id he wants to get details of and print
-     * it
+     * it.
+     * @throws DAOException Error on getting data from DB.
+     * @throws MapperException Error on mapping data.
      */
     private void showDetails() throws DAOException, MapperException {
 
@@ -266,9 +284,11 @@ public class CLIController {
         }
     }
 
-    /*
+    /**
      * Update a computer, ask the user which computer he wants to update with
-     * which fields
+     * which fields.
+     * @throws DAOException Error on getting data from DB.
+     * @throws MapperException Error on mapping data.
      */
     private void updateComputer() throws DAOException, MapperException {
 
@@ -298,7 +318,7 @@ public class CLIController {
             } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 
             do { // check in the db if introduced date is before discontinued
-                 // one
+                // one
                 choice = null;
                 do {
                     choice = view.getStringChoice("\nDo you want to change the introduced date ?");
@@ -355,8 +375,8 @@ public class CLIController {
         }
     }
 
-    /*
-     * Delete the computer that the user chose
+    /**
+     * Delete the computer that the user chose.
      */
     private void deleteComputer() {
 
