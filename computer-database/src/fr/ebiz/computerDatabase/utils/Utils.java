@@ -26,14 +26,6 @@ public interface Utils {
 
     int PAGEABLE_NBLINE = 10;
 
-    // ---- Var for Servlet ----
-
-    String DASHBOARD_VIEW = "/WEB-INF/dashboard.jsp";
-
-    String ADD_VIEW = "/WEB-INF/add_computer.jsp";
-
-    String EDIT_VIEW = "/WEB-INF/edit_computer.jsp";
-
     // ---- Var for JSP ----
 
     String PARAM_COMPUTER_ID = "id";

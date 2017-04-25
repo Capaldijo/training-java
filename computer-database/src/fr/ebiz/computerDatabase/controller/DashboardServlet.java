@@ -24,17 +24,18 @@ import fr.ebiz.computerDatabase.utils.Utils;
 public class DashboardServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
+    private static final String DASHBOARD_VIEW = "/WEB-INF/dashboard.jsp";
+
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
+        String numPage = request.getParameter("numPage");
+        String search = request.getParameter("search");
+        String nbLine = request.getParameter("nbLine");
+
+        int count = 0, numP = 0, nbL = Utils.PAGEABLE_NBLINE;
+
         try {
-            String numPage = request.getParameter("numPage");
-            String search = request.getParameter("search");
-            String nbLine = request.getParameter("nbLine");
-
-            int count = 0;
-
-            int numP = 0, nbL = Utils.PAGEABLE_NBLINE;
-
             if (numPage != null) {
                 numP = Integer.parseInt(numPage);
             }
@@ -42,11 +43,16 @@ public class DashboardServlet extends HttpServlet {
             if (nbLine != null) {
                 nbL = Integer.parseInt(nbLine);
             }
+        } catch (NumberFormatException e) {
+            System.out.println(e.getMessage());
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        }
 
-            if (search == null) {
-                search = "";
-            }
+        if (search == null) {
+            search = "";
+        }
 
+        try {
             count = ComputerService.getInstance().getNbComputer(search);
             List<ComputerDTO> listComputerDTO = ComputerService.getInstance().getComputersByPage(numP, search, nbL);
 
@@ -56,13 +62,14 @@ public class DashboardServlet extends HttpServlet {
             request.setAttribute("search", search);
             request.setAttribute("nbLine", nbL);
 
-            this.getServletContext().getRequestDispatcher(Utils.DASHBOARD_VIEW).forward(request, response);
-        } catch (ConnectionException | ServiceException | MapperException | DAOException | NumberFormatException e) {
+            this.getServletContext().getRequestDispatcher(DASHBOARD_VIEW).forward(request, response);
+        } catch (ConnectionException | ServiceException | MapperException | DAOException e) {
             System.out.println(e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
     }

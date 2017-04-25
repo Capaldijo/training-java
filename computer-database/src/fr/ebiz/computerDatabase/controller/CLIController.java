@@ -1,4 +1,4 @@
-package fr.ebiz.computerDatabase.service;
+package fr.ebiz.computerDatabase.controller;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,9 +22,9 @@ import fr.ebiz.computerDatabase.persistence.ConnectionDB;
 import fr.ebiz.computerDatabase.utils.Utils;
 import fr.ebiz.computerDatabase.view.Cli;
 
-public class Service {
+public class CLIController {
 
-    final Logger logger = LoggerFactory.getLogger(Service.class);
+    final Logger logger = LoggerFactory.getLogger(CLIController.class);
 
     private ComputerDAO computerDAO;
 
@@ -38,7 +38,7 @@ public class Service {
 
     private Cli view;
 
-    public Service() throws ConnectionException {
+    public CLIController() throws ConnectionException {
         computerDAO = new ComputerDAO();
         companyDAO = new CompanyDAO();
         computerMapper = new ComputerMapper();
@@ -180,7 +180,7 @@ public class Service {
         }
         int compIdRed = view.getIntChoice("\nEnter a company id reference (for a null company: 0): ");
 
-        Computer computer = new Computer.ComputerBuilder(name).introduced(intro).discontinued(discon)
+        Computer computer = new Computer.Builder(name).introduced(intro).discontinued(discon)
                 .companyId(compIdRed).build();
 
         if (computer != null) {
@@ -253,7 +253,7 @@ public class Service {
             computer = computerMapper.fromDBToComputer(res);
             if (computer != null) {
                 /* ------ GET COMPANY BY ID ----- */
-                res = companyDAO.find(computer.getCompany_id());
+                res = companyDAO.find(computer.getCompanyId());
                 res.next();
                 company = companyMapper.fromDBToCompany(res);
                 view.print(computer + ", which reference company [" + company + "]");
@@ -336,7 +336,7 @@ public class Service {
                 choice = view.getStringChoice("\nDo you want to change the company ref id ?");
                 if (choice.toLowerCase().equals("yes")) {
                     int compIdRef = view.getIntChoice("\nEnter a new company ref id (for a null company: 0):");
-                    computer.setCompany_id(compIdRef);
+                    computer.setCompanyId(compIdRef);
                 }
             } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 

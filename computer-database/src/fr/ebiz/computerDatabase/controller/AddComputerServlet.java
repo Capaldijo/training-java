@@ -26,27 +26,29 @@ import fr.ebiz.computerDatabase.utils.Utils;
 public class AddComputerServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
 
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    private static final String ADD_VIEW = "/WEB-INF/add_computer.jsp";
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         try {
             List<CompanyDTO> companiesDTO = CompanyService.getInstance().getCompanies();
             request.setAttribute("companies", companiesDTO);
-            this.getServletContext().getRequestDispatcher(Utils.ADD_VIEW).forward(request, response);
+            this.getServletContext().getRequestDispatcher(ADD_VIEW).forward(request, response);
         } catch (ConnectionException | DAOException | MapperException e) {
             System.out.println(e.getMessage());
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String name = request.getParameter(Utils.PARAM_COMPUTER_NAME);
         String introduced = request.getParameter(Utils.PARAM_COMPUTER_INTRODUCED);
         String discontinued = request.getParameter(Utils.PARAM_COMPUTER_DISCONTINUED);
         String companyId = request.getParameter(Utils.PARAM_COMPUTER_COMPANYID);
 
-        ComputerDTO computerDTO = new ComputerDTO.ComputerDTOBuilder(name).introduced(introduced)
+        ComputerDTO computerDTO = new ComputerDTO.Builder(name).introduced(introduced)
                 .discontinued(discontinued).companyId(companyId).build();
         try {
             ComputerService.getInstance().addComputer(computerDTO);
@@ -56,5 +58,4 @@ public class AddComputerServlet extends HttpServlet {
         }
         doGet(request, response);
     }
-
 }
