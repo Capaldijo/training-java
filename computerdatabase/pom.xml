@@ -1,159 +1,172 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>fr.ebiz</groupId>
-  <artifactId>computerdatabase</artifactId>
-  <version>0.2.1-SNAPSHOT</version>
-  <packaging>war</packaging>
-  <name>computerdatabase</name>
-  
-  <properties>
-	<slf4j.version>1.7.25</slf4j.version>
-	<logback.version>1.2.3</logback.version>
-	<mysqlConnector.version>5.1.41</mysqlConnector.version>
-	<junit.version>4.12</junit.version>
-	<mockito.version>1.9.5</mockito.version>
-	<jstl.version>1.2</jstl.version>
-	<selenium.version>3.3.1</selenium.version>
-	<checkstyle.version>2.17</checkstyle.version>
-	<direcheckstyle>src/main/resources</direcheckstyle>
-  </properties>
-  
-  <dependencies>
-  
-	
-	<dependency>
-		<groupId>javax.servlet</groupId>
-		<artifactId>javax.servlet-api</artifactId>
-		<version>3.1.0</version>
-		<scope>compile</scope>
-	</dependency>
-  
-  	<!-- Logger slf4j -->
-    <dependency>
-		<groupId>org.slf4j</groupId>
-		<artifactId>slf4j-api</artifactId>
-		<version>${slf4j.version}</version>
-		<scope>compile</scope>
-    </dependency>
-    
-    <!--  Logback  -->
-    <dependency>
-		 <groupId>ch.qos.logback</groupId>
-		 <artifactId>logback-classic</artifactId>
-		 <version>${logback.version}</version>
-	 </dependency>
-	 <dependency>
-		 <groupId>ch.qos.logback</groupId>
-		 <artifactId>logback-core</artifactId>
-		 <version>${logback.version}</version>
-	 </dependency>
-    
-    <!-- HikariCP -->
-    <dependency>
-	    <groupId>com.zaxxer</groupId>
-	    <artifactId>HikariCP</artifactId>
-	    <version>2.6.1</version>
-	    <scope>compile</scope>
-	</dependency>
-  
-  	<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
-	<dependency>
-	    <groupId>mysql</groupId>
-	    <artifactId>mysql-connector-java</artifactId>
-	    <version>${mysqlConnector.version}</version>
-	</dependency>
-  
-  	<!-- JSTL -->
-	<dependency>
-	    <groupId>javax.servlet</groupId>
-	    <artifactId>jstl</artifactId>
-	    <version>${jstl.version}</version>
-	</dependency>
-  
-  	<!-- JUnit -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>${junit.version}</version>
-      <scope>test</scope>
-    </dependency>
-  
-  	<!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
-	<dependency>
-	    <groupId>org.mockito</groupId>
-	    <artifactId>mockito-all</artifactId>
-	    <version>${mockito.version}</version>
-	    <scope>test</scope>
-	</dependency>
-	
-	<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
-	<dependency>
-	    <groupId>org.seleniumhq.selenium</groupId>
-	    <artifactId>selenium-java</artifactId>
-	    <version>${selenium.version}</version>
-	    <scope>test</scope>
-	</dependency>
-    
-  </dependencies>  
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>fr.ebiz</groupId>
+	<artifactId>computerdatabase</artifactId>
+	<version>0.2.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+	<name>computerdatabase</name>
 
-  <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </resource>
-      <resource>
-        <directory>src/main/webapp</directory>
-        <excludes>
-          <exclude>**/*.java</exclude>
-        </excludes>
-      </resource>
-    </resources>
-    <plugins>
-      <plugin>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>3.0.0</version>
-      </plugin>
-      <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.5.1</version>
-        <configuration>
-          <source>1.8</source>
-          <target>1.8</target>
-        </configuration>
-      </plugin>
-      
-      <!-- plugin checkstyle -->
-      <plugin>
-	   <groupId>org.apache.maven.plugins</groupId>
-	   <artifactId>maven-checkstyle-plugin</artifactId>
-	   <version>${checkstyle.version}</version>
-	   <configuration>
-	     <propertyExpansion>config_loc=${direcheckstyle}test/resources/checkstyle</propertyExpansion>
-	     <configLocation>${direcheckstyle}test/resources/checkstyle/checkstyle.xml</configLocation>
-	      <suppressionsLocation>${direcheckstyle}test/resources/checkstyle/suppressions.xml</suppressionsLocation>
-	     <includeTestSourceDirectory>true</includeTestSourceDirectory>
-	     <consoleOutput>true</consoleOutput>
-	   </configuration>
-	 </plugin>
-	 
-	 <!-- Tomcat plugin -->
-	 <plugin>
-	  <groupId>org.apache.tomcat.maven</groupId>
-	  <artifactId>tomcat7-maven-plugin</artifactId>
-	  <version>2.2</version>
-	  <configuration>
-	   <path>/computer_database</path>
-	   <update>true</update>
-	   <url>http://localhost:8080/manager/text</url>
-	   <server>tomcatServer</server>
-	   <username>tomcat</username>
-	   <password>tomcatuser</password>
-	  </configuration>
-	 </plugin>
-      
-    </plugins>
-  </build>
+	<properties>
+		<slf4j.version>1.7.25</slf4j.version>
+		<logback.version>1.2.3</logback.version>
+		<mysqlConnector.version>5.1.41</mysqlConnector.version>
+		<junit.version>4.12</junit.version>
+		<mockito.version>1.9.5</mockito.version>
+		<jstl.version>1.2</jstl.version>
+		<selenium.version>3.3.1</selenium.version>
+		<checkstyle.version>2.17</checkstyle.version>
+		<direcheckstyle>src/main/resources</direcheckstyle>
+	</properties>
+
+	<dependencies>
+
+
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Logger slf4j -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>${slf4j.version}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Logback -->
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
+			<version>${logback.version}</version>
+		</dependency>
+
+		<!-- HikariCP -->
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>2.6.1</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>${mysqlConnector.version}</version>
+		</dependency>
+
+		<!-- JSTL -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>${jstl.version}</version>
+		</dependency>
+
+		<!-- JUnit -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-all -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>${selenium.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/webapp</directory>
+				<excludes>
+					<exclude>**/*.java</exclude>
+				</excludes>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.0.0</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.5.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+
+			<!-- plugin checkstyle -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-checkstyle-plugin</artifactId>
+				<version>${checkstyle.version}</version>
+				<configuration>
+					<propertyExpansion>config_loc=${direcheckstyle}/checkstyle</propertyExpansion>
+					<configLocation>${direcheckstyle}/checkstyle/checkstyle.xml</configLocation>
+					<suppressionsLocation>${direcheckstyle}/checkstyle/suppressions.xml</suppressionsLocation>
+					<includeTestSourceDirectory>true</includeTestSourceDirectory>
+					<consoleOutput>true</consoleOutput>
+				</configuration>
+			</plugin>
+
+			<!-- Tomcat plugin -->
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<path>/computerdatabase</path>
+					<update>true</update>
+					<url>http://localhost:8080/manager/text</url>
+					<server>tomcatServer</server>
+					<username>tomcat</username>
+					<password>tomcatuser</password>
+				</configuration>
+			</plugin>
+			
+			<!-- Exclude selenium test because it needs the app to be deployed -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.17</version>
+				<configuration>
+					<excludes>
+						<exclude>**/SeleniumIntegrationTest.java</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
 </project>

@@ -1,4 +1,4 @@
-package fr.ebiz.computerDatabase.unitTest;
+package fr.ebiz.computerdatabase.unitTest;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -6,8 +6,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
-import fr.ebiz.computerdatabase.model.ComputerDTO;
-import fr.ebiz.computerdatabase.validator.ComputerValidator;
+import fr.ebiz.computerdatabase.validators.ComputerValidator;
+import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class ComputerValidatorTest {
 

@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.model;
+package fr.ebiz.computerdatabase.models;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

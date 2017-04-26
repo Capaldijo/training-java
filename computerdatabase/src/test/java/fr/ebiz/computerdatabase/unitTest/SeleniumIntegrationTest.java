@@ -1,4 +1,4 @@
-package fr.ebiz.computerDatabase.unitTest;
+package fr.ebiz.computerdatabase.unitTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;

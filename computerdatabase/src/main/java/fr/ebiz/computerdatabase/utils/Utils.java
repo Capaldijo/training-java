@@ -4,12 +4,6 @@ public interface Utils {
 
     // ---- Var For DataBase
 
-    String URLDB = "jdbc:mysql://localhost:3306/computer-database-db";
-
-    String USERDB = "admincdb";
-
-    String PASSWDDB = "qwerty1234";
-
     String COMPANY_TABLE = "company";
 
     String COMPUTER_TABLE = "computer";

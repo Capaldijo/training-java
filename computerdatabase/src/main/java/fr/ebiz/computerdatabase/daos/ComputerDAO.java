@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.persistence;
+package fr.ebiz.computerdatabase.daos;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,8 +15,10 @@ import org.slf4j.LoggerFactory;
 
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
-import fr.ebiz.computerdatabase.model.Computer;
+import fr.ebiz.computerdatabase.models.Computer;
+import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.utils.Utils;
+import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class ComputerDAO {
 
@@ -25,6 +27,32 @@ public class ComputerDAO {
     private DateTimeFormatter formatter, formatterDB;
 
     private Connection co;
+
+    private static final String QUERY_FIND = "SELECT * FROM " + Utils.COMPUTER_TABLE + " WHERE id = ?";
+
+    private static final String QUERY_FINDALL = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id "
+            + "FROM " + Utils.COMPUTER_TABLE + " as c LEFT JOIN company as comp ON c.id = comp.id";
+
+    private static final String QUERY_FINDBYPAGE = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id "
+            + "FROM " + Utils.COMPUTER_TABLE + " as c LEFT JOIN company as comp ON c.company_id = comp.id LIMIT ?, ?";
+
+    private static final String QUERY_FINDBYSEARCH = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id FROM "
+            + Utils.COMPUTER_TABLE + " as c LEFT JOIN company as comp ON c.company_id = comp.id WHERE c.name LIKE ? OR "
+            + "comp.name LIKE ? LIMIT ?, ?";
+
+    private static final String QUERY_COUNT = "SELECT COUNT(*) as count FROM " + Utils.COMPUTER_TABLE;
+
+    private static final String QUERY_COUNTAFTERSEARCH = "SELECT COUNT(*) as count FROM "
+            + "computer as c LEFT JOIN company as comp ON c.company_id = comp.id WHERE c.name LIKE ? OR "
+            + "comp.name LIKE ?";
+
+    private static final String QUERY_INSERT = "INSERT INTO " + Utils.COMPUTER_TABLE
+            + " (name,introduced,discontinued,company_id) VALUES (?, ?, ?, ?)";
+
+    private static final String QUERY_UPDATE = "UPDATE " + Utils.COMPUTER_TABLE
+            + " SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
+
+    private static final String QUERY_DELETE = "DELETE FROM " + Utils.COMPUTER_TABLE + " WHERE id = ?";
 
     /**
      * Constructor ComputerDAO.
@@ -40,21 +68,24 @@ public class ComputerDAO {
     /**
      * Get a computer by its ID.
      * @param idComp id computer.
-     * @return ResultSet containing a Computer.
+     * @return A Computer.
      * @throws DAOException error on getting data.
      */
     public Computer find(Long idComp) throws DAOException {
-        String query = "SELECT * FROM " + Utils.COMPUTER_TABLE + " WHERE id = ?";
+
         Computer computer = null;
         try {
-            PreparedStatement prepStatement = co.prepareStatement(query);
+            co = ConnectionDB.getInstance().getConnection();
+            PreparedStatement prepStatement = co.prepareStatement(QUERY_FIND);
             prepStatement.setLong(1, idComp);
             ResultSet resultat = prepStatement.executeQuery();
             if (!resultat.isBeforeFirst()) {
                 throw new DAOException("[FIND] No data for request.");
             }
+            resultat.next();
             computer = toComputer(resultat);
-        } catch (SQLException e) {
+            co.close();
+        } catch (SQLException | ConnectionException e) {
             throw new DAOException("[FIND] Error on accessing data.");
         }
 
@@ -63,23 +94,26 @@ public class ComputerDAO {
 
     /**
      * Get all the computer from the db.
-     * @return ResultSet containing all Computers.
+     * @return All Computers.
      * @throws DAOException error on getting data.
      */
-    public ResultSet findAll() throws DAOException {
-        String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id "
-                + "FROM computer as c LEFT JOIN company as comp ON c.id = comp.id";
+    public List<Computer> findAll() throws DAOException {
 
-        ResultSet resultat = null;
+        List<Computer> list = null;
         try {
-            resultat = co.createStatement().executeQuery(query);
+            co = ConnectionDB.getInstance().getConnection();
+            ResultSet resultat = co.createStatement().executeQuery(QUERY_FINDALL);
             if (!resultat.isBeforeFirst()) {
+                LOG.error("[FINDALL] No data for request.");
                 throw new DAOException("[FINDALL] No data for request.");
             }
-        } catch (SQLException e) {
+            list = toComputers(resultat);
+            co.close();
+        } catch (SQLException | ConnectionException e) {
+            LOG.error("[FINDALL] Error on accessing data.");
             throw new DAOException("[FINDALL] Error on accessing data.");
         }
-        return resultat;
+        return list;
     }
 
     /**
@@ -90,25 +124,28 @@ public class ComputerDAO {
      * @return a list of 10 Computer.
      * @throws DAOException error on getting data.
      */
-    public ResultSet findByPage(int numPage, int nbLine) throws DAOException {
-        String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id "
-                + "FROM computer as c LEFT JOIN company as comp ON c.company_id = comp.id LIMIT ?, ?";
+    public List<ComputerDTO> findByPage(int numPage, int nbLine) throws DAOException {
 
-        ResultSet resultat = null;
+        List<ComputerDTO> list = null;
         try {
-            PreparedStatement prepStatement = co.prepareStatement(query);
+            co = ConnectionDB.getInstance().getConnection();
+            PreparedStatement prepStatement = co.prepareStatement(QUERY_FINDBYPAGE);
             prepStatement.setInt(1, numPage);
             prepStatement.setInt(2, nbLine);
 
-            resultat = prepStatement.executeQuery();
+            ResultSet resultat = prepStatement.executeQuery();
             if (!resultat.isBeforeFirst()) {
+                LOG.error("[FINDBYPAGE] No data for request.");
                 throw new DAOException("[FINDBYPAGE] No data for request.");
             }
-        } catch (SQLException e) {
+            list = toComputerDTOs(resultat);
+            co.close();
+        } catch (SQLException | ConnectionException e) {
+            LOG.error("[FINDBYPAGE] Error on accessing data.");
             throw new DAOException("[FINDBYPAGE] Error on accessing data.");
         }
 
-        return resultat;
+        return list;
     }
 
     /**
@@ -120,76 +157,85 @@ public class ComputerDAO {
      * @return a list of 10 Computer.
      * @throws DAOException error on getting data.
      */
-    public ResultSet findBySearch(String search, int numPage, int nbLine) throws DAOException {
-        String query = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id FROM "
-                + "computer as c LEFT JOIN company as comp ON c.company_id = comp.id WHERE c.name LIKE ? OR "
-                + "comp.name LIKE ? LIMIT ?, ?";
-        ResultSet resultat = null;
+    public List<ComputerDTO> findBySearch(String search, int numPage, int nbLine) throws DAOException {
+
+        List<ComputerDTO> list = null;
         try {
-            PreparedStatement prepStatement = co.prepareStatement(query);
+            co = ConnectionDB.getInstance().getConnection();
+            PreparedStatement prepStatement = co.prepareStatement(QUERY_FINDBYSEARCH);
             prepStatement.setString(1, '%' + search + '%');
             prepStatement.setString(2, '%' + search + '%');
             prepStatement.setInt(3, numPage);
             prepStatement.setInt(4, nbLine);
 
-            resultat = prepStatement.executeQuery();
+            ResultSet resultat = prepStatement.executeQuery();
             if (!resultat.isBeforeFirst()) {
-                throw new DAOException("[SEARCHBYPAGE] No data for request.");
+                LOG.error("[FINDBYSEARCH] No data for request.");
+                throw new DAOException("[FINDBYSEARCH] No data for request.");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new DAOException("[SEARCHBYPAGE] Error on accessing data.");
+            list = toComputerDTOs(resultat);
+            co.close();
+        } catch (SQLException | ConnectionException e) {
+            LOG.error("[FINDBYSEARCH] Error on accessing data.");
+            throw new DAOException("[FINDBYSEARCH] Error on accessing data.");
         }
 
-        return resultat;
+        return list;
     }
 
     /**
      * Count number of computer in DB.
-     * @return into ResultSet the number of computer.
+     * @return The number of computer.
      * @throws DAOException error on getting data.
      */
-    public ResultSet count() throws DAOException {
-        String query = "SELECT COUNT(*) as count FROM " + Utils.COMPUTER_TABLE;
-        ResultSet resultat = null;
+    public int count() throws DAOException {
 
+        int count = 0;
         try {
-            resultat = co.createStatement().executeQuery(query);
+            co = ConnectionDB.getInstance().getConnection();
+            ResultSet resultat = co.createStatement().executeQuery(QUERY_COUNT);
             if (!resultat.isBeforeFirst()) {
+                LOG.error("[COUNT] No data for request.");
                 throw new DAOException("[COUNT] No data for request.");
             }
-        } catch (SQLException e) {
+            resultat.next();
+            count = resultat.getInt("count");
+            co.close();
+        } catch (SQLException | ConnectionException e) {
+            LOG.error("[COUNT] Error on accessing data.");
             throw new DAOException("[COUNT] Error on accessing data.");
         }
-        return resultat;
+        return count;
     }
 
     /**
      * Count number of computer in DB following the research given.
      * @param search type in by the user.
-     * @return into ResultSet the number of computer depending the research.
+     * @return The number of computer depending the research.
      * @throws DAOException error on getting data.
      */
-    public ResultSet countAfterSearch(String search) throws DAOException {
-        String query = "SELECT COUNT(*) as count FROM "
-                + "computer as c LEFT JOIN company as comp ON c.company_id = comp.id WHERE c.name LIKE ? OR "
-                + "comp.name LIKE ?";
-        ResultSet resultat = null;
+    public int countAfterSearch(String search) throws DAOException {
 
+        int count = 0;
         try {
-            PreparedStatement prepStatement = co.prepareStatement(query);
+            co = ConnectionDB.getInstance().getConnection();
+            PreparedStatement prepStatement = co.prepareStatement(QUERY_COUNTAFTERSEARCH);
             prepStatement.setString(1, '%' + search + '%');
             prepStatement.setString(2, '%' + search + '%');
 
-            resultat = prepStatement.executeQuery();
+            ResultSet resultat = prepStatement.executeQuery();
             if (!resultat.isBeforeFirst()) {
+                LOG.error("[COUNTSEARCH] No data for request.");
                 throw new DAOException("[COUNTSEARCH] No data for request.");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            resultat.next();
+            count = resultat.getInt("count");
+            co.close();
+        } catch (SQLException | ConnectionException e) {
+            LOG.error("[COUNTSEARCH] Error on accessing data.");
             throw new DAOException("[COUNTSEARCH] Error on accessing data.");
         }
-        return resultat;
+        return count;
     }
 
     /**
@@ -215,13 +261,11 @@ public class ComputerDAO {
             strDateDiscon = dateDiscon.format(formatter);
         }
 
-        String query = "INSERT INTO " + Utils.COMPUTER_TABLE
-                + " (name,introduced,discontinued,company_id) VALUES (?, ?, ?, ?)";
-
         PreparedStatement prepStatement;
         int res = 0;
         try {
-            prepStatement = co.prepareStatement(query);
+            co = ConnectionDB.getInstance().getConnection();
+            prepStatement = co.prepareStatement(QUERY_INSERT);
             prepStatement.setString(1, name);
             prepStatement.setString(2, strDateIntro);
             prepStatement.setString(3, strDateDiscon);
@@ -232,7 +276,9 @@ public class ComputerDAO {
             }
 
             res = prepStatement.executeUpdate();
-        } catch (SQLException e) {
+            co.close();
+        } catch (SQLException | ConnectionException e) {
+            LOG.error("[INSERT] Error on accessing data.");
             throw new DAOException("[INSERT] Error on accessing data.");
         }
         return res;
@@ -261,13 +307,11 @@ public class ComputerDAO {
             strDateDiscon = dateDiscon.format(formatter);
         }
 
-        String query = "UPDATE " + Utils.COMPUTER_TABLE
-                + " SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
-
         PreparedStatement prepStatement;
         int res = 0;
         try {
-            prepStatement = co.prepareStatement(query);
+            co = ConnectionDB.getInstance().getConnection();
+            prepStatement = co.prepareStatement(QUERY_UPDATE);
             prepStatement.setString(1, name);
             prepStatement.setString(2, strDateIntro);
             prepStatement.setString(3, strDateDiscon);
@@ -279,7 +323,9 @@ public class ComputerDAO {
             prepStatement.setLong(5, comp.getId());
 
             res = prepStatement.executeUpdate();
-        } catch (SQLException e) {
+            co.close();
+        } catch (SQLException | ConnectionException e) {
+            LOG.error("[UPDATE] Error on accessing data.");
             throw new DAOException("[UPDATE] Error on accessing data.");
         }
         return res;
@@ -291,12 +337,40 @@ public class ComputerDAO {
      * @param id the computer id to delete.
      * @return int depending the delete is done or not.
      * @throws SQLException error on co to db.
+     * @throws ConnectionException Error on accessing data.
      */
-    public int delete(int id) throws SQLException {
-        String query = "DELETE FROM " + Utils.COMPUTER_TABLE + " WHERE id = ?";
-        PreparedStatement prepStatement = co.prepareStatement(query);
-        prepStatement.setInt(1, id);
-        return prepStatement.executeUpdate();
+    public int delete(String id) throws SQLException, ConnectionException {
+
+        co = ConnectionDB.getInstance().getConnection();
+        PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
+        prepStatement.setString(1, id);
+        int res = prepStatement.executeUpdate();
+        co.close();
+        return res;
+    }
+
+    /**
+     * Delete all computer contained in parameter.
+     * @param computersId list of computer's id to deletes
+     * @throws DAOException error on accessing data.
+     * @return res.
+     */
+    public int deleteComputers(String...computersId) throws DAOException {
+        int res = 0;
+        for (String id : computersId) {
+            try {
+                if (delete(id) == 1) {
+                    LOG.info("[DELETE] computerId:" + id + " deleted");
+                    res = 1;
+                } else {
+                    res = -1;
+                }
+            } catch (SQLException | ConnectionException e) {
+                LOG.error("[DELETE] error on deleting computers");
+                throw new DAOException("[DELETE] error on deleting computers");
+            }
+        }
+        return res;
     }
 
     /**
@@ -329,10 +403,10 @@ public class ComputerDAO {
                     .id(id).build();
 
         } catch (SQLException e) {
-            LOG.error("Error on reading data from db.");
+            LOG.error("[TOCOMPUTER] Error on reading data from db.");
             throw new DAOException("[TOCOMPUTER] Error on accessing data.");
         } catch (DateTimeParseException e) {
-            LOG.error("Error on parsing date from db.");
+            LOG.error("[TOCOMPUTER] Error on parsing date from db.");
             throw new DAOException("[TOCOMPUTER] Error on parsing date.");
         }
         return computer;
@@ -353,9 +427,68 @@ public class ComputerDAO {
                 list.add(toComputer(resultat));
             }
         } catch (SQLException sqle) {
+            LOG.error("[TOCOMPUTERS] Error on accessing data.");
             throw new DAOException("[TOCOMPUTERS] Error on accessing data.");
         }
 
+        return list;
+    }
+
+    /**
+     * Build a computerDTO directly from the db.
+     * @param resultat contains a computer
+     * @return a computerDTO
+     * @throws DAOException Error on mapping data
+     */
+    public ComputerDTO toComputerDTO(ResultSet resultat) throws DAOException {
+        ComputerDTO computerDTO = null;
+        try {
+            String id = resultat.getString(Utils.COLUMN_ID);
+            String name = resultat.getString(Utils.COLUMN_NAME);
+            String dateIntro = resultat.getString(Utils.COLUMN_INTRODUCED);
+            String dateDiscon = resultat.getString(Utils.COLUMN_DISCONTINUED);
+            String compIdRef = resultat.getString(Utils.COLUMN_COMPANYID);
+
+            if (dateIntro != null) {
+                dateIntro = dateIntro.split(" ")[0];
+            }
+            if (dateDiscon != null) {
+                dateDiscon = dateDiscon.split(" ")[0];
+            }
+
+            computerDTO = new ComputerDTO.Builder(name).
+                    introduced(dateIntro)
+                    .discontinued(dateDiscon)
+                    .companyId(compIdRef)
+                    .id(id).build();
+
+        } catch (SQLException e) {
+            LOG.error("[TOCOMPUTERDTO] Error on accessing data.");
+            throw new DAOException("[TOCOMPUTERDTO] Error on accessing data.");
+        } catch (DateTimeParseException e) {
+            LOG.error("[TOCOMPUTERDTO] Error on parsing date.");
+            throw new DAOException("[TOCOMPUTERDTO] Error on parsing date.");
+        }
+        return computerDTO;
+    }
+
+    /**
+     * Build a list of computerDTO directly from the db.
+     * @param resultat contains all the computer from db
+     * @return a list of computerDTO
+     * @throws DAOException Error on mapping data
+     */
+    public List<ComputerDTO> toComputerDTOs(ResultSet resultat) throws DAOException {
+        List<ComputerDTO> list = new ArrayList<>();
+
+        try {
+            while (resultat.next()) {
+                list.add(toComputerDTO(resultat));
+            }
+        } catch (SQLException sqle) {
+            LOG.error("[TOCOMPUTERDTOS]Error on reading data from db.");
+            throw new DAOException("[TOCOMPUTERDTOS]Error on reading data from db.");
+        }
         return list;
     }
 }

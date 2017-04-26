@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.controller;
+package fr.ebiz.computerdatabase.controllers;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import fr.ebiz.computerdatabase.model.ComputerDTO;
-import fr.ebiz.computerdatabase.service.ComputerService;
+import fr.ebiz.computerdatabase.services.ComputerService;
 import fr.ebiz.computerdatabase.utils.Utils;
+import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 /**
  * Servlet implementation class DashboardServlet.
@@ -32,19 +32,20 @@ public class DashboardServlet extends HttpServlet {
 
         int count = 0;
 
-        try {
-            count = ComputerService.getInstance().getNbComputer(search);
-            List<ComputerDTO> listComputerDTO = ComputerService.getInstance().getComputersByPage(numPage, search, nbLine);
+        if (numPage == null) {
+            numPage = "0";
+        }
+        if (search == null) {
+            search = "";
+        }
+        if (nbLine == null) {
+            nbLine = String.valueOf(Utils.PAGEABLE_NBLINE);
+        }
 
-            if (numPage == null) {
-                numPage = "0";
-            }
-            if (search == null) {
-                search = "";
-            }
-            if (nbLine == null) {
-                nbLine = String.valueOf(Utils.PAGEABLE_NBLINE);
-            }
+        try {
+            count = ComputerService.getInstance().count(search);
+            List<ComputerDTO> listComputerDTO = ComputerService.getInstance().getByPage(numPage, search, nbLine);
+
             request.setAttribute("nbComputer", count);
             request.setAttribute("computers", listComputerDTO);
             request.setAttribute("numPage", numPage);
@@ -61,12 +62,19 @@ public class DashboardServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String numPage = request.getParameter("numPage");
         String search = request.getParameter("search");
         String nbLine = request.getParameter("nbLine");
 
         String selection = request.getParameter("selection");
         String[] ids = selection.split(",");
 
-        //this.getServletContext().getRequestDispatcher(DASHBOARD_VIEW).forward(request, response);
+        ComputerService.getInstance().delete(ids);
+
+        request.setAttribute("numPage", numPage);
+        request.setAttribute("search", search);
+        request.setAttribute("nbLine", nbLine);
+
+        doGet(request, response);
     }
 }

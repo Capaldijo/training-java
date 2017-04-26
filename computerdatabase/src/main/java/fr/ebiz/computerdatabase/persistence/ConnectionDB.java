@@ -1,53 +1,42 @@
 package fr.ebiz.computerdatabase.persistence;
 
-import java.sql.DriverManager;
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Properties;
 
-import com.mysql.jdbc.Connection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
-import fr.ebiz.computerdatabase.utils.Utils;
 
 public final class ConnectionDB {
 
-    // L'utilisation du mot clé volatile, en Java 5 et sup,
-    // permet d'éviter le cas où "Singleton.instance" est non-null,
-    // mais pas encore "réellement" instancié.
-    private static volatile ConnectionDB instance = null;
+    private static ConnectionDB instance = new ConnectionDB();
+
+    static final Logger LOG = LoggerFactory.getLogger(ConnectionDB.class);
 
     private Connection connexion = null;
+
+    private HikariDataSource ds = null;
 
     /**
      * Contructor for connection to mysql db.
      * @throws ConnectionException if error on co to db
      */
-    private ConnectionDB() throws ConnectionException {
+    private ConnectionDB() {
         super();
 
-        try {
-            /* Loading driver JDBC for MySQL */
-            Class.forName("com.mysql.jdbc.Driver");
 
-            /*
-             * setting properties for the connection useSSL set to false or else
-             * it does not connect zeroDateTimeBehavior to avoid error with null
-             * date
-             */
-            Properties props = new Properties();
-            props.setProperty("user", Utils.USERDB);
-            props.setProperty("password", Utils.PASSWDDB);
-            props.setProperty("useSSL", "false");
-            props.setProperty("zeroDateTimeBehavior", "convertToNull");
-
-            // Connection to Database
-            connexion = (Connection) DriverManager.getConnection(Utils.URLDB, props);
-
-        } catch (ClassNotFoundException e) {
-            throw new ConnectionException("[DRIVER] Error loading JDBC Driver");
-        } catch (SQLException e) {
-            throw new ConnectionException("[DB] Error connecting to DB");
-        }
+        HikariConfig cfg = new HikariConfig();
+        cfg.setDriverClassName("com.mysql.jdbc.Driver");
+        cfg.setJdbcUrl("jdbc:mysql://localhost:3306/computer-database-db?useSSL=false&zeroDateTimeBehavior=convertToNull");
+        cfg.setMaximumPoolSize(20);
+        cfg.setUsername("admincdb");
+        cfg.setPassword("qwerty1234");
+        cfg.setConnectionTimeout(10000);
+        ds = new HikariDataSource(cfg);
     }
 
     /**
@@ -56,22 +45,24 @@ public final class ConnectionDB {
      * @throws ConnectionException if error on co to db
      */
     public static ConnectionDB getInstance() throws ConnectionException {
-        // Le "Double-Checked Singleton"/"Singleton doublement vérifié" permet
-        // d'éviter un appel coûteux à synchronized,
-        // une fois que l'instanciation est faite.
         if (ConnectionDB.instance == null) {
-            // Le mot-clé synchronized sur ce bloc empêche toute instanciation
-            // multiple même par différents "threads".
-            synchronized (ConnectionDB.class) {
-                if (ConnectionDB.instance == null) {
-                    ConnectionDB.instance = new ConnectionDB();
-                }
-            }
+            ConnectionDB.instance = new ConnectionDB();
         }
         return ConnectionDB.instance;
     }
 
-    public Connection getConnection() {
+    /**
+     * Get connection.
+     * @return Connection with hikari
+     * @throws ConnectionException Error on co to db
+     */
+    public Connection getConnection() throws ConnectionException {
+        try {
+            connexion = ds.getConnection();
+        } catch (SQLException e) {
+            LOG.error("[CONNECTION] Error connection to DB.");
+            throw new ConnectionException("[CONNECTION] Error connection to DB.");
+        }
         return connexion;
     }
 
@@ -81,7 +72,9 @@ public final class ConnectionDB {
     public void closeAll() throws ConnectionException {
         try {
             connexion.close();
+            ds.close();
         } catch (SQLException e) {
+            LOG.error("[CLOSING] Error closing DB.");
             throw new ConnectionException("[CLOSING] Error closing DB");
         }
     }

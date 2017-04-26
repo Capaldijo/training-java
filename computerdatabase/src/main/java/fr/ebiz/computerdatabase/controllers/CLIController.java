@@ -1,6 +1,5 @@
-package fr.ebiz.computerdatabase.controller;
+package fr.ebiz.computerdatabase.controllers;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
@@ -9,17 +8,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.ebiz.computerdatabase.daos.CompanyDAO;
+import fr.ebiz.computerdatabase.daos.ComputerDAO;
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
-import fr.ebiz.computerdatabase.mapper.ComputerMapper;
-import fr.ebiz.computerdatabase.model.Company;
-import fr.ebiz.computerdatabase.model.Computer;
-import fr.ebiz.computerdatabase.persistence.CompanyDAO;
-import fr.ebiz.computerdatabase.persistence.ComputerDAO;
+import fr.ebiz.computerdatabase.models.Company;
+import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.utils.Utils;
 import fr.ebiz.computerdatabase.view.Cli;
+import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class CLIController {
 
@@ -28,8 +27,6 @@ public class CLIController {
     private ComputerDAO computerDAO;
 
     private CompanyDAO companyDAO;
-
-    private ComputerMapper computerMapper;
 
     private boolean shouldKeepGoin = true;
 
@@ -42,7 +39,6 @@ public class CLIController {
     public CLIController() throws ConnectionException {
         computerDAO = new ComputerDAO();
         companyDAO = new CompanyDAO();
-        computerMapper = new ComputerMapper();
         view = new Cli();
     }
 
@@ -91,7 +87,6 @@ public class CLIController {
     private void listCompanies() {
         try {
             int numPage = 0;
-            ResultSet res = null;
             List<Company> list = null;
             boolean stop = false;
             while (!stop) {
@@ -207,20 +202,17 @@ public class CLIController {
      */
     private void pageableListComputer() throws DAOException, MapperException {
         int numPage = 0;
-        List<Computer> list = null;
-        ResultSet res = null;
+        List<ComputerDTO> list = null;
         boolean stop = false;
         while (!stop) {
             // get 10 computers in the list
-            res = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
-            list = computerMapper.fromDBToComputers(res);
+            list = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
             // if list is empty bc the user gone to far in pages, get to
             // previous half full list
             if (list.isEmpty() && numPage > 0) {
                 logger.info("Next was selected but Computer's list is Empty, getting back to last page.");
                 numPage -= Utils.PAGEABLE_NBLINE;
-                res = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
-                list = computerMapper.fromDBToComputers(res);
+                list = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
             }
             switch (view.printPageableList(list)) {
             case 1: // Previous Page
@@ -356,7 +348,7 @@ public class CLIController {
     private void deleteComputer() {
 
         // ask the user to chose an id
-        int id = view.printDeleteComputerAction();
+        String id = view.printDeleteComputerAction();
         try {
             // if delete success print success
             if (computerDAO.delete(id) == 1) {
@@ -366,7 +358,7 @@ public class CLIController {
                 view.print("No computer to delete.");
                 logger.info("No computer to delete.\n");
             }
-        } catch (SQLException e) {
+        } catch (SQLException | ConnectionException e) {
             view.print("\nError on deleting computer");
             logger.error("Error on delete computer");
         }

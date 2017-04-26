@@ -1,10 +1,10 @@
-package fr.ebiz.computerdatabase.validator;
+package fr.ebiz.computerdatabase.validators;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import fr.ebiz.computerdatabase.model.ComputerDTO;
+import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class ComputerValidator {
 

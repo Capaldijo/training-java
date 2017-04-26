@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.mapper;
+package fr.ebiz.computerdatabase.mappers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,12 +6,14 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.ebiz.computerdatabase.model.Company;
-import fr.ebiz.computerdatabase.model.CompanyDTO;
+import fr.ebiz.computerdatabase.exceptions.MapperException;
+import fr.ebiz.computerdatabase.interfaces.MapperInterface;
+import fr.ebiz.computerdatabase.models.Company;
+import fr.ebiz.computerdatanase.dtos.CompanyDTO;
 
-public class CompanyMapper {
+public class CompanyMapper implements MapperInterface<CompanyDTO, Company> {
 
-    final Logger logger = LoggerFactory.getLogger(CompanyMapper.class);
+    static final Logger LOG = LoggerFactory.getLogger(CompanyMapper.class);
 
     /**
      * Constructor CompanyMapper.
@@ -19,11 +21,7 @@ public class CompanyMapper {
     public CompanyMapper() {
     }
 
-    /**
-     * From a list of Companies, maps it into a list of CompanyDTOs.
-     * @param listCompany list of companies to map
-     * @return a list of CompanyDTO
-     */
+    @Override
     public List<CompanyDTO> toDTO(List<Company> listCompany) {
         List<CompanyDTO> listDTO = new ArrayList<>();
 
@@ -36,11 +34,7 @@ public class CompanyMapper {
         return listDTO;
     }
 
-    /**
-     * From a company, maps it into a CompanyDTO.
-     * @param company to map into companyDTO
-     * @return a CompanyDTO
-     */
+    @Override
     public CompanyDTO toDTO(Company company) {
         CompanyDTO companyDTO = new CompanyDTO();
 
@@ -51,5 +45,11 @@ public class CompanyMapper {
         companyDTO.setName(name);
 
         return companyDTO;
+    }
+
+    @Override
+    public Company toModel(CompanyDTO dto) throws MapperException {
+        LOG.error("[MAPPER] [TOMODEL] Not implemented yet.");
+        throw new RuntimeException("[MAPPER] [TOMODEL] Not implemented yet.");
     }
 }

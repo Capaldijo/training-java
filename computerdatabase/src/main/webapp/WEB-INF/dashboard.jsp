@@ -46,6 +46,7 @@
             <input type="hidden" name="selection" value="">
             <input type="hidden" value="${search}" name="search" />
             <input type="hidden" value="${nbLine}" name="nbLine" />
+            <input type="hidden" value="${numPage}" name="numPage" />
         </form>
 
         <div class="container" style="margin-top: 10px;">

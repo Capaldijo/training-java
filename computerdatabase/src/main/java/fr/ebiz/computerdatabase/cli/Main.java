@@ -2,7 +2,7 @@ package fr.ebiz.computerdatabase.cli;
 
 import java.sql.SQLException;
 
-import fr.ebiz.computerdatabase.controller.CLIController;
+import fr.ebiz.computerdatabase.controllers.CLIController;
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.exceptions.MapperException;

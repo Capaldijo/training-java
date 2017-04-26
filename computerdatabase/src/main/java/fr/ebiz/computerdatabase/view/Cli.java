@@ -95,8 +95,8 @@ public class Cli {
      * Ask the user to choose the ID of the computer he wants to delete.
      * @return the user's choice
      */
-    public int printDeleteComputerAction() {
-        return this.getIntChoice("\nChoose a computer id to delete: ");
+    public String printDeleteComputerAction() {
+        return this.getStringChoice("\nChoose a computer id to delete: ");
     }
 
     /**

@@ -1,5 +1,7 @@
-package fr.ebiz.computerdatabase.persistence;
+package fr.ebiz.computerdatabase.daos;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -8,19 +10,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mysql.jdbc.Connection;
-import com.mysql.jdbc.PreparedStatement;
-
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
-import fr.ebiz.computerdatabase.model.Company;
+import fr.ebiz.computerdatabase.models.Company;
+import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.utils.Utils;
 
 public class CompanyDAO {
 
     static final Logger LOG = LoggerFactory.getLogger(CompanyDAO.class);
 
-    private Connection coMysql;
+    private Connection co = null;
 
     private static final String QUERY_FIND = "SELECT * FROM " + Utils.COMPANY_TABLE + " WHERE id = ?";
 
@@ -28,12 +28,31 @@ public class CompanyDAO {
 
     private static final String QUERY_FINDBYPAGE = "SELECT * FROM " + Utils.COMPANY_TABLE + " LIMIT ?, ?";
 
+    private static final String QUERY_DELETE = "DELETE FROM " + Utils.COMPANY_TABLE + " WHERE id = ?";
+
     /**
      * Constructor companyDAO.
      * @throws ConnectionException Error on co to db.
      */
     public CompanyDAO() throws ConnectionException {
-        coMysql = ConnectionDB.getInstance().getConnection();
+    }
+
+    /**
+     * According to the given id in parameter, build the query, find and delete
+     * it from the database.
+     * @param id the computer id to delete.
+     * @return int depending the delete is done or not.
+     * @throws SQLException error on co to db.
+     * @throws ConnectionException Error on accessing data.
+     */
+    public int delete(String id) throws SQLException, ConnectionException {
+
+        co = ConnectionDB.getInstance().getConnection();
+        PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
+        prepStatement.setString(1, id);
+        int res = prepStatement.executeUpdate();
+        co.close();
+        return res;
     }
 
     /**
@@ -46,15 +65,18 @@ public class CompanyDAO {
     public Company find(int id) throws DAOException {
         Company company = null;
         try {
-            PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(QUERY_FIND);
+            co = ConnectionDB.getInstance().getConnection();
+            PreparedStatement prepStatement = co.prepareStatement(QUERY_FIND);
             prepStatement.setInt(1, id);
 
             ResultSet resultat = prepStatement.executeQuery();
             if (!resultat.isBeforeFirst()) {
                 throw new DAOException("[FIND] No data for request.");
             }
+            resultat.next();
             company = toCompany(resultat);
-        } catch (SQLException e) {
+            co.close();
+        } catch (SQLException | ConnectionException e) {
             throw new DAOException("[FIND] Error on accessing data.");
         }
 
@@ -69,12 +91,14 @@ public class CompanyDAO {
     public List<Company> findAll() throws DAOException {
         List<Company> list = null;
         try {
-            ResultSet resultat = coMysql.createStatement().executeQuery(QUERY_FINDALL);
-            list = toCompanies(resultat);
+            co = ConnectionDB.getInstance().getConnection();
+            ResultSet resultat = co.createStatement().executeQuery(QUERY_FINDALL);
             if (!resultat.isBeforeFirst()) {
                 throw new DAOException("[FINDALL] No data for request.");
             }
-        } catch (SQLException e) {
+            list = toCompanies(resultat);
+            co.close();
+        } catch (SQLException | ConnectionException e) {
             throw new DAOException("[FINDALL] Error on accessing data.");
         }
         return list;
@@ -92,7 +116,8 @@ public class CompanyDAO {
 
         List<Company> list = new ArrayList<>();
         try {
-            PreparedStatement prepStatement = (PreparedStatement) coMysql.prepareStatement(QUERY_FINDBYPAGE);
+            co = ConnectionDB.getInstance().getConnection();
+            PreparedStatement prepStatement = co.prepareStatement(QUERY_FINDBYPAGE);
             prepStatement.setInt(1, numPage);
             prepStatement.setInt(2, nbLine);
             ResultSet resultat = prepStatement.executeQuery();
@@ -102,7 +127,8 @@ public class CompanyDAO {
             while (resultat.next()) {
                 list.add(toCompany(resultat));
             }
-        } catch (SQLException e) {
+            co.close();
+        } catch (SQLException | ConnectionException e) {
             throw new DAOException("[FINDBYPAGE] Error on accessing data.");
         }
         return list;

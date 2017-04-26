@@ -1,4 +1,4 @@
-package fr.ebiz.computerDatabase.unitTest;
+package fr.ebiz.computerdatabase.unitTest;
 
 import static org.junit.Assert.assertEquals;
 
@@ -9,9 +9,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import fr.ebiz.computerdatabase.exceptions.MapperException;
-import fr.ebiz.computerdatabase.mapper.ComputerMapper;
-import fr.ebiz.computerdatabase.model.Computer;
-import fr.ebiz.computerdatabase.model.ComputerDTO;
+import fr.ebiz.computerdatabase.mappers.ComputerMapper;
+import fr.ebiz.computerdatabase.models.Computer;
+import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class ComputerMapperTest {
 
@@ -59,7 +59,7 @@ public class ComputerMapperTest {
     @Test
     public void testToDTO() {
         try {
-            assertEquals("Testing to DTO", computer, computerMapper.toComputer(computerDTO));
+            assertEquals("Testing to DTO", computer, computerMapper.toModel(computerDTO));
         } catch (MapperException e) {
             e.printStackTrace();
         }
