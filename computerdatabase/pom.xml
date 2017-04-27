@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.ebiz</groupId>
 	<artifactId>computerdatabase</artifactId>
-	<version>0.2.1-SNAPSHOT</version>
+	<version>0.3.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>computerdatabase</name>
 
@@ -16,6 +16,8 @@
 		<jstl.version>1.2</jstl.version>
 		<selenium.version>3.3.1</selenium.version>
 		<checkstyle.version>2.17</checkstyle.version>
+		<javaxservlet.version>3.1.0</javaxservlet.version>
+		<hikari.version>2.6.1</hikari.version>
 		<direcheckstyle>src/main/resources</direcheckstyle>
 	</properties>
 
@@ -25,7 +27,7 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
-			<version>3.1.0</version>
+			<version>${javaxservlet.version}</version>
 			<scope>compile</scope>
 		</dependency>
 
@@ -53,7 +55,7 @@
 		<dependency>
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
-			<version>2.6.1</version>
+			<version>${hikari.version}</version>
 			<scope>compile</scope>
 		</dependency>
 

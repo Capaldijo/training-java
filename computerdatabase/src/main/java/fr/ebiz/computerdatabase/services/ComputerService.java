@@ -1,5 +1,6 @@
 package fr.ebiz.computerdatabase.services;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import fr.ebiz.computerdatabase.exceptions.MapperException;
 import fr.ebiz.computerdatabase.interfaces.ServiceInterface;
 import fr.ebiz.computerdatabase.mappers.ComputerMapper;
 import fr.ebiz.computerdatabase.models.Computer;
+import fr.ebiz.computerdatabase.models.PaginationFilters;
 import fr.ebiz.computerdatabase.validators.ComputerValidator;
 import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
@@ -102,17 +104,12 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
     }
 
     @Override
-    public List<ComputerDTO> getByPage(String numPage, String research, String nbLine) {
+    public List<ComputerDTO> getByPage(String numPage, String nbLine, PaginationFilters filters) {
         List<ComputerDTO> listComputerDTO = null;
         try {
             int numP = Integer.parseInt(numPage);
             int nbL = Integer.parseInt(nbLine);
-
-            if (research.equals("")) {
-                listComputerDTO = computerDAO.findByPage(numP, nbL);
-            } else {
-                listComputerDTO = computerDAO.findBySearch(research, numP, nbL);
-            }
+            listComputerDTO = computerDAO.findByPage(filters, numP, nbL);
         } catch (NumberFormatException | DAOException e) {
             LOG.error("[GETCOMPUTERBYPAGE] Error on getting data.");
             throw new RuntimeException("[GETCOMPUTERBYPAGE] Error on getting data.");
@@ -173,7 +170,7 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
     public int delete(String...ids) {
         int res = 0;
         try {
-            if (computerDAO.deleteComputers(ids) == 1) {
+            if (computerDAO.delete(ids) == 1) {
                 LOG.info("Delete computer done.\n");
                 res = 1;
             } else {
@@ -188,8 +185,19 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
 
     @Override
     public int delete(String id) {
-        LOG.error("[SERVICE] [DELETE] Not implemented.");
-        throw new RuntimeException("[SERVICE] [DELETE] Not implemented.");
+        int res = 0;
+        try {
+            if (computerDAO.delete(id) == 1) {
+                LOG.info("Delete computer done.\n");
+                res = 1;
+            } else {
+                LOG.info("Delete computer error.\n");
+                res = 0;
+            }
+        } catch (SQLException | ConnectionException e) {
+            throw new RuntimeException("[DELETECOMPUTER] Error on accessing data.");
+        }
+        return res;
     }
 
     @Override

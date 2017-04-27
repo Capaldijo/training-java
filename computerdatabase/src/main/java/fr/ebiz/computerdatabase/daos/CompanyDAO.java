@@ -12,11 +12,14 @@ import org.slf4j.LoggerFactory;
 
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
+import fr.ebiz.computerdatabase.interfaces.DAOInterface;
 import fr.ebiz.computerdatabase.models.Company;
+import fr.ebiz.computerdatabase.models.PaginationFilters;
 import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.utils.Utils;
+import fr.ebiz.computerdatanase.dtos.CompanyDTO;
 
-public class CompanyDAO {
+public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
 
     static final Logger LOG = LoggerFactory.getLogger(CompanyDAO.class);
 
@@ -37,14 +40,7 @@ public class CompanyDAO {
     public CompanyDAO() throws ConnectionException {
     }
 
-    /**
-     * According to the given id in parameter, build the query, find and delete
-     * it from the database.
-     * @param id the computer id to delete.
-     * @return int depending the delete is done or not.
-     * @throws SQLException error on co to db.
-     * @throws ConnectionException Error on accessing data.
-     */
+    @Override
     public int delete(String id) throws SQLException, ConnectionException {
 
         co = ConnectionDB.getInstance().getConnection();
@@ -55,13 +51,7 @@ public class CompanyDAO {
         return res;
     }
 
-    /**
-     * Following the given ID, return the company corresponding into a ResultSet
-     * object.
-     * @param id of the company to get.
-     * @return a ResultSetl containing a company.
-     * @throws DAOException Error on getting data from DB.
-     */
+    @Override
     public Company find(int id) throws DAOException {
         Company company = null;
         try {
@@ -74,20 +64,21 @@ public class CompanyDAO {
                 throw new DAOException("[FIND] No data for request.");
             }
             resultat.next();
-            company = toCompany(resultat);
-            co.close();
+            company = toModel(resultat);
         } catch (SQLException | ConnectionException e) {
             throw new DAOException("[FIND] Error on accessing data.");
+        } finally {
+            try {
+                co.close();
+            } catch (SQLException e) {
+                throw new DAOException("[FIND] Error on close co.");
+            }
         }
 
         return company;
     }
 
-    /**
-     * Get all the company stored in the database into a ResultSet object.
-     * @return into a ResultSet all the company.
-     * @throws DAOException Error on getting data from DB.
-     */
+    @Override
     public List<Company> findAll() throws DAOException {
         List<Company> list = null;
         try {
@@ -96,25 +87,22 @@ public class CompanyDAO {
             if (!resultat.isBeforeFirst()) {
                 throw new DAOException("[FINDALL] No data for request.");
             }
-            list = toCompanies(resultat);
-            co.close();
+            list = toModels(resultat);
         } catch (SQLException | ConnectionException e) {
             throw new DAOException("[FINDALL] Error on accessing data.");
+        } finally {
+            try {
+                co.close();
+            } catch (SQLException e) {
+                throw new DAOException("[FINDALL] Error on close co.");
+            }
         }
         return list;
     }
 
-    /**
-     * Following the parameters, build a query that get only 10nth lines of the
-     * Company's table and return them into a ResultSet object.
-     * @param numPage the page the user wants to go on.
-     * @param nbLine number of line to print.
-     * @return a ResultSet containing the page.
-     * @throws DAOException Error on getting data from DB.
-     */
-    public List<Company> findByPage(int numPage, int nbLine) throws DAOException {
-
-        List<Company> list = new ArrayList<>();
+    @Override
+    public List<CompanyDTO> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException {
+        List<CompanyDTO> list = new ArrayList<>();
         try {
             co = ConnectionDB.getInstance().getConnection();
             PreparedStatement prepStatement = co.prepareStatement(QUERY_FINDBYPAGE);
@@ -124,51 +112,113 @@ public class CompanyDAO {
             if (!resultat.isBeforeFirst()) {
                 throw new DAOException("[FINDBYPAGE] No data for request.");
             }
-            while (resultat.next()) {
-                list.add(toCompany(resultat));
-            }
-            co.close();
+            list = toDTOs(resultat);
         } catch (SQLException | ConnectionException e) {
             throw new DAOException("[FINDBYPAGE] Error on accessing data.");
+        } finally {
+            try {
+                co.close();
+            } catch (SQLException e) {
+                throw new DAOException("[FINDBYPAGE] Error on close co.");
+            }
         }
         return list;
     }
 
-    /**
-     * Get a list company from the database and build it as an instance of Company
-     * class return a company object list.
-     * @param resultat contains all companies from db.
-     * @return a list of Companies.
-     * @throws SQLException Error on getting data.
-     */
-    private List<Company> toCompanies(ResultSet resultat) throws SQLException {
+    @Override
+    public List<Company> toModels(ResultSet resultat) throws DAOException {
         List<Company> list = new ArrayList<>();
 
         try {
             while (resultat.next()) {
-                list.add(toCompany(resultat));
+                list.add(toModel(resultat));
             }
         } catch (SQLException sqle) {
             LOG.error("Error on reading data from db.");
-            throw new SQLException(sqle.getMessage());
+            throw new DAOException(sqle.getMessage());
         }
 
         return list;
     }
 
-    /**
-     * Get a company from the database and build it as an instance of Company
-     * class return a company object.
-     * @param resultat contains a company from db.
-     * @return a company.
-     * @throws SQLException Error on getting data.
-     */
-    private Company toCompany(ResultSet resultat) throws SQLException {
+    @Override
+    public Company toModel(ResultSet resultat) throws DAOException {
         Long id = 0L;
         String name = null;
-        id = resultat.getLong(Utils.COLUMN_ID);
-        name = resultat.getString(Utils.COLUMN_NAME);
+        try {
+            id = resultat.getLong(Utils.COLUMN_ID);
+            name = resultat.getString(Utils.COLUMN_NAME);
+        } catch (SQLException e) {
+            LOG.error("Error on reading data from db.");
+            throw new DAOException(e.getMessage());
+        }
 
         return new Company(id, name);
+    }
+
+    @Override
+    public CompanyDTO toDTO(ResultSet resultat) throws DAOException {
+        String id = null;
+        String name = null;
+        try {
+            id = resultat.getString(Utils.COLUMN_ID);
+            name = resultat.getString(Utils.COLUMN_NAME);
+        } catch (SQLException e) {
+            LOG.error("[TOCOMPUTERDTO] Error on accessing data.");
+            throw new DAOException("[TOCOMPUTERDTO] Error on accessing data.");
+        }
+
+        return new CompanyDTO(id, name);
+    }
+
+    @Override
+    public List<CompanyDTO> toDTOs(ResultSet resultat) throws DAOException {
+        List<CompanyDTO> list = new ArrayList<>();
+
+        try {
+            while (resultat.next()) {
+                list.add(toDTO(resultat));
+            }
+        } catch (SQLException sqle) {
+            LOG.error("[TOCOMPUTERDTOS]Error on reading data from db.");
+            throw new DAOException("[TOCOMPUTERDTOS]Error on reading data from db.");
+        }
+        return list;
+    }
+
+    @Override
+    public Company find(Long idComp) throws DAOException {
+        LOG.error("[FIND] Not implemented yet.");
+        throw new RuntimeException("[FIND] Not implemented yet.");
+    }
+
+    @Override
+    public int count() throws DAOException {
+        LOG.error("[COUNT] Not implemented yet.");
+        throw new RuntimeException("[COUNT] Not implemented yet.");
+    }
+
+    @Override
+    public int countAfterSearch(String search) throws DAOException {
+        LOG.error("[COUNTAFTERSEARCH] Not implemented yet.");
+        throw new RuntimeException("[COUNTAFTERSEARCH] Not implemented yet.");
+    }
+
+    @Override
+    public int insert(Company comp) throws DAOException {
+        LOG.error("[INSERT] Not implemented yet.");
+        throw new RuntimeException("[INSERT] Not implemented yet.");
+    }
+
+    @Override
+    public int update(Company comp) throws DAOException {
+        LOG.error("[UPDATE] Not implemented yet.");
+        throw new RuntimeException("[UPDATE] Not implemented yet.");
+    }
+
+    @Override
+    public int delete(String... modelsId) throws DAOException {
+        LOG.error("[DELETE] Not implemented yet.");
+        throw new RuntimeException("[DELETE] Not implemented yet.");
     }
 }

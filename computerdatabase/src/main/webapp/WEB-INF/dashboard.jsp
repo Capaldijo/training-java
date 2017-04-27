@@ -103,8 +103,7 @@
 
     <footer class="navbar-fixed-bottom">
         <div class="container text-center">
-          <myTag:pagination target="dashboard" numPage="${numPage}"
-           nbComputer="${nbComputer}" nbLine="${nbLine}" search="${search}"/>
+          <myTag:pagination numPage="${numPage}" nbComputer="${nbComputer}" nbLine="${nbLine}" search="${search}"/>
 		</div>
     </footer>
 <script src="js/jquery.min.js"></script>

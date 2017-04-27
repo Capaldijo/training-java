@@ -18,6 +18,7 @@ import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.utils.Utils;
 import fr.ebiz.computerdatabase.view.Cli;
+import fr.ebiz.computerdatanase.dtos.CompanyDTO;
 import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class CLIController {
@@ -87,18 +88,18 @@ public class CLIController {
     private void listCompanies() {
         try {
             int numPage = 0;
-            List<Company> list = null;
+            List<CompanyDTO> list = null;
             boolean stop = false;
             while (!stop) {
                 // get 10 companies in the list
-                list = companyDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
+                list = companyDAO.findByPage(null, numPage, Utils.PAGEABLE_NBLINE);
 
                 // if list is empty bc the user gone to far in pages, get to
                 // previous half full list
                 if (list.isEmpty() && numPage > 0) {
                     logger.info("Next was selected but Company's list is Empty, getting back to last page.");
                     numPage -= Utils.PAGEABLE_NBLINE;
-                    list = companyDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
+                    list = companyDAO.findByPage(null, numPage, Utils.PAGEABLE_NBLINE);
                 }
                 switch (view.printPageableList(list)) {
                 case 1: // Previous Page
@@ -206,13 +207,13 @@ public class CLIController {
         boolean stop = false;
         while (!stop) {
             // get 10 computers in the list
-            list = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
+            list = computerDAO.findByPage(null, numPage, Utils.PAGEABLE_NBLINE);
             // if list is empty bc the user gone to far in pages, get to
             // previous half full list
             if (list.isEmpty() && numPage > 0) {
                 logger.info("Next was selected but Computer's list is Empty, getting back to last page.");
                 numPage -= Utils.PAGEABLE_NBLINE;
-                list = computerDAO.findByPage(numPage, Utils.PAGEABLE_NBLINE);
+                list = computerDAO.findByPage(null, numPage, Utils.PAGEABLE_NBLINE);
             }
             switch (view.printPageableList(list)) {
             case 1: // Previous Page

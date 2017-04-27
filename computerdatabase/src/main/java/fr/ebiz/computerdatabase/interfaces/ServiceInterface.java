@@ -2,6 +2,8 @@ package fr.ebiz.computerdatabase.interfaces;
 
 import java.util.List;
 
+import fr.ebiz.computerdatabase.models.PaginationFilters;
+
 public interface ServiceInterface<T> {
 
     /**
@@ -14,11 +16,11 @@ public interface ServiceInterface<T> {
     /**
      * Return a list of T objects.
      * @param numPage get the page the user wants to go on.
-     * @param research given by the user.
+     * @param filters given by the user.
      * @param nbLine number of line to print.
      * @return list of T.
      */
-    List<T> getByPage(String numPage, String research, String nbLine);
+    List<T> getByPage(String numPage, String nbLine, PaginationFilters filters);
 
     /**
      * Get all T object from db.

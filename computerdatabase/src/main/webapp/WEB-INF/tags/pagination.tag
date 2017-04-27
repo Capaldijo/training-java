@@ -1,11 +1,10 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%@ attribute name="target" required="false" type="java.lang.String" description="Text to use in the second cell." %>
-<%@ attribute name="numPage" required="false" type="java.lang.String" description="Text to use in the second cell." %>
-<%@ attribute name="nbComputer" required="false" type="java.lang.String" description="Text to use in the second cell." %>
-<%@ attribute name="nbLine" required="false" type="java.lang.String" description="Text to use in the second cell." %>
-<%@ attribute name="search" required="false" type="java.lang.String" description="Text to use in the second cell." %>
+<%@ attribute name="numPage" required="false" type="java.lang.Integer" description="The current page." %>
+<%@ attribute name="nbComputer" required="false" type="java.lang.Integer" description="The number of computers." %>
+<%@ attribute name="nbLine" required="false" type="java.lang.Integer" description="The number of computers to print by page." %>
+<%@ attribute name="search" required="false" type="java.lang.String" description="The research the user done." %>
 
 <fmt:parseNumber var="lastPage" type="number" integerOnly="true" value="${Math.floor(nbComputer/nbLine)*nbLine}"/>
 
@@ -43,7 +42,7 @@
 
 <ul class="pagination">
 	<li>
-	    <a href="${target}?search=${search}&numPage=0&nbLine=${nbLine}" aria-label="Previous">
+	    <a href="?search=${search}&numPage=0&nbLine=${nbLine}" aria-label="Previous">
 	        <span aria-hidden="true">&laquo;</span>
 	    </a>
 	</li>
@@ -51,22 +50,22 @@
 	<c:forEach begin="${loopPagination}" end="${loopPagination+iteration}" varStatus="loop">
 		<c:choose>
 			<c:when test="${(loopPagination) == 1}">
-				<li><a href="${target}?search=${search}&numPage=${(loop.index-1)*nbLine}&nbLine=${nbLine}">${loop.index}</a></li>
+				<li><a href="?search=${search}&numPage=${(loop.index-1)*nbLine}&nbLine=${nbLine}">${loop.index}</a></li>
 			</c:when>
 			<c:when test="${(currentPage-1) <= 1}">
-				<li><a href="${target}?search=${search}&numPage=${(loop.index)*nbLine}&nbLine=${nbLine}">${loop.index+1}</a></li>
+				<li><a href="?search=${search}&numPage=${(loop.index)*nbLine}&nbLine=${nbLine}">${loop.index+1}</a></li>
 			</c:when>
 			<c:when test="${(loopPagination+iteration) >= nbPages+1}">
-				<li><a href="${target}?search=${search}&numPage=${(loop.index-2)*nbLine}&nbLine=${nbLine}">${loop.index-1}</a></li>
+				<li><a href="?search=${search}&numPage=${(loop.index-2)*nbLine}&nbLine=${nbLine}">${loop.index-1}</a></li>
 			</c:when> 
 			<c:otherwise>
-				<li><a href="${target}?search=${search}&numPage=${(loop.index-1)*nbLine}&nbLine=${nbLine}">${loop.index}</a></li>
+				<li><a href="?search=${search}&numPage=${(loop.index-1)*nbLine}&nbLine=${nbLine}">${loop.index}</a></li>
 			</c:otherwise>
 		</c:choose>
 	</c:forEach>
 	
 	<li>
-		<a href="${target}?search=${search}&numPage=${lastPage}&nbLine=${nbLine}" aria-label="Next">
+		<a href="?search=${search}&numPage=${lastPage}&nbLine=${nbLine}" aria-label="Next">
 		    <span aria-hidden="true">&raquo;</span>
 		</a>
 	</li>
@@ -74,7 +73,7 @@
 </ul>
 
 <div class="btn-group btn-group-sm pull-right" role="group" >
-    <a href="${target}?search=${search}&numPage=${numPage}&nbLine=10" class="btn btn-default">10</a>
-    <a href="${target}?search=${search}&numPage=${numPage}&nbLine=50" class="btn btn-default">50</a>
-    <a href="${target}?search=${search}&numPage=${numPage}&nbLine=100" class="btn btn-default">100</a>
+    <a href="?search=${search}&numPage=${numPage}&nbLine=10" class="btn btn-default">10</a>
+    <a href="?search=${search}&numPage=${numPage}&nbLine=50" class="btn btn-default">50</a>
+    <a href="?search=${search}&numPage=${numPage}&nbLine=100" class="btn btn-default">100</a>
 </div>

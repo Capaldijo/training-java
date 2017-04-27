@@ -13,6 +13,7 @@ import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.interfaces.ServiceInterface;
 import fr.ebiz.computerdatabase.mappers.CompanyMapper;
 import fr.ebiz.computerdatabase.models.Company;
+import fr.ebiz.computerdatabase.models.PaginationFilters;
 import fr.ebiz.computerdatanase.dtos.CompanyDTO;
 
 /*
@@ -82,7 +83,7 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
     }
 
     @Override
-    public List<CompanyDTO> getByPage(String numPage, String research, String nbLine) {
+    public List<CompanyDTO> getByPage(String numPage, String nbLine, PaginationFilters filters) {
         LOG.error("[SERVICE] [GETBYPAGE] Not implemented.");
         throw new RuntimeException("[SERVICE] [GETBYPAGE] Not implemented.");
     }
