@@ -32,6 +32,8 @@ public interface Utils {
 
     String PARAM_COMPUTER_COMPANYID = "companyId";
 
+    String[] HEADERTABLE_NAME = {null, "c.name", "c.introduced", "c.discontinued", "c.company_id"};
+
     // ---- Var for FORMATTER in MAPPER ----
 
     String FORMATTER_DB = "yyyy-MM-dd HH:mm:ss.S";

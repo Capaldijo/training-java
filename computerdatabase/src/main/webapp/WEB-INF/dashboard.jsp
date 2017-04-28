@@ -64,21 +64,8 @@
                                     </a>
                             </span>
                         </th>
-                        <th>
-                            Computer name
-                        </th>
-                        <th>
-                            Introduced date
-                        </th>
-                        <!-- Table header for Discontinued Date -->
-                        <th>
-                            Discontinued date
-                        </th>
-                        <!-- Table header for Company -->
-                        <th>
-                            Company
-                        </th>
-
+						<myTag:orderBy numPage="${numPage}" asc="${asc}"
+							 orderBy="${orderBy}" nbLine="${nbLine}" search="${search}"/>
                     </tr>
                 </thead>
                 <!-- Browse attribute computers -->

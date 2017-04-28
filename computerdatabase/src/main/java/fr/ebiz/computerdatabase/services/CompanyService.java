@@ -1,5 +1,6 @@
 package fr.ebiz.computerdatabase.services;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import fr.ebiz.computerdatabase.interfaces.ServiceInterface;
 import fr.ebiz.computerdatabase.mappers.CompanyMapper;
 import fr.ebiz.computerdatabase.models.Company;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
+import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatanase.dtos.CompanyDTO;
 
 /*
@@ -31,16 +33,14 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
 
     private CompanyMapper companyMapper;
 
+    private Connection co;
+
     /**
      * Constructor CompanyService.
      */
     private CompanyService() {
-        try {
-            companyDAO = new CompanyDAO();
-            companyMapper = new CompanyMapper();
-        } catch (ConnectionException e) {
-            throw new RuntimeException(e.getMessage());
-        }
+        companyDAO = new CompanyDAO();
+        companyMapper = new CompanyMapper();
     }
 
     /**
@@ -60,10 +60,32 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
         List<CompanyDTO> list = new ArrayList<>();
 
         try {
+            co = ConnectionDB.getInstance().getConnection();
+            co.setSavepoint("GETALL");
+            TransactionHolder.set(co);
+
             List<Company> listCompany = companyDAO.findAll();
+
+            TransactionHolder.unset();
+            co.commit();
+
             list = companyMapper.toDTO(listCompany);
-        } catch (DAOException e) {
+        } catch (DAOException | SQLException | ConnectionException e) {
+            try {
+                co.rollback();
+            } catch (SQLException e1) {
+                LOG.error(e.getMessage());
+                throw new RuntimeException(e.getMessage());
+            }
+            LOG.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
+        } finally {
+            try {
+                co.close();
+            } catch (SQLException e) {
+                LOG.error(e.getMessage());
+                throw new RuntimeException(e.getMessage());
+            }
         }
         return list;
     }
@@ -74,10 +96,32 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
 
         try {
             int idComp = Integer.parseInt(id);
+
+            co = ConnectionDB.getInstance().getConnection();
+            co.setSavepoint("GETID");
+            TransactionHolder.set(co);
+
             Company company = companyDAO.find(idComp);
+
+            TransactionHolder.unset();
+            co.commit();
             companyDTO = companyMapper.toDTO(company);
-        } catch (DAOException | NumberFormatException e) {
+        } catch (DAOException | SQLException | ConnectionException | NumberFormatException e) {
+            try {
+                co.rollback();
+            } catch (SQLException e1) {
+                LOG.error(e.getMessage());
+                throw new RuntimeException(e.getMessage());
+            }
+            LOG.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
+        } finally {
+            try {
+                co.close();
+            } catch (SQLException e) {
+                LOG.error(e.getMessage());
+                throw new RuntimeException(e.getMessage());
+            }
         }
         return companyDTO;
     }
@@ -122,6 +166,9 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
     public int delete(String id) {
         int res = 0;
         try {
+            co = ConnectionDB.getInstance().getConnection();
+            co.setSavepoint("DELETE");
+            TransactionHolder.set(co);
             if (companyDAO.delete(id) == 1) {
                 LOG.info("Delete computer done.\n");
                 res = 1;
@@ -129,8 +176,24 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
                 LOG.info("Delete computer error.\n");
                 res = 0;
             }
+            TransactionHolder.unset();
+            co.commit();
         } catch (SQLException | ConnectionException e) {
+            try {
+                co.rollback();
+            } catch (SQLException e1) {
+                LOG.error(e.getMessage());
+                throw new RuntimeException(e.getMessage());
+            }
+            LOG.error(e.getMessage());
             throw new RuntimeException("[DELETECOMPUTER] Error on accessing data.");
+        } finally {
+            try {
+                co.close();
+            } catch (SQLException e) {
+                LOG.error(e.getMessage());
+                throw new RuntimeException(e.getMessage());
+            }
         }
         return res;
     }

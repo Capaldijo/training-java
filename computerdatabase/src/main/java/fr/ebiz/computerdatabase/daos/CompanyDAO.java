@@ -15,7 +15,7 @@ import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.interfaces.DAOInterface;
 import fr.ebiz.computerdatabase.models.Company;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
-import fr.ebiz.computerdatabase.persistence.ConnectionDB;
+import fr.ebiz.computerdatabase.services.TransactionHolder;
 import fr.ebiz.computerdatabase.utils.Utils;
 import fr.ebiz.computerdatanase.dtos.CompanyDTO;
 
@@ -37,26 +37,27 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
      * Constructor companyDAO.
      * @throws ConnectionException Error on co to db.
      */
-    public CompanyDAO() throws ConnectionException {
+    public CompanyDAO() {
     }
 
     @Override
-    public int delete(String id) throws SQLException, ConnectionException {
+    public int delete(String id) throws SQLException {
 
-        co = ConnectionDB.getInstance().getConnection();
+        co = TransactionHolder.get();
         PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
         prepStatement.setString(1, id);
         int res = prepStatement.executeUpdate();
-        co.close();
+        prepStatement.close();
         return res;
     }
 
     @Override
     public Company find(int id) throws DAOException {
         Company company = null;
+        PreparedStatement prepStatement = null;
         try {
-            co = ConnectionDB.getInstance().getConnection();
-            PreparedStatement prepStatement = co.prepareStatement(QUERY_FIND);
+            co = TransactionHolder.get();
+            prepStatement = co.prepareStatement(QUERY_FIND);
             prepStatement.setInt(1, id);
 
             ResultSet resultat = prepStatement.executeQuery();
@@ -65,11 +66,12 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             }
             resultat.next();
             company = toModel(resultat);
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException e) {
+            LOG.error("[FIND] Error accessing data.");
             throw new DAOException("[FIND] Error on accessing data.");
         } finally {
             try {
-                co.close();
+                prepStatement.close();
             } catch (SQLException e) {
                 throw new DAOException("[FIND] Error on close co.");
             }
@@ -82,20 +84,15 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
     public List<Company> findAll() throws DAOException {
         List<Company> list = null;
         try {
-            co = ConnectionDB.getInstance().getConnection();
+            co = TransactionHolder.get();
             ResultSet resultat = co.createStatement().executeQuery(QUERY_FINDALL);
             if (!resultat.isBeforeFirst()) {
                 throw new DAOException("[FINDALL] No data for request.");
             }
             list = toModels(resultat);
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException e) {
+            LOG.error("[FINDALL] Error accessing data.");
             throw new DAOException("[FINDALL] Error on accessing data.");
-        } finally {
-            try {
-                co.close();
-            } catch (SQLException e) {
-                throw new DAOException("[FINDALL] Error on close co.");
-            }
         }
         return list;
     }
@@ -103,9 +100,10 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
     @Override
     public List<CompanyDTO> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException {
         List<CompanyDTO> list = new ArrayList<>();
+        PreparedStatement prepStatement = null;
         try {
-            co = ConnectionDB.getInstance().getConnection();
-            PreparedStatement prepStatement = co.prepareStatement(QUERY_FINDBYPAGE);
+            co = TransactionHolder.get();
+            prepStatement = co.prepareStatement(QUERY_FINDBYPAGE);
             prepStatement.setInt(1, numPage);
             prepStatement.setInt(2, nbLine);
             ResultSet resultat = prepStatement.executeQuery();
@@ -113,11 +111,12 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
                 throw new DAOException("[FINDBYPAGE] No data for request.");
             }
             list = toDTOs(resultat);
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException e) {
+            LOG.error("[FINDBYPAGE] Error accessing data.");
             throw new DAOException("[FINDBYPAGE] Error on accessing data.");
         } finally {
             try {
-                co.close();
+                prepStatement.close();
             } catch (SQLException e) {
                 throw new DAOException("[FINDBYPAGE] Error on close co.");
             }

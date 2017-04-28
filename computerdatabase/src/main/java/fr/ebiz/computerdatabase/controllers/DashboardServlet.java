@@ -40,8 +40,10 @@ public class DashboardServlet extends HttpServlet {
 
         if (search == null) {
             search = "";
+        } else {
+            search = search.trim();
         }
-        int count = 0;
+        int count = 0, order = 0;
 
         if (numPage == null) {
             numPage = "0";
@@ -50,21 +52,27 @@ public class DashboardServlet extends HttpServlet {
             nbLine = String.valueOf(Utils.PAGEABLE_NBLINE);
         }
 
-        PaginationFilters filter = new PaginationFilters.Builder()
-                .search(NAME_COMPUTER, new LikeBoth(search))
-                .search(NAME_COMPANY, new LikeBoth(search))
-                .orderBy(orderBy, Boolean.parseBoolean(ascOrDesc))
-                .build();
-
         try {
+            if (orderBy != null) {
+                order = Integer.parseInt(orderBy);
+            }
+
+            PaginationFilters filter = new PaginationFilters.Builder()
+                    .search(NAME_COMPUTER, new LikeBoth(search))
+                    .search(NAME_COMPANY, new LikeBoth(search))
+                    .orderBy(Utils.HEADERTABLE_NAME[order], Boolean.parseBoolean(ascOrDesc))
+                    .build();
+
             count = ComputerService.getInstance().count(search);
             List<ComputerDTO> listComputerDTO = ComputerService.getInstance().getByPage(numPage, nbLine, filter);
-            System.out.println(listComputerDTO);
+
             request.setAttribute("nbComputer", count);
             request.setAttribute("computers", listComputerDTO);
             request.setAttribute("numPage", numPage);
             request.setAttribute("search", search);
             request.setAttribute("nbLine", nbLine);
+            request.setAttribute("orderBy", orderBy);
+            request.setAttribute("asc", ascOrDesc);
 
             this.getServletContext().getRequestDispatcher(DASHBOARD_VIEW).forward(request, response);
         } catch (RuntimeException e) {

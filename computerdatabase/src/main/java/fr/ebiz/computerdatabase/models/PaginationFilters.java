@@ -32,12 +32,12 @@ public class PaginationFilters {
     }
 
     /**
-     * filters.
-     * @param col col.
+     * Get filters value from a columnName.
+     * @param columnName columnName.
      * @return operator
      */
-    public Operator getFilterValue(String col) {
-        return filters.get(col);
+    public Operator getFilterValue(String columnName) {
+        return filters.get(columnName);
     }
 
     public HashMap<String, Operator> getFilters() {
@@ -76,20 +76,20 @@ public class PaginationFilters {
         }
 
         /**
-         * search.
-         * @param s s
-         * @param op op
+         * Set a new search.
+         * @param columnName columnName to apply search on
+         * @param op Like or =
          * @return builder
          */
-        public Builder search(String s, Operator op) {
-            filter.filters.put(s, op);
+        public Builder search(String columnName, Operator op) {
+            filter.filters.put(columnName, op);
             return this;
         }
 
         /**
-         * order by.
-         * @param orderBy ob
-         * @param asc asc
+         * Set new order by.
+         * @param orderBy name of column to order by
+         * @param asc true if ASC else false
          * @return builder
          */
         public Builder orderBy(String orderBy, boolean asc) {

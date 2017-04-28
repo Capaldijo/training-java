@@ -19,8 +19,8 @@ import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.interfaces.DAOInterface;
 import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
-import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.persistence.Operator;
+import fr.ebiz.computerdatabase.services.TransactionHolder;
 import fr.ebiz.computerdatabase.utils.Utils;
 import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
@@ -37,12 +37,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
     private static final String QUERY_SELECT = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id "
             + "FROM " + Utils.COMPUTER_TABLE;
 
-    private static final String QUERY_FINDALL = QUERY_SELECT + " as c LEFT JOIN company as comp ON c.id = comp.id";
-
-    private static final String QUERY_FINDBYPAGE = QUERY_FINDALL + " LIMIT ?, ?";
-
-    private static final String QUERY_FINDBYSEARCH = QUERY_FINDALL + " WHERE c.name LIKE ? OR "
-            + "comp.name LIKE ? LIMIT ?, ?";
+    private static final String QUERY_FINDALL = QUERY_SELECT + " as c LEFT JOIN company as comp ON c.company_id = comp.id";
 
     private static final String QUERY_COUNT = "SELECT COUNT(*) as count FROM " + Utils.COMPUTER_TABLE;
 
@@ -61,20 +56,20 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
      * Constructor ComputerDAO.
      * @throws ConnectionException error on co db
      */
-    public ComputerDAO() throws ConnectionException {
+    public ComputerDAO() {
         // formatter for the LocalDateTime computer's fields
         formatterDB = DateTimeFormatter.ofPattern(Utils.FORMATTER_DB);
         formatter = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
-        co = ConnectionDB.getInstance().getConnection();
     }
 
     @Override
     public Computer find(Long idComp) throws DAOException {
 
         Computer computer = null;
+        PreparedStatement prepStatement = null;
         try {
-            co = ConnectionDB.getInstance().getConnection();
-            PreparedStatement prepStatement = co.prepareStatement(QUERY_FIND);
+            co = TransactionHolder.get();
+            prepStatement = co.prepareStatement(QUERY_FIND);
             prepStatement.setLong(1, idComp);
             ResultSet resultat = prepStatement.executeQuery();
             if (!resultat.isBeforeFirst()) {
@@ -82,9 +77,14 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             }
             resultat.next();
             computer = toModel(resultat);
-            co.close();
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException e) {
             throw new DAOException("[FIND] Error on accessing data.");
+        } finally {
+            try {
+                prepStatement.close();
+            } catch (SQLException e) {
+                throw new DAOException("[FINDALL] Error on close co.");
+            }
         }
 
         return computer;
@@ -95,22 +95,16 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
 
         List<Computer> list = null;
         try {
-            co = ConnectionDB.getInstance().getConnection();
+            co = TransactionHolder.get();
             ResultSet resultat = co.createStatement().executeQuery(QUERY_FINDALL);
             if (!resultat.isBeforeFirst()) {
                 LOG.error("[FINDALL] No data for request.");
                 throw new DAOException("[FINDALL] No data for request.");
             }
             list = toModels(resultat);
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException e) {
             LOG.error("[FINDALL] Error on accessing data.");
             throw new DAOException("[FINDALL] Error on accessing data.");
-        } finally {
-            try {
-                co.close();
-            } catch (SQLException e) {
-                throw new DAOException("[FINDALL] Error on close co.");
-            }
         }
         return list;
     }
@@ -119,64 +113,13 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
     public List<ComputerDTO> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException {
 
         List<ComputerDTO> list = null;
-        //        try {
-        //            co = ConnectionDB.getInstance().getConnection();
-        //            PreparedStatement prepStatement = null;
-        //            if (filters != null) {
-        //                String search = filters.getSearch();
-        //                String orderBy = filters.getOrderBy();
-        //                String ascOrDesc = filters.getAscOrDesc();
-        //                StringBuilder query = new StringBuilder();
-        //                if (search != null) { // we search and maybe order
-        //                    query.append(QUERY_FINDBYSEARCH);
-        //                    if (orderBy != null) {
-        //                        query.append(" ORDER BY ? ?");
-        //                    }
-        //                    prepStatement = co.prepareStatement(query.toString());
-        //                    prepStatement.setString(1, '%' + search + '%');
-        //                    prepStatement.setString(2, '%' + search + '%');
-        //                    prepStatement.setInt(3, numPage);
-        //                    prepStatement.setInt(4, nbLine);
-        //                    if (orderBy != null) {
-        //                        prepStatement.setString(5, orderBy);
-        //                        prepStatement.setString(6, ascOrDesc.toUpperCase());
-        //                    }
-        //                } else { // we only order by
-        //                    query.append(QUERY_FINDBYPAGE);
-        //                    query.append(" ORDER BY ? ?");
-        //                    prepStatement = co.prepareStatement(query.toString());
-        //                    prepStatement.setInt(1, numPage);
-        //                    prepStatement.setInt(2, nbLine);
-        //                    prepStatement.setString(3, orderBy);
-        //                    prepStatement.setString(4, ascOrDesc.toUpperCase());
-        //                }
-        //            } else {
-        //                prepStatement = co.prepareStatement(QUERY_FINDBYPAGE);
-        //                prepStatement.setInt(1, numPage);
-        //                prepStatement.setInt(2, nbLine);
-        //            }
-        //            ResultSet resultat = prepStatement.executeQuery();
-        //            if (!resultat.isBeforeFirst()) {
-        //                LOG.error("[FINDBYSEARCH] No data for request.");
-        //                throw new DAOException("[FINDBYSEARCH] No data for request.");
-        //            }
-        //            list = toDTOs(resultat);
-        //        } catch (SQLException | ConnectionException e) {
-        //            LOG.error("[FINDBYSEARCH] Error on accessing data.");
-        //            throw new DAOException("[FINDBYSEARCH] Error on accessing data.");
-        //        } finally {
-        //            try {
-        //                co.close();
-        //            } catch (SQLException e) {
-        //                throw new DAOException("[FINDBYSEARCH] Error on close co.");
-        //            }
-        //        }
-        PreparedStatement preparedStatement = null;
+        PreparedStatement prepStatement = null;
         ResultSet rs = null;
         StringBuilder query = new StringBuilder();
         query.append(QUERY_FINDALL);
         try {
-            co = ConnectionDB.getInstance().getConnection();
+            co = TransactionHolder.get();
+
             // If we have at least one column filtered
             Iterator<String> it = filters.getFilteredColumns().iterator();
             if (it.hasNext()) {
@@ -189,30 +132,27 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
                     }
                 }
             }
+
             if (filters.getOrderBy() != null) {
                 query.append("ORDER BY " + filters.getOrderBy() + " " + (filters.isAsc() ? " ASC " : " DESC "));
             }
 
             query.append(" LIMIT " + numPage + " , " + nbLine + " ");
 
-            preparedStatement = co.prepareStatement(query.toString());
+            prepStatement = co.prepareStatement(query.toString());
             int paramCount = 1;
 
             for (Operator op : filters.getFilterValues()) {
-                preparedStatement.setString(paramCount++, op.getValue());
-                System.out.println(paramCount);
+                prepStatement.setString(paramCount++, op.getValue());
             }
-            rs = preparedStatement.executeQuery();
-            //co.commit();
+            rs = prepStatement.executeQuery();
             list = toDTOs(rs);
-
-            LOG.info("Succes getFromFilter ComputerDAO" + preparedStatement);
-        } catch (SQLException | ConnectionException e) {
-            LOG.info("Erreur getFromFilter ComputerDAO : " + e.getMessage() + " query built : " + query.toString());
+        } catch (SQLException e) {
+            LOG.info("[FINDBYSEARCH] Error on accessing data");
+            throw new DAOException("[FINDBYSEARCH] Error on accessing data.");
         } finally {
             try {
-                preparedStatement.close();
-                co.close();
+                prepStatement.close();
             } catch (SQLException e) {
                 throw new DAOException("[FINDBYSEARCH] Error on close co.");
             }
@@ -226,7 +166,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
 
         int count = 0;
         try {
-            co = ConnectionDB.getInstance().getConnection();
+            co = TransactionHolder.get();
             ResultSet resultat = co.createStatement().executeQuery(QUERY_COUNT);
             if (!resultat.isBeforeFirst()) {
                 LOG.error("[COUNT] No data for request.");
@@ -234,15 +174,9 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             }
             resultat.next();
             count = resultat.getInt("count");
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException e) {
             LOG.error("[COUNT] Error on accessing data.");
             throw new DAOException("[COUNT] Error on accessing data.");
-        } finally {
-            try {
-                co.close();
-            } catch (SQLException e) {
-                throw new DAOException("[COUNT] Error on close co.");
-            }
         }
         return count;
     }
@@ -251,9 +185,10 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
     public int countAfterSearch(String search) throws DAOException {
 
         int count = 0;
+        PreparedStatement prepStatement = null;
         try {
-            co = ConnectionDB.getInstance().getConnection();
-            PreparedStatement prepStatement = co.prepareStatement(QUERY_COUNTAFTERSEARCH);
+            co = TransactionHolder.get();
+            prepStatement = co.prepareStatement(QUERY_COUNTAFTERSEARCH);
             prepStatement.setString(1, '%' + search + '%');
             prepStatement.setString(2, '%' + search + '%');
 
@@ -264,12 +199,12 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             }
             resultat.next();
             count = resultat.getInt("count");
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException e) {
             LOG.error("[COUNTSEARCH] Error on accessing data.");
             throw new DAOException("[COUNTSEARCH] Error on accessing data.");
         } finally {
             try {
-                co.close();
+                prepStatement.close();
             } catch (SQLException e) {
                 throw new DAOException("[COUNTSEARCH] Error on close co.");
             }
@@ -294,10 +229,10 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             strDateDiscon = dateDiscon.format(formatter);
         }
 
-        PreparedStatement prepStatement;
+        PreparedStatement prepStatement = null;
         int res = 0;
         try {
-            co = ConnectionDB.getInstance().getConnection();
+            co = TransactionHolder.get();
             prepStatement = co.prepareStatement(QUERY_INSERT);
             prepStatement.setString(1, name);
             prepStatement.setString(2, strDateIntro);
@@ -309,12 +244,12 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             }
 
             res = prepStatement.executeUpdate();
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException e) {
             LOG.error("[INSERT] Error on accessing data.");
             throw new DAOException("[INSERT] Error on accessing data.");
         } finally {
             try {
-                co.close();
+                prepStatement.close();
             } catch (SQLException e) {
                 throw new DAOException("[INSERT] Error on close co.");
             }
@@ -339,10 +274,10 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             strDateDiscon = dateDiscon.format(formatter);
         }
 
-        PreparedStatement prepStatement;
+        PreparedStatement prepStatement = null;
         int res = 0;
         try {
-            co = ConnectionDB.getInstance().getConnection();
+            co = TransactionHolder.get();
             prepStatement = co.prepareStatement(QUERY_UPDATE);
             prepStatement.setString(1, name);
             prepStatement.setString(2, strDateIntro);
@@ -355,12 +290,12 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             prepStatement.setLong(5, comp.getId());
 
             res = prepStatement.executeUpdate();
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException e) {
             LOG.error("[UPDATE] Error on accessing data.");
             throw new DAOException("[UPDATE] Error on accessing data.");
         } finally {
             try {
-                co.close();
+                prepStatement.close();
             } catch (SQLException e) {
                 throw new DAOException("[UPDATE] Error on close co.");
             }
@@ -371,11 +306,13 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
     @Override
     public int delete(String id) throws SQLException, ConnectionException {
 
-        co = ConnectionDB.getInstance().getConnection();
+        if (co == null) {
+            co = TransactionHolder.get();
+        }
         PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
         prepStatement.setString(1, id);
         int res = prepStatement.executeUpdate();
-        co.close();
+        prepStatement.close();
         return res;
     }
 
