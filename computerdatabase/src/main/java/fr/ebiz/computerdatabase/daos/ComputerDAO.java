@@ -18,8 +18,8 @@ import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.interfaces.DAOInterface;
 import fr.ebiz.computerdatabase.models.Computer;
+import fr.ebiz.computerdatabase.models.Operator;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
-import fr.ebiz.computerdatabase.persistence.Operator;
 import fr.ebiz.computerdatabase.services.TransactionHolder;
 import fr.ebiz.computerdatabase.utils.Utils;
 import fr.ebiz.computerdatanase.dtos.ComputerDTO;
@@ -51,6 +51,8 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             + " SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
 
     private static final String QUERY_DELETE = "DELETE FROM " + Utils.COMPUTER_TABLE + " WHERE id = ?";
+
+    private static final String QUERY_DELETECOMPIDREF = "DELETE FROM " + Utils.COMPUTER_TABLE + " WHERE company_id = ?";
 
     /**
      * Constructor ComputerDAO.
@@ -306,9 +308,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
     @Override
     public int delete(String id) throws SQLException, ConnectionException {
 
-        if (co == null) {
-            co = TransactionHolder.get();
-        }
+        co = TransactionHolder.get();
         PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
         prepStatement.setString(1, id);
         int res = prepStatement.executeUpdate();
@@ -322,15 +322,33 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         for (String id : computersId) {
             try {
                 if (delete(id) == 1) {
-                    LOG.info("[DELETE] computerId:" + id + " deleted");
+                    LOG.info("[DELETE] computerId: " + id + " deleted");
                 } else {
                     res = -1;
                 }
             } catch (SQLException | ConnectionException e) {
+                e.printStackTrace();
                 LOG.error("[DELETE] error on deleting computers");
                 throw new DAOException("[DELETE] error on deleting computers");
             }
         }
+        return res;
+    }
+
+    /**
+     *  Delete all computers relating to company id ref.
+     * @param id of the company given.
+     * @return 1 if deleted else 0.
+     * @throws SQLException Error on id given.
+     * @throws ConnectionException Error on connecting to db.
+     */
+    public int deleteFromCompanyId(String id) throws SQLException, ConnectionException {
+
+        co = TransactionHolder.get();
+        PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETECOMPIDREF);
+        prepStatement.setString(1, id);
+        int res = prepStatement.executeUpdate();
+        prepStatement.close();
         return res;
     }
 

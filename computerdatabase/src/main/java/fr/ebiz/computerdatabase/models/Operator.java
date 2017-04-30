@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.persistence;
+package fr.ebiz.computerdatabase.models;
 
 public abstract class Operator {
 

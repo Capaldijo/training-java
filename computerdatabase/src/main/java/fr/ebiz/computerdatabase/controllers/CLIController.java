@@ -3,19 +3,19 @@ package fr.ebiz.computerdatabase.controllers;
 import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.ebiz.computerdatabase.daos.CompanyDAO;
-import fr.ebiz.computerdatabase.daos.ComputerDAO;
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
-import fr.ebiz.computerdatabase.models.Company;
-import fr.ebiz.computerdatabase.models.Computer;
+import fr.ebiz.computerdatabase.models.PaginationFilters;
 import fr.ebiz.computerdatabase.persistence.ConnectionDB;
+import fr.ebiz.computerdatabase.services.CompanyService;
+import fr.ebiz.computerdatabase.services.ComputerService;
 import fr.ebiz.computerdatabase.utils.Utils;
 import fr.ebiz.computerdatabase.view.Cli;
 import fr.ebiz.computerdatanase.dtos.CompanyDTO;
@@ -23,23 +23,26 @@ import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class CLIController {
 
-    final Logger logger = LoggerFactory.getLogger(CLIController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CLIController.class);
 
-    private ComputerDAO computerDAO;
+    private ComputerService computerService;
 
-    private CompanyDAO companyDAO;
+    private CompanyService companyService;
 
     private boolean shouldKeepGoin = true;
 
     private Cli view;
 
+    private DateTimeFormatter formatter;
+
     /**
      * Constructor CLIController.
      * @throws ConnectionException error on co to db
      */
-    public CLIController() throws ConnectionException {
-        computerDAO = new ComputerDAO();
-        companyDAO = new CompanyDAO();
+    public CLIController() {
+        formatter = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
+        computerService = ComputerService.getInstance();
+        companyService = CompanyService.getInstance();
         view = new Cli();
     }
 
@@ -49,16 +52,16 @@ public class CLIController {
      * @throws MapperException Error on mapping data.
      * @throws SQLException Error on getting data.
      */
-    public void init() throws DAOException, MapperException, SQLException {
+    public void init() {
 
         while (shouldKeepGoin) {
 
             switch (view.printMenu()) {
             case 1: // list companies
-                listCompanies();
+                companiesMenu();
                 break;
             case 2: // list computers
-                listComputer();
+                computerMenu();
                 break;
             case 3: // Create a computer
                 createComputer();
@@ -75,9 +78,9 @@ public class CLIController {
         try {
             ConnectionDB.getInstance().closeAll();
         } catch (NullPointerException npe) {
-            logger.error("Error on closing to DB.");
+            LOG.error("Error on closing to DB.");
         } catch (ConnectionException e) {
-            logger.error(e.getMessage());
+            LOG.error(e.getMessage());
         }
     } // init
 
@@ -85,45 +88,25 @@ public class CLIController {
      * Get all the data from computer 10 by 10 let choose the user to previous
      * or next ou quit.
      */
-    private void listCompanies() {
-        try {
-            int numPage = 0;
-            List<CompanyDTO> list = null;
-            boolean stop = false;
-            while (!stop) {
-                // get 10 companies in the list
-                list = companyDAO.findByPage(null, numPage, Utils.PAGEABLE_NBLINE);
-
-                // if list is empty bc the user gone to far in pages, get to
-                // previous half full list
-                if (list.isEmpty() && numPage > 0) {
-                    logger.info("Next was selected but Company's list is Empty, getting back to last page.");
-                    numPage -= Utils.PAGEABLE_NBLINE;
-                    list = companyDAO.findByPage(null, numPage, Utils.PAGEABLE_NBLINE);
-                }
-                switch (view.printPageableList(list)) {
-                case 1: // Previous Page
-                    if (numPage > 0) {
-                        numPage -= Utils.PAGEABLE_NBLINE;
-                    } else {
-                        logger.info("Previous was selected but already at first page.");
-                    }
-                    break;
-                case 2: // Next Page
-                    if (!list.isEmpty()) {
-                        numPage += Utils.PAGEABLE_NBLINE;
-                    }
-                    break;
-                case 3: // Quit
-                    stop = true;
-                    break;
-                default:
-                    view.print("Error choice listing Computer.");
-                }
+    private void companiesMenu() {
+        boolean stop = false;
+        while (!stop) {
+            switch (view.printSubMenuCompanies()) {
+            case 1:
+                // pageable list computer
+                pageableListCompanies();
+                break;
+            case 2:
+                // delete computer
+                deleteCompany();
+                break;
+            case 3:
+                // quit
+                stop = true;
+                break;
+            default:
+                view.print("Error top menu");
             }
-        } catch (DAOException e) {
-            view.print("Error on Page chosen");
-            logger.error("Error on listing's arguments on Table Company");
         }
     }
 
@@ -133,8 +116,7 @@ public class CLIController {
      * @throws MapperException Error on mapping data.
      * @throws SQLException Error on getting data.
      */
-    private void listComputer() throws DAOException, MapperException, SQLException {
-        /* ------ GET ALL COMPUTER ----- */
+    private void computerMenu() {
         boolean stop = false;
         while (!stop) {
             switch (view.printSubMenuComputers()) {
@@ -170,10 +152,9 @@ public class CLIController {
      * its referenced company id return the computer constructed by those fields.
      * @throws DAOException Error on getting data to DB.
      */
-    private void createComputer() throws DAOException {
+    private void createComputer() {
 
         view.print("\n---- Create a Computer ----");
-
         String name = view.getStringChoice("\nEnter a name:");
         LocalDate intro = this.stringToDate("\nIntroduced date:");
         LocalDate discon = this.stringToDate("\nDiscontinued date:");
@@ -184,13 +165,15 @@ public class CLIController {
         }
         int compIdRed = view.getIntChoice("\nEnter a company id reference (for a null company: 0): ");
 
-        Computer computer = new Computer.Builder(name).introduced(intro).discontinued(discon)
-                .companyId(compIdRed).build();
+        ComputerDTO computer = new ComputerDTO.Builder(name)
+                .introduced(intro.format(formatter))
+                .discontinued(discon.format(formatter))
+                .companyId(String.valueOf(compIdRed)).build();
 
         if (computer != null) {
-            if (computerDAO.insert(computer) == 1) {
+            if (computerService.add(computer) == 1) {
                 view.print("Insert done");
-                logger.info("insert computer done.\n");
+                LOG.info("insert computer done.\n");
             }
         }
     }
@@ -198,29 +181,28 @@ public class CLIController {
     /**
      * Get all the data from computer 10 by 10 let choose the user to previous
      * or next ou quit.
-     * @throws DAOException Error on getting data from DB.
-     * @throws MapperException Error on mapping data.
      */
-    private void pageableListComputer() throws DAOException, MapperException {
+    private void pageableListComputer() {
         int numPage = 0;
         List<ComputerDTO> list = null;
         boolean stop = false;
         while (!stop) {
             // get 10 computers in the list
-            list = computerDAO.findByPage(null, numPage, Utils.PAGEABLE_NBLINE);
+            PaginationFilters filter = new PaginationFilters.Builder().build();
+            list = computerService.getByPage(String.valueOf(numPage), String.valueOf(Utils.PAGEABLE_NBLINE), filter);
             // if list is empty bc the user gone to far in pages, get to
             // previous half full list
             if (list.isEmpty() && numPage > 0) {
-                logger.info("Next was selected but Computer's list is Empty, getting back to last page.");
+                LOG.info("Next was selected but Computer's list is Empty, getting back to last page.");
                 numPage -= Utils.PAGEABLE_NBLINE;
-                list = computerDAO.findByPage(null, numPage, Utils.PAGEABLE_NBLINE);
+                list = computerService.getByPage(String.valueOf(numPage), String.valueOf(Utils.PAGEABLE_NBLINE), filter);
             }
             switch (view.printPageableList(list)) {
             case 1: // Previous Page
                 if (numPage > 0) {
                     numPage -= Utils.PAGEABLE_NBLINE;
                 } else {
-                    logger.info("Previous was selected but already at first page.");
+                    LOG.info("Previous was selected but already at first page.");
                 }
                 break;
             case 2: // Next Page
@@ -239,22 +221,68 @@ public class CLIController {
     }
 
     /**
+     * Get all the data from company 10 by 10 let choose the user to previous
+     * or next ou quit.
+     */
+    public void pageableListCompanies() {
+        try {
+            int numPage = 0;
+            List<CompanyDTO> list = null;
+            boolean stop = false;
+            while (!stop) {
+                // get 10 companies in the list
+                list = companyService.getByPage(String.valueOf(numPage), String.valueOf(Utils.PAGEABLE_NBLINE), null);
+
+                // if list is empty bc the user gone to far in pages, get to
+                // previous half full list
+                if (list.isEmpty() && numPage > 0) {
+                    LOG.info("Next was selected but Company's list is Empty, getting back to last page.");
+                    numPage -= Utils.PAGEABLE_NBLINE;
+                    list = companyService.getByPage(String.valueOf(numPage), String.valueOf(Utils.PAGEABLE_NBLINE), null);
+                }
+                switch (view.printPageableList(list)) {
+                case 1: // Previous Page
+                    if (numPage > 0) {
+                        numPage -= Utils.PAGEABLE_NBLINE;
+                    } else {
+                        LOG.info("Previous was selected but already at first page.");
+                    }
+                    break;
+                case 2: // Next Page
+                    if (!list.isEmpty()) {
+                        numPage += Utils.PAGEABLE_NBLINE;
+                    }
+                    break;
+                case 3: // Quit
+                    stop = true;
+                    break;
+                default:
+                    view.print("Error choice listing Computer.");
+                }
+            }
+        } catch (RuntimeException e) {
+            view.print(e.getMessage());
+            LOG.error("Error on listing's arguments on Table Company");
+        }
+    }
+
+    /**
      * Let the user choose the computer id he wants to get details of and print
      * it.
      * @throws DAOException Error on getting data from DB.
      * @throws MapperException Error on mapping data.
      */
-    private void showDetails() throws DAOException, MapperException {
+    private void showDetails() {
 
-        Long id = (long) view.printShowDetailsAction();
+        String id = String.valueOf(view.printShowDetailsAction());
 
-        Computer computer = null;
-        Company company = null;
+        ComputerDTO computer = null;
+        CompanyDTO company = null;
         /* ------ GET COMPUTER BY ID ----- */
-        computer = computerDAO.find(id);
+        computer = computerService.get(id);
         if (computer != null) {
             /* ------ GET COMPANY BY ID ----- */
-            company = companyDAO.find(computer.getCompanyId());
+            company = companyService.get(computer.getCompanyId());
             view.print(computer + ", which reference company [" + company + "]");
         }
     }
@@ -265,12 +293,12 @@ public class CLIController {
      * @throws DAOException Error on getting data from DB.
      * @throws MapperException Error on mapping data.
      */
-    private void updateComputer() throws DAOException, MapperException {
+    private void updateComputer() {
 
-        Long idComputer = (long) view.getIntChoice("\nChoose a computer id to update: ");
+        String idComputer = String.valueOf(view.getIntChoice("\nChoose a computer id to update: "));
 
         // find the computer chosen
-        Computer computer = computerDAO.find(idComputer);
+        ComputerDTO computer = computerService.get(idComputer);
 
         // ask the user what to edit
         view.print("Here is the computer's info you want to update:");
@@ -296,7 +324,7 @@ public class CLIController {
                 choice = view.getStringChoice("\nDo you want to change the introduced date ?");
                 if (choice.toLowerCase().equals("yes")) {
                     intro = this.stringToDate("\nEnter a new introduced date:");
-                    computer.setIntroduced(intro);
+                    computer.setIntroduced(intro.format(formatter));
                 }
             } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 
@@ -313,11 +341,11 @@ public class CLIController {
                         }
                         // else we compare the stored date of the computer
                         // in db to the new one
-                    } else if (computer.getIntroduced() != null && discon.isBefore(computer.getIntroduced())) {
+                    } else if (computer.getIntroduced() != null && discon.isBefore(LocalDate.parse(computer.getIntroduced(), formatter))) {
                         view.print("Discontinued can not be before introduced one");
                         choice = null;
                     } else {
-                        computer.setDiscontinued(discon);
+                        computer.setDiscontinued(discon.format(formatter));
                     }
                 }
             } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
@@ -328,18 +356,41 @@ public class CLIController {
             choice = view.getStringChoice("\nDo you want to change the company ref id ?");
             if (choice.toLowerCase().equals("yes")) {
                 int compIdRef = view.getIntChoice("\nEnter a new company ref id (for a null company: 0):");
-                computer.setCompanyId(compIdRef);
+                computer.setCompanyId(String.valueOf(compIdRef));
             }
         } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 
         if (computer != null) {
-            if (computerDAO.update(computer) == 1) {
+            if (computerService.update(computer) == 1) {
                 view.print("Update success");
-                logger.info("Update computer done.\n");
+                LOG.info("Update computer done.\n");
             } else {
                 view.print("Update error");
-                logger.info("Update computer error.\n");
+                LOG.info("Update computer error.\n");
             }
+        }
+    }
+
+    /**
+     * Delete the company that the user chose.
+     */
+    private void deleteCompany() {
+
+        // ask the user to chose an id
+        String id = String.valueOf(view.printDeleteCompanyAction());
+        try {
+            computerService.deleteFromCompanyId(id);
+            // if delete success print success
+            if (companyService.delete(id) == 1) {
+                view.print("delete done.");
+                LOG.info("delete company done.\n");
+            } else {
+                view.print("No company to delete.");
+                LOG.info("No company to delete.\n");
+            }
+        } catch (RuntimeException e) {
+            view.print("\nError on deleting company");
+            LOG.error("Error on delete company");
         }
     }
 
@@ -349,19 +400,19 @@ public class CLIController {
     private void deleteComputer() {
 
         // ask the user to chose an id
-        String id = view.printDeleteComputerAction();
+        String id = String.valueOf(view.printDeleteComputerAction());
         try {
             // if delete success print success
-            if (computerDAO.delete(id) == 1) {
+            if (computerService.delete(id) == 1) {
                 view.print("delete done.");
-                logger.info("delete computer done.\n");
+                LOG.info("delete computer done.\n");
             } else {
                 view.print("No computer to delete.");
-                logger.info("No computer to delete.\n");
+                LOG.info("No computer to delete.\n");
             }
-        } catch (SQLException | ConnectionException e) {
+        } catch (RuntimeException e) {
             view.print("\nError on deleting computer");
-            logger.error("Error on delete computer");
+            LOG.error("Error on delete computer");
         }
     }
 

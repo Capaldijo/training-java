@@ -70,6 +70,29 @@ public class Cli {
     }
 
     /**
+     * SubMenu for Companies. User can choose between list them or delete a company
+     * return a int depending the user's choice.
+     * @return User's choice.
+     */
+    public int printSubMenuCompanies() {
+        while (true) {
+            this.print("\n---- SubMenu Computer Listing ----");
+            this.print("1) List\n" + "2) Delete a company\n" + "3) Quit\n");
+            switch (sc.next()) {
+            case "1":
+                return 1;
+            case "2":
+                return 2;
+            case "3":
+                this.print("Returning to top menu");
+                return 3;
+            default:
+                this.print("Please, choose a correct answer.");
+            }
+        }
+    }
+
+    /**
      * Print all the List's element And ask the user what he wants to do.
      * (Previous, Next, Quit)
      * @param list
@@ -92,11 +115,19 @@ public class Cli {
     }
 
     /**
+     * Ask the user to choose the ID of the company he wants to delete.
+     * @return the user's choice
+     */
+    public int printDeleteCompanyAction() {
+        return this.getIntChoice("\nChoose a company id to delete: ");
+    }
+
+    /**
      * Ask the user to choose the ID of the computer he wants to delete.
      * @return the user's choice
      */
-    public String printDeleteComputerAction() {
-        return this.getStringChoice("\nChoose a computer id to delete: ");
+    public int printDeleteComputerAction() {
+        return this.getIntChoice("\nChoose a computer id to delete: ");
     }
 
     /**

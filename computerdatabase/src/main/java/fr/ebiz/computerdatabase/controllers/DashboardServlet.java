@@ -9,8 +9,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import fr.ebiz.computerdatabase.models.LikeBoth;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
-import fr.ebiz.computerdatabase.persistence.LikeBoth;
 import fr.ebiz.computerdatabase.services.ComputerService;
 import fr.ebiz.computerdatabase.utils.Utils;
 import fr.ebiz.computerdatanase.dtos.ComputerDTO;
@@ -36,7 +36,7 @@ public class DashboardServlet extends HttpServlet {
         String nbLine = request.getParameter("nbLine");
         String search = request.getParameter("search");
         String orderBy = request.getParameter("orderBy");
-        String ascOrDesc = request.getParameter("asc");
+        String asc = request.getParameter("asc");
 
         if (search == null) {
             search = "";
@@ -53,14 +53,16 @@ public class DashboardServlet extends HttpServlet {
         }
 
         try {
+            if (asc != null && (!asc.trim().equals("true") || !asc.trim().equals("false"))) {
+                throw new RuntimeException("Asc not boolean");
+            }
             if (orderBy != null) {
                 order = Integer.parseInt(orderBy);
             }
-
             PaginationFilters filter = new PaginationFilters.Builder()
                     .search(NAME_COMPUTER, new LikeBoth(search))
                     .search(NAME_COMPANY, new LikeBoth(search))
-                    .orderBy(Utils.HEADERTABLE_NAME[order], Boolean.parseBoolean(ascOrDesc))
+                    .orderBy(Utils.HEADERTABLE_NAME[order], Boolean.parseBoolean(asc))
                     .build();
 
             count = ComputerService.getInstance().count(search);
@@ -72,7 +74,7 @@ public class DashboardServlet extends HttpServlet {
             request.setAttribute("search", search);
             request.setAttribute("nbLine", nbLine);
             request.setAttribute("orderBy", orderBy);
-            request.setAttribute("asc", ascOrDesc);
+            request.setAttribute("asc", asc);
 
             this.getServletContext().getRequestDispatcher(DASHBOARD_VIEW).forward(request, response);
         } catch (RuntimeException e) {

@@ -1,11 +1,6 @@
 package fr.ebiz.computerdatabase.cli;
 
-import java.sql.SQLException;
-
 import fr.ebiz.computerdatabase.controllers.CLIController;
-import fr.ebiz.computerdatabase.exceptions.ConnectionException;
-import fr.ebiz.computerdatabase.exceptions.DAOException;
-import fr.ebiz.computerdatabase.exceptions.MapperException;
 
 public class Main {
 
@@ -14,11 +9,11 @@ public class Main {
      * @param args .
      */
     public static void main(String[] args) {
-        CLIController controller;
         try {
-            controller = new CLIController();
+            CLIController controller = new CLIController();
             controller.init();
-        } catch (ConnectionException | DAOException | MapperException | SQLException e) {
+        } catch (RuntimeException e) {
+            System.out.println(e.getMessage());
         }
     }
 

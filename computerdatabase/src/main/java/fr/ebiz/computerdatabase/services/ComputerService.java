@@ -343,6 +343,47 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         return res;
     }
 
+    /**
+     * Delete a computer which is built by company id parameter.
+     * @param id of company id ref
+     * @return 1 if deleted 0 either way
+     */
+    public int deleteFromCompanyId(String id) {
+        int res = 0;
+        try {
+            co = ConnectionDB.getInstance().getConnection();
+            co.setSavepoint("DELETEDROMCOMPID");
+            TransactionHolder.set(co);
+
+            if (computerDAO.deleteFromCompanyId(id) == 1) {
+                LOG.info("Delete computer done.\n");
+                res = 1;
+            } else {
+                LOG.info("Delete computer error.\n");
+                res = 0;
+            }
+            TransactionHolder.unset();
+            co.commit();
+        } catch (SQLException | ConnectionException e) {
+            try {
+                co.rollback();
+            } catch (SQLException e1) {
+                LOG.error(e.getMessage());
+                throw new RuntimeException(e.getMessage());
+            }
+            LOG.error(e.getMessage());
+            throw new RuntimeException("[DELETECOMPANYFROMID] Error on accessing data.");
+        } finally {
+            try {
+                co.close();
+            } catch (SQLException e) {
+                LOG.error(e.getMessage());
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+        return res;
+    }
+
     @Override
     public List<ComputerDTO> getAll() {
         LOG.error("[SERVICE] [GETALL] Not implemented anymore.");

@@ -41,17 +41,6 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
     }
 
     @Override
-    public int delete(String id) throws SQLException {
-
-        co = TransactionHolder.get();
-        PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
-        prepStatement.setString(1, id);
-        int res = prepStatement.executeUpdate();
-        prepStatement.close();
-        return res;
-    }
-
-    @Override
     public Company find(int id) throws DAOException {
         Company company = null;
         PreparedStatement prepStatement = null;
@@ -122,6 +111,17 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             }
         }
         return list;
+    }
+
+    @Override
+    public int delete(String id) throws SQLException {
+
+        co = TransactionHolder.get();
+        PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
+        prepStatement.setString(1, id);
+        int res = prepStatement.executeUpdate();
+        prepStatement.close();
+        return res;
     }
 
     @Override

@@ -127,42 +127,6 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
     }
 
     @Override
-    public List<CompanyDTO> getByPage(String numPage, String nbLine, PaginationFilters filters) {
-        LOG.error("[SERVICE] [GETBYPAGE] Not implemented.");
-        throw new RuntimeException("[SERVICE] [GETBYPAGE] Not implemented.");
-    }
-
-    @Override
-    public int count() {
-        LOG.error("[SERVICE] [COUNT] Not implemented.");
-        throw new RuntimeException("[SERVICE] [COUNT] Not implemented.");
-    }
-
-    @Override
-    public int count(String research) {
-        LOG.error("[SERVICE] [COUNT] Not implemented.");
-        throw new RuntimeException("[SERVICE] [COUNT] Not implemented.");
-    }
-
-    @Override
-    public int add(CompanyDTO entity) {
-        LOG.error("[SERVICE] [ADD] Not implemented.");
-        throw new RuntimeException("[SERVICE] [ADD] Not implemented.");
-    }
-
-    @Override
-    public int update(CompanyDTO dto) {
-        LOG.error("[SERVICE] [UPDATE] Not implemented.");
-        throw new RuntimeException("[SERVICE] [UPDATE] Not implemented.");
-    }
-
-    @Override
-    public int delete(String... ids) {
-        LOG.error("[SERVICE] [DELETE] Not implemented.");
-        throw new RuntimeException("[SERVICE] [DELETE] Not implemented.");
-    }
-
-    @Override
     public int delete(String id) {
         int res = 0;
         try {
@@ -196,5 +160,73 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
             }
         }
         return res;
+    }
+
+    @Override
+    public List<CompanyDTO> getByPage(String numPage, String nbLine, PaginationFilters filters) {
+        List<CompanyDTO> listCompanyDTO = null;
+        try {
+            int numP = Integer.parseInt(numPage);
+            int nbL = Integer.parseInt(nbLine);
+
+            co = ConnectionDB.getInstance().getConnection();
+            co.setSavepoint("GETBYPAGE");
+            TransactionHolder.set(co);
+
+            listCompanyDTO = companyDAO.findByPage(filters, numP, nbL);
+
+            TransactionHolder.unset();
+            co.commit();
+        } catch (NumberFormatException | DAOException e) {
+            LOG.error("[GETCOMPANYBYPAGE] Error on getting data.");
+            throw new RuntimeException("[GETCOMPANYBYPAGE] Error on getting data.");
+        } catch (ConnectionException | SQLException e) {
+            try {
+                co.rollback();
+            } catch (SQLException e1) {
+                LOG.error(e.getMessage());
+                throw new RuntimeException(e.getMessage());
+            }
+            LOG.error(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        } finally {
+            try {
+                co.close();
+            } catch (SQLException e) {
+                LOG.error(e.getMessage());
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+        return listCompanyDTO;
+    }
+
+    @Override
+    public int count() {
+        LOG.error("[SERVICE] [COUNT] Not implemented.");
+        throw new RuntimeException("[SERVICE] [COUNT] Not implemented.");
+    }
+
+    @Override
+    public int count(String research) {
+        LOG.error("[SERVICE] [COUNT] Not implemented.");
+        throw new RuntimeException("[SERVICE] [COUNT] Not implemented.");
+    }
+
+    @Override
+    public int add(CompanyDTO entity) {
+        LOG.error("[SERVICE] [ADD] Not implemented.");
+        throw new RuntimeException("[SERVICE] [ADD] Not implemented.");
+    }
+
+    @Override
+    public int update(CompanyDTO dto) {
+        LOG.error("[SERVICE] [UPDATE] Not implemented.");
+        throw new RuntimeException("[SERVICE] [UPDATE] Not implemented.");
+    }
+
+    @Override
+    public int delete(String... ids) {
+        LOG.error("[SERVICE] [DELETE] Not implemented.");
+        throw new RuntimeException("[SERVICE] [DELETE] Not implemented.");
     }
 }

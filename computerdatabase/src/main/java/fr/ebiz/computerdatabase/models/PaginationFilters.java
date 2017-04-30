@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
-import fr.ebiz.computerdatabase.persistence.Operator;
-
 
 public class PaginationFilters {
 
