@@ -11,7 +11,7 @@
 		
 		<!-- keep 10 days' worth of history capped at 100MB total size -->
 		<maxHistory>10</maxHistory>
-		<totalSizeCap>100MB</totalSizeCap>
+		<totalSizeCap>200MB</totalSizeCap>
 		<encoder>
 			<pattern>%date %level [%thread] %logger{10} [%file:%line] %msg%n
 			</pattern>

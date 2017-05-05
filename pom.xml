@@ -12,7 +12,7 @@
 		<logback.version>1.2.3</logback.version>
 		<mysqlConnector.version>5.1.41</mysqlConnector.version>
 		<junit.version>4.12</junit.version>
-		<mockito.version>1.9.5</mockito.version>
+		<mockito.version>1.10.19</mockito.version>
 		<jstl.version>1.2</jstl.version>
 		<selenium.version>3.3.1</selenium.version>
 		<checkstyle.version>2.17</checkstyle.version>
@@ -20,6 +20,46 @@
 		<hikari.version>2.6.1</hikari.version>
 		<direcheckstyle>src/main/resources</direcheckstyle>
 	</properties>
+
+	<profiles>
+		<profile>
+			<id>host</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+				<property>
+					<name>env</name>
+					<value>host</value>
+				</property>
+			</activation>
+			<properties>
+				<envName>host</envName>
+			</properties>
+		</profile>
+		<profile>
+			<id>test</id>
+			<activation>
+				<property>
+					<name>env</name>
+					<value>test</value>
+				</property>
+			</activation>
+			<properties>
+				<envName>test</envName>
+			</properties>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<activation>
+				<property>
+					<name>env</name>
+					<value>prod</value>
+				</property>
+			</activation>
+			<properties>
+				<envName>prod</envName>
+			</properties>
+		</profile>
+	</profiles>
 
 	<dependencies>
 
@@ -102,7 +142,7 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>src/main/resources</directory>
+				<directory>src/main/resources/${envName}</directory>
 				<excludes>
 					<exclude>**/*.java</exclude>
 				</excludes>
@@ -118,6 +158,9 @@
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>3.0.0</version>
+				<configuration>
+					<outputDirectory>target/war</outputDirectory>
+				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -150,13 +193,13 @@
 				<configuration>
 					<path>/computerdatabase</path>
 					<update>true</update>
-					<url>http://localhost:8080/manager/text</url>
+					<url>http://localhost:8081/manager/text</url>
 					<server>tomcatServer</server>
 					<username>tomcat</username>
 					<password>tomcatuser</password>
 				</configuration>
 			</plugin>
-			
+
 			<!-- Exclude selenium test because it needs the app to be deployed -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

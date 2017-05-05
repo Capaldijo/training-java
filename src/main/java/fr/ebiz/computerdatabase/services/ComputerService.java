@@ -67,7 +67,6 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
                 Computer computer = computerMapper.toModel(computerDTO);
                 if (computer != null) {
                     co = ConnectionDB.getInstance().getConnection();
-                    co.setSavepoint("ADD");
                     TransactionHolder.set(co);
                     if (computerDAO.insert(computer) == 1) {
                         LOG.info("insert computer done.\n");
@@ -110,7 +109,6 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             Long idComp = Long.parseLong(id);
 
             co = ConnectionDB.getInstance().getConnection();
-            co.setSavepoint("GETID");
             TransactionHolder.set(co);
 
             computer = computerDAO.find(idComp);
@@ -151,7 +149,6 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             int nbL = Integer.parseInt(nbLine);
 
             co = ConnectionDB.getInstance().getConnection();
-            co.setSavepoint("GETBYPAGE");
             TransactionHolder.set(co);
 
             listComputerDTO = computerDAO.findByPage(filters, numP, nbL);
@@ -192,7 +189,6 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
                 Computer computer = computerMapper.toModel(computerDTO);
 
                 co = ConnectionDB.getInstance().getConnection();
-                co.setSavepoint("UPDATE");
                 TransactionHolder.set(co);
 
                 computerDAO.update(computer);
@@ -231,7 +227,6 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         int count = 0;
         try {
             co = ConnectionDB.getInstance().getConnection();
-            co.setSavepoint("COUNT");
             TransactionHolder.set(co);
 
             count = computerDAO.count();
@@ -263,7 +258,6 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         int count = 0;
         try {
             co = ConnectionDB.getInstance().getConnection();
-            co.setSavepoint("COUNTSEARCH");
             TransactionHolder.set(co);
 
             count = computerDAO.countAfterSearch(research);
@@ -295,7 +289,6 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         int res = 0;
         try {
             co = ConnectionDB.getInstance().getConnection();
-            co.setSavepoint("DELETE");
             TransactionHolder.set(co);
             if (computerDAO.delete(ids) == 1) {
                 LOG.info("Delete computer done.\n");
@@ -352,7 +345,6 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         int res = 0;
         try {
             co = ConnectionDB.getInstance().getConnection();
-            co.setSavepoint("DELETEDROMCOMPID");
             TransactionHolder.set(co);
 
             if (computerDAO.deleteFromCompanyId(id) == 1) {

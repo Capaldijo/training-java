@@ -21,10 +21,6 @@ public final class ConnectionDB {
 
     private HikariDataSource ds = null;
 
-    private static final int POOL_SIZE = 100;
-
-    private static final int CONNECTION_TIMEOUT = 10000;
-
     /**
      * Contructor for connection to mysql db.
      * @throws ConnectionException if error on co to db
@@ -32,15 +28,13 @@ public final class ConnectionDB {
     private ConnectionDB() {
         super();
 
-
-        HikariConfig cfg = new HikariConfig();
-        cfg.setDriverClassName("com.mysql.jdbc.Driver");
-        cfg.setJdbcUrl("jdbc:mysql://localhost:3306/computer-database-db?useSSL=false&zeroDateTimeBehavior=convertToNull");
-        cfg.setMaximumPoolSize(POOL_SIZE);
-        cfg.setAutoCommit(false);
-        cfg.setUsername("admincdb");
-        cfg.setPassword("qwerty1234");
-        cfg.setConnectionTimeout(CONNECTION_TIMEOUT);
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            LOG.error("[CONNECTION] error on loading driver jdbc.");
+            throw new RuntimeException("[CONNECTION] error on loading driver jdbc.");
+        }
+        HikariConfig cfg = new HikariConfig("/hikari.properties");
         ds = new HikariDataSource(cfg);
     }
 
