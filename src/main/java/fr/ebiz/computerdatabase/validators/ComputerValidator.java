@@ -4,7 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import fr.ebiz.computerdatanase.dtos.ComputerDTO;
+import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 
 public class ComputerValidator {
 

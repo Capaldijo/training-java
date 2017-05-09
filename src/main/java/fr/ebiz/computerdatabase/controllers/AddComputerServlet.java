@@ -9,11 +9,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import fr.ebiz.computerdatabase.dtos.CompanyDTO;
+import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.services.CompanyService;
 import fr.ebiz.computerdatabase.services.ComputerService;
 import fr.ebiz.computerdatabase.utils.Utils;
-import fr.ebiz.computerdatanase.dtos.CompanyDTO;
-import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 /**
  * Servlet implementation class AddComputerServlet.

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.ebiz.computerdatabase.daos.ComputerDAO;
+import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
@@ -17,7 +18,6 @@ import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
 import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.validators.ComputerValidator;
-import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 /**
  * Computer service is a singleton class. that will handle

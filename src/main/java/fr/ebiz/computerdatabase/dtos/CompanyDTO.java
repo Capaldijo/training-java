@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatanase.dtos;
+package fr.ebiz.computerdatabase.dtos;
 
 public class CompanyDTO {
 

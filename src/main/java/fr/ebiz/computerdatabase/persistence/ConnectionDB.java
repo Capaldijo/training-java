@@ -3,6 +3,9 @@ package fr.ebiz.computerdatabase.persistence;
 import java.sql.Connection;
 import java.sql.SQLException;
 
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +24,8 @@ public final class ConnectionDB {
 
     private HikariDataSource ds = null;
 
+    private static final String JDBCURL_CONF = "jdbcUrl";
+
     /**
      * Contructor for connection to mysql db.
      * @throws ConnectionException if error on co to db
@@ -30,12 +35,18 @@ public final class ConnectionDB {
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
+
+            HikariConfig cfg = new HikariConfig("/hikari.properties");
+
+            cfg.setJdbcUrl(InitialContext.doLookup("java:comp/env/" + JDBCURL_CONF));
+
+            ds = new HikariDataSource(cfg);
+        } catch (NamingException e) {
+            LOG.error("[CONNECTION] no configuration file found.");
         } catch (ClassNotFoundException e) {
             LOG.error("[CONNECTION] error on loading driver jdbc.");
             throw new RuntimeException("[CONNECTION] error on loading driver jdbc.");
         }
-        HikariConfig cfg = new HikariConfig("/hikari.properties");
-        ds = new HikariDataSource(cfg);
     }
 
     /**

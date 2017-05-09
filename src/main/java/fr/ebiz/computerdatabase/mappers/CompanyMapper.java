@@ -6,10 +6,10 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.ebiz.computerdatabase.dtos.CompanyDTO;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
 import fr.ebiz.computerdatabase.interfaces.MapperInterface;
 import fr.ebiz.computerdatabase.models.Company;
-import fr.ebiz.computerdatanase.dtos.CompanyDTO;
 
 public class CompanyMapper implements MapperInterface<CompanyDTO, Company> {
 

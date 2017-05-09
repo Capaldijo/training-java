@@ -10,6 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.ebiz.computerdatabase.dtos.CompanyDTO;
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.interfaces.DAOInterface;
@@ -17,7 +18,6 @@ import fr.ebiz.computerdatabase.models.Company;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
 import fr.ebiz.computerdatabase.services.TransactionHolder;
 import fr.ebiz.computerdatabase.utils.Utils;
-import fr.ebiz.computerdatanase.dtos.CompanyDTO;
 
 public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
 

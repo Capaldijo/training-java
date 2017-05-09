@@ -9,11 +9,11 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
 import fr.ebiz.computerdatabase.interfaces.MapperInterface;
 import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.utils.Utils;
-import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class ComputerMapper implements MapperInterface<ComputerDTO, Computer> {
 

@@ -8,10 +8,10 @@ import java.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
+import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
 import fr.ebiz.computerdatabase.mappers.ComputerMapper;
 import fr.ebiz.computerdatabase.models.Computer;
-import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class ComputerMapperTest {
 

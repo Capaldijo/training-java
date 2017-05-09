@@ -10,10 +10,10 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import fr.ebiz.computerdatabase.daos.ComputerDAO;
+import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.services.ComputerService;
-import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class ComputerServiceMockTest {
 

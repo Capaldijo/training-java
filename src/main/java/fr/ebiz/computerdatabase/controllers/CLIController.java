@@ -9,6 +9,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.ebiz.computerdatabase.dtos.CompanyDTO;
+import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
@@ -18,8 +20,6 @@ import fr.ebiz.computerdatabase.services.CompanyService;
 import fr.ebiz.computerdatabase.services.ComputerService;
 import fr.ebiz.computerdatabase.utils.Utils;
 import fr.ebiz.computerdatabase.view.Cli;
-import fr.ebiz.computerdatanase.dtos.CompanyDTO;
-import fr.ebiz.computerdatanase.dtos.ComputerDTO;
 
 public class CLIController {
 
