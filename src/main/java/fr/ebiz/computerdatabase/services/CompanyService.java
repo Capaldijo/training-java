@@ -1,6 +1,5 @@
 package fr.ebiz.computerdatabase.services;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +32,6 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
 
     private CompanyMapper companyMapper;
 
-    private Connection co;
-
     /**
      * Constructor CompanyService.
      */
@@ -58,21 +55,17 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
     @Override
     public List<CompanyDTO> getAll() {
         List<CompanyDTO> list = new ArrayList<>();
-
         try {
-            co = ConnectionDB.getInstance().getConnection();
-            co.setSavepoint("GETALL");
-            TransactionHolder.set(co);
+            TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
 
             List<Company> listCompany = companyDAO.findAll();
 
-            TransactionHolder.unset();
-            co.commit();
+            TransactionHolder.get().commit();
 
             list = companyMapper.toDTO(listCompany);
         } catch (DAOException | SQLException | ConnectionException e) {
             try {
-                co.rollback();
+                TransactionHolder.get().rollback();
             } catch (SQLException e1) {
                 LOG.error(e.getMessage());
                 throw new RuntimeException(e.getMessage());
@@ -81,12 +74,13 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
             throw new RuntimeException(e.getMessage());
         } finally {
             try {
-                co.close();
+                TransactionHolder.get().close();
             } catch (SQLException e) {
                 LOG.error(e.getMessage());
                 throw new RuntimeException(e.getMessage());
             }
         }
+        TransactionHolder.unset();
         return list;
     }
 
@@ -97,18 +91,16 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
         try {
             int idComp = Integer.parseInt(id);
 
-            co = ConnectionDB.getInstance().getConnection();
-            co.setSavepoint("GETID");
-            TransactionHolder.set(co);
+            TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
 
             Company company = companyDAO.find(idComp);
 
-            TransactionHolder.unset();
-            co.commit();
+            TransactionHolder.get().commit();
+
             companyDTO = companyMapper.toDTO(company);
         } catch (DAOException | SQLException | ConnectionException | NumberFormatException e) {
             try {
-                co.rollback();
+                TransactionHolder.get().rollback();
             } catch (SQLException e1) {
                 LOG.error(e.getMessage());
                 throw new RuntimeException(e.getMessage());
@@ -117,22 +109,23 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
             throw new RuntimeException(e.getMessage());
         } finally {
             try {
-                co.close();
+                TransactionHolder.get().close();
             } catch (SQLException e) {
                 LOG.error(e.getMessage());
                 throw new RuntimeException(e.getMessage());
             }
         }
+        TransactionHolder.unset();
         return companyDTO;
     }
 
     @Override
     public int delete(String id) {
         int res = 0;
+
         try {
-            co = ConnectionDB.getInstance().getConnection();
-            co.setSavepoint("DELETE");
-            TransactionHolder.set(co);
+            TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
+
             if (companyDAO.delete(id) == 1) {
                 LOG.info("Delete computer done.\n");
                 res = 1;
@@ -140,11 +133,11 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
                 LOG.info("Delete computer error.\n");
                 res = 0;
             }
-            TransactionHolder.unset();
-            co.commit();
+
+            TransactionHolder.get().commit();
         } catch (SQLException | ConnectionException e) {
             try {
-                co.rollback();
+                TransactionHolder.get().rollback();
             } catch (SQLException e1) {
                 LOG.error(e.getMessage());
                 throw new RuntimeException(e.getMessage());
@@ -153,36 +146,35 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
             throw new RuntimeException("[DELETECOMPUTER] Error on accessing data.");
         } finally {
             try {
-                co.close();
+                TransactionHolder.get().close();
             } catch (SQLException e) {
                 LOG.error(e.getMessage());
                 throw new RuntimeException(e.getMessage());
             }
         }
+        TransactionHolder.unset();
         return res;
     }
 
     @Override
     public List<CompanyDTO> getByPage(String numPage, String nbLine, PaginationFilters filters) {
         List<CompanyDTO> listCompanyDTO = null;
+
         try {
             int numP = Integer.parseInt(numPage);
             int nbL = Integer.parseInt(nbLine);
 
-            co = ConnectionDB.getInstance().getConnection();
-            co.setSavepoint("GETBYPAGE");
-            TransactionHolder.set(co);
+            TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
 
             listCompanyDTO = companyDAO.findByPage(filters, numP, nbL);
 
-            TransactionHolder.unset();
-            co.commit();
+            TransactionHolder.get().commit();
         } catch (NumberFormatException | DAOException e) {
             LOG.error("[GETCOMPANYBYPAGE] Error on getting data.");
             throw new RuntimeException("[GETCOMPANYBYPAGE] Error on getting data.");
         } catch (ConnectionException | SQLException e) {
             try {
-                co.rollback();
+                TransactionHolder.get().rollback();
             } catch (SQLException e1) {
                 LOG.error(e.getMessage());
                 throw new RuntimeException(e.getMessage());
@@ -191,12 +183,13 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
             throw new RuntimeException(e.getMessage());
         } finally {
             try {
-                co.close();
+                TransactionHolder.get().close();
             } catch (SQLException e) {
                 LOG.error(e.getMessage());
                 throw new RuntimeException(e.getMessage());
             }
         }
+        TransactionHolder.unset();
         return listCompanyDTO;
     }
 

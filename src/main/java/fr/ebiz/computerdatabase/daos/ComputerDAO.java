@@ -1,6 +1,5 @@
 package fr.ebiz.computerdatabase.daos;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,8 +28,6 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
     static final Logger LOG = LoggerFactory.getLogger(ComputerDAO.class);
 
     private DateTimeFormatter formatter, formatterDB;
-
-    private Connection co;
 
     private static final String QUERY_FIND = "SELECT * FROM " + Utils.COMPUTER_TABLE + " WHERE id = ?";
 
@@ -69,11 +66,11 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
 
         Computer computer = null;
         PreparedStatement prepStatement = null;
+        ResultSet resultat = null;
         try {
-            co = TransactionHolder.get();
-            prepStatement = co.prepareStatement(QUERY_FIND);
+            prepStatement = TransactionHolder.get().prepareStatement(QUERY_FIND);
             prepStatement.setLong(1, idComp);
-            ResultSet resultat = prepStatement.executeQuery();
+            resultat = prepStatement.executeQuery();
             if (!resultat.isBeforeFirst()) {
                 throw new DAOException("[FIND] No data for request.");
             }
@@ -83,9 +80,10 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             throw new DAOException("[FIND] Error on accessing data.");
         } finally {
             try {
+                resultat.close();
                 prepStatement.close();
             } catch (SQLException e) {
-                throw new DAOException("[FINDALL] Error on close co.");
+                throw new DAOException("[FIND] Error on close co.");
             }
         }
 
@@ -97,8 +95,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
 
         List<Computer> list = null;
         try {
-            co = TransactionHolder.get();
-            ResultSet resultat = co.createStatement().executeQuery(QUERY_FINDALL);
+            ResultSet resultat = TransactionHolder.get().createStatement().executeQuery(QUERY_FINDALL);
             if (!resultat.isBeforeFirst()) {
                 LOG.error("[FINDALL] No data for request.");
                 throw new DAOException("[FINDALL] No data for request.");
@@ -120,8 +117,6 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         StringBuilder query = new StringBuilder();
         query.append(QUERY_FINDALL);
         try {
-            co = TransactionHolder.get();
-
             // If we have at least one column filtered
             Iterator<String> it = filters.getFilteredColumns().iterator();
             if (it.hasNext()) {
@@ -141,7 +136,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
 
             query.append(" LIMIT " + numPage + " , " + nbLine + " ");
 
-            prepStatement = co.prepareStatement(query.toString());
+            prepStatement = TransactionHolder.get().prepareStatement(query.toString());
             int paramCount = 1;
 
             for (Operator op : filters.getFilterValues()) {
@@ -154,9 +149,10 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             throw new DAOException("[FINDBYSEARCH] Error on accessing data.");
         } finally {
             try {
+                rs.close();
                 prepStatement.close();
             } catch (SQLException e) {
-                throw new DAOException("[FINDBYSEARCH] Error on close co.");
+                throw new DAOException("[FINDBYSEARCH] Error on close statement.");
             }
         }
 
@@ -167,9 +163,9 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
     public int count() throws DAOException {
 
         int count = 0;
+        ResultSet resultat = null;
         try {
-            co = TransactionHolder.get();
-            ResultSet resultat = co.createStatement().executeQuery(QUERY_COUNT);
+            resultat = TransactionHolder.get().createStatement().executeQuery(QUERY_COUNT);
             if (!resultat.isBeforeFirst()) {
                 LOG.error("[COUNT] No data for request.");
                 throw new DAOException("[COUNT] No data for request.");
@@ -179,6 +175,12 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         } catch (SQLException e) {
             LOG.error("[COUNT] Error on accessing data.");
             throw new DAOException("[COUNT] Error on accessing data.");
+        } finally {
+            try {
+                resultat.close();
+            } catch (SQLException e) {
+                throw new DAOException("[COUNT] Error on close statement.");
+            }
         }
         return count;
     }
@@ -188,13 +190,13 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
 
         int count = 0;
         PreparedStatement prepStatement = null;
+        ResultSet resultat = null;
         try {
-            co = TransactionHolder.get();
-            prepStatement = co.prepareStatement(QUERY_COUNTAFTERSEARCH);
+            prepStatement = TransactionHolder.get().prepareStatement(QUERY_COUNTAFTERSEARCH);
             prepStatement.setString(1, '%' + search + '%');
             prepStatement.setString(2, '%' + search + '%');
 
-            ResultSet resultat = prepStatement.executeQuery();
+            resultat = prepStatement.executeQuery();
             if (!resultat.isBeforeFirst()) {
                 LOG.error("[COUNTSEARCH] No data for request.");
                 throw new DAOException("[COUNTSEARCH] No data for request.");
@@ -203,12 +205,14 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             count = resultat.getInt("count");
         } catch (SQLException e) {
             LOG.error("[COUNTSEARCH] Error on accessing data.");
+            e.printStackTrace();
             throw new DAOException("[COUNTSEARCH] Error on accessing data.");
         } finally {
             try {
+                resultat.close();
                 prepStatement.close();
             } catch (SQLException e) {
-                throw new DAOException("[COUNTSEARCH] Error on close co.");
+                throw new DAOException("[COUNTSEARCH] Error on close statement.");
             }
         }
         return count;
@@ -234,8 +238,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         PreparedStatement prepStatement = null;
         int res = 0;
         try {
-            co = TransactionHolder.get();
-            prepStatement = co.prepareStatement(QUERY_INSERT);
+            prepStatement = TransactionHolder.get().prepareStatement(QUERY_INSERT);
             prepStatement.setString(1, name);
             prepStatement.setString(2, strDateIntro);
             prepStatement.setString(3, strDateDiscon);
@@ -279,8 +282,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         PreparedStatement prepStatement = null;
         int res = 0;
         try {
-            co = TransactionHolder.get();
-            prepStatement = co.prepareStatement(QUERY_UPDATE);
+            prepStatement = TransactionHolder.get().prepareStatement(QUERY_UPDATE);
             prepStatement.setString(1, name);
             prepStatement.setString(2, strDateIntro);
             prepStatement.setString(3, strDateDiscon);
@@ -308,8 +310,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
     @Override
     public int delete(String id) throws SQLException, ConnectionException {
 
-        co = TransactionHolder.get();
-        PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
+        PreparedStatement prepStatement = TransactionHolder.get().prepareStatement(QUERY_DELETE);
         prepStatement.setString(1, id);
         int res = prepStatement.executeUpdate();
         prepStatement.close();
@@ -344,8 +345,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
      */
     public int deleteFromCompanyId(String id) throws SQLException, ConnectionException {
 
-        co = TransactionHolder.get();
-        PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETECOMPIDREF);
+        PreparedStatement prepStatement = TransactionHolder.get().prepareStatement(QUERY_DELETECOMPIDREF);
         prepStatement.setString(1, id);
         int res = prepStatement.executeUpdate();
         prepStatement.close();

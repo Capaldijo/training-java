@@ -53,8 +53,8 @@ public class DashboardServlet extends HttpServlet {
         }
 
         try {
-            if (asc != null && (!asc.trim().equals("true") || !asc.trim().equals("false"))) {
-                throw new RuntimeException("Asc not boolean");
+            if (asc != null && (!asc.trim().toLowerCase().equals("true") && !asc.trim().toLowerCase().equals("false"))) {
+                throw new RuntimeException("Asc not boolean: " + asc);
             }
             if (orderBy != null) {
                 order = Integer.parseInt(orderBy);

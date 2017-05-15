@@ -1,8 +1,5 @@
 package fr.ebiz.computerdatabase.persistence;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -20,9 +17,7 @@ public final class ConnectionDB {
 
     static final Logger LOG = LoggerFactory.getLogger(ConnectionDB.class);
 
-    private Connection connexion = null;
-
-    private HikariDataSource ds = null;
+    private HikariDataSource hikariDS = null;
 
     private static final String JDBCURL_CONF = "jdbcUrl";
 
@@ -40,7 +35,7 @@ public final class ConnectionDB {
 
             cfg.setJdbcUrl(InitialContext.doLookup("java:comp/env/" + JDBCURL_CONF));
 
-            ds = new HikariDataSource(cfg);
+            hikariDS = new HikariDataSource(cfg);
         } catch (NamingException e) {
             LOG.error("[CONNECTION] no configuration file found.");
         } catch (ClassNotFoundException e) {
@@ -66,26 +61,14 @@ public final class ConnectionDB {
      * @return Connection with hikari
      * @throws ConnectionException Error on co to db
      */
-    public Connection getConnection() throws ConnectionException {
-        try {
-            connexion = ds.getConnection();
-        } catch (SQLException e) {
-            LOG.error("[CONNECTION] Error connection to DB.");
-            throw new ConnectionException("[CONNECTION] Error connection to DB.");
-        }
-        return connexion;
+    public HikariDataSource getHikariDS() {
+        return hikariDS;
     }
 
     /**
      * @throws ConnectionException if error to co to db
      */
     public void closeAll() throws ConnectionException {
-        try {
-            connexion.close();
-            ds.close();
-        } catch (SQLException e) {
-            LOG.error("[CLOSING] Error closing DB.");
-            throw new ConnectionException("[CLOSING] Error closing DB");
-        }
+        hikariDS.close();
     }
 }
