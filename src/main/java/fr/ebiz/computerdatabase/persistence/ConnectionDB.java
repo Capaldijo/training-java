@@ -1,5 +1,9 @@
 package fr.ebiz.computerdatabase.persistence;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -10,6 +14,7 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
+import fr.ebiz.computerdatabase.exceptions.DAOException;
 
 public final class ConnectionDB {
 
@@ -47,9 +52,8 @@ public final class ConnectionDB {
     /**
      * Get instance of co to db.
      * @return connectionMysql instance
-     * @throws ConnectionException if error on co to db
      */
-    public static ConnectionDB getInstance() throws ConnectionException {
+    public static ConnectionDB getInstance() {
         if (ConnectionDB.instance == null) {
             ConnectionDB.instance = new ConnectionDB();
         }
@@ -63,6 +67,38 @@ public final class ConnectionDB {
      */
     public HikariDataSource getHikariDS() {
         return hikariDS;
+    }
+
+    /**
+     *
+     * @param st statement to close
+     * @throws DAOException exception to throw
+     */
+    public void closeObjects(Statement st) throws DAOException {
+        closeObjects(st, null);
+    }
+
+    /**
+     *
+     * @param st statement to close
+     * @param rs resultSet to close
+     * @throws DAOException exception to throw
+     */
+    public void closeObjects(Statement st, ResultSet rs) throws DAOException {
+        if (st != null) {
+            try {
+                st.close();
+            } catch (SQLException e) {
+                throw new DAOException(e.getMessage());
+            }
+        }
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                throw new DAOException(e.getMessage());
+            }
+        }
     }
 
     /**

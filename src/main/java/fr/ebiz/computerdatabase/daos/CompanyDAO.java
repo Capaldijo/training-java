@@ -15,6 +15,7 @@ import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.interfaces.DAOInterface;
 import fr.ebiz.computerdatabase.models.Company;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
+import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.services.TransactionHolder;
 import fr.ebiz.computerdatabase.utils.Utils;
 
@@ -56,12 +57,7 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             LOG.error("[FIND] Error accessing data.");
             throw new DAOException("[FIND] Error on accessing data.");
         } finally {
-            try {
-                resultat.close();
-                prepStatement.close();
-            } catch (SQLException e) {
-                throw new DAOException("[FIND] Error on close statement.");
-            }
+            ConnectionDB.getInstance().closeObjects(prepStatement, resultat);
         }
 
         return company;
@@ -81,11 +77,7 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             LOG.error("[FINDALL] Error accessing data.");
             throw new DAOException("[FINDALL] Error on accessing data.");
         } finally {
-            try {
-                resultat.close();
-            } catch (SQLException e) {
-                throw new DAOException("[FINDALL] Error on close statement.");
-            }
+            ConnectionDB.getInstance().closeObjects(null, resultat);
         }
         return list;
     }
@@ -108,12 +100,7 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             LOG.error("[FINDBYPAGE] Error accessing data.");
             throw new DAOException("[FINDBYPAGE] Error on accessing data.");
         } finally {
-            try {
-                resultat.close();
-                prepStatement.close();
-            } catch (SQLException e) {
-                throw new DAOException("[FINDBYPAGE] Error on close statement.");
-            }
+            ConnectionDB.getInstance().closeObjects(prepStatement, resultat);
         }
         return list;
     }

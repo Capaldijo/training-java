@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 
 import fr.ebiz.computerdatabase.daos.CompanyDAO;
 import fr.ebiz.computerdatabase.dtos.CompanyDTO;
-import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.interfaces.ServiceInterface;
 import fr.ebiz.computerdatabase.mappers.CompanyMapper;
@@ -63,7 +62,7 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
             TransactionHolder.get().commit();
 
             list = companyMapper.toDTO(listCompany);
-        } catch (DAOException | SQLException | ConnectionException e) {
+        } catch (DAOException | SQLException e) {
             try {
                 TransactionHolder.get().rollback();
             } catch (SQLException e1) {
@@ -98,7 +97,7 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
             TransactionHolder.get().commit();
 
             companyDTO = companyMapper.toDTO(company);
-        } catch (DAOException | SQLException | ConnectionException | NumberFormatException e) {
+        } catch (DAOException | SQLException | NumberFormatException e) {
             try {
                 TransactionHolder.get().rollback();
             } catch (SQLException e1) {
@@ -135,7 +134,7 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
             }
 
             TransactionHolder.get().commit();
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException e) {
             try {
                 TransactionHolder.get().rollback();
             } catch (SQLException e1) {
@@ -172,7 +171,7 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
         } catch (NumberFormatException | DAOException e) {
             LOG.error("[GETCOMPANYBYPAGE] Error on getting data.");
             throw new RuntimeException("[GETCOMPANYBYPAGE] Error on getting data.");
-        } catch (ConnectionException | SQLException e) {
+        } catch (SQLException e) {
             try {
                 TransactionHolder.get().rollback();
             } catch (SQLException e1) {

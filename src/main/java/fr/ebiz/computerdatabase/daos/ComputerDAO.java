@@ -20,6 +20,7 @@ import fr.ebiz.computerdatabase.interfaces.DAOInterface;
 import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.models.Operator;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
+import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.services.TransactionHolder;
 import fr.ebiz.computerdatabase.utils.Utils;
 
@@ -79,12 +80,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         } catch (SQLException e) {
             throw new DAOException("[FIND] Error on accessing data.");
         } finally {
-            try {
-                resultat.close();
-                prepStatement.close();
-            } catch (SQLException e) {
-                throw new DAOException("[FIND] Error on close co.");
-            }
+            ConnectionDB.getInstance().closeObjects(prepStatement, resultat);
         }
 
         return computer;
@@ -148,12 +144,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             LOG.info("[FINDBYSEARCH] Error on accessing data");
             throw new DAOException("[FINDBYSEARCH] Error on accessing data.");
         } finally {
-            try {
-                rs.close();
-                prepStatement.close();
-            } catch (SQLException e) {
-                throw new DAOException("[FINDBYSEARCH] Error on close statement.");
-            }
+            ConnectionDB.getInstance().closeObjects(prepStatement, rs);
         }
 
         return list;
@@ -176,11 +167,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             LOG.error("[COUNT] Error on accessing data.");
             throw new DAOException("[COUNT] Error on accessing data.");
         } finally {
-            try {
-                resultat.close();
-            } catch (SQLException e) {
-                throw new DAOException("[COUNT] Error on close statement.");
-            }
+            ConnectionDB.getInstance().closeObjects(null, resultat);
         }
         return count;
     }
@@ -208,12 +195,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             e.printStackTrace();
             throw new DAOException("[COUNTSEARCH] Error on accessing data.");
         } finally {
-            try {
-                resultat.close();
-                prepStatement.close();
-            } catch (SQLException e) {
-                throw new DAOException("[COUNTSEARCH] Error on close statement.");
-            }
+            ConnectionDB.getInstance().closeObjects(prepStatement, resultat);
         }
         return count;
     }
@@ -253,11 +235,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             LOG.error("[INSERT] Error on accessing data.");
             throw new DAOException("[INSERT] Error on accessing data.");
         } finally {
-            try {
-                prepStatement.close();
-            } catch (SQLException e) {
-                throw new DAOException("[INSERT] Error on close co.");
-            }
+            ConnectionDB.getInstance().closeObjects(prepStatement);
         }
         return res;
     }
@@ -298,11 +276,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             LOG.error("[UPDATE] Error on accessing data.");
             throw new DAOException("[UPDATE] Error on accessing data.");
         } finally {
-            try {
-                prepStatement.close();
-            } catch (SQLException e) {
-                throw new DAOException("[UPDATE] Error on close co.");
-            }
+            ConnectionDB.getInstance().closeObjects(prepStatement);
         }
         return res;
     }
@@ -322,13 +296,10 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         int res = 1;
         for (String id : computersId) {
             try {
-                if (delete(id) == 1) {
-                    LOG.info("[DELETE] computerId: " + id + " deleted");
-                } else {
+                if (delete(id) != 1) {
                     res = -1;
                 }
             } catch (SQLException | ConnectionException e) {
-                e.printStackTrace();
                 LOG.error("[DELETE] error on deleting computers");
                 throw new DAOException("[DELETE] error on deleting computers");
             }

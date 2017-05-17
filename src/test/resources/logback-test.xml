@@ -25,12 +25,11 @@
 		</layout>
 	</appender>
 
-	<logger name="fr.ebiz.computerdatabase" level="TRACE" />
-
-
-	<root level="ERROR">
+	<logger name="fr.ebiz.computerdatabase" additivity="false" level="ERROR">
+		<appender-ref ref="STDOUT"/>
 		<appender-ref ref="FILE" />
-	</root>
+	</logger>
+
 	<root level="DEBUG">
 		<appender-ref ref="STDOUT"/>
 	</root>

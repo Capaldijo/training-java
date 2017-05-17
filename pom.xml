@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>fr.ebiz</groupId>
 	<artifactId>computerdatabase</artifactId>
-	<version>0.3.0-SNAPSHOT</version>
+	<version>0.4.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>computerdatabase</name>
 
 	<properties>
-		<slf4j.version>1.7.25</slf4j.version>
+        <jcloverslf4j.version>1.7.25</jcloverslf4j.version>
 		<logback.version>1.2.3</logback.version>
 		<mysqlConnector.version>5.1.41</mysqlConnector.version>
 		<junit.version>4.12</junit.version>
@@ -18,6 +18,7 @@
 		<checkstyle.version>2.17</checkstyle.version>
 		<javaxservlet.version>3.1.0</javaxservlet.version>
 		<hikari.version>2.6.1</hikari.version>
+        <spring.version>4.3.8.RELEASE</spring.version>
 		<direcheckstyle>src/main/resources</direcheckstyle>
 	</properties>
 
@@ -63,20 +64,17 @@
 
 	<dependencies>
 
-
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
 			<version>${javaxservlet.version}</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 
-		<!-- Logger slf4j -->
 		<dependency>
 			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
-			<scope>compile</scope>
+			<artifactId>jcl-over-slf4j</artifactId>
+			<version>${jcloverslf4j.version}</version>
 		</dependency>
 
 		<!-- Logback -->
@@ -96,7 +94,6 @@
 			<groupId>com.zaxxer</groupId>
 			<artifactId>HikariCP</artifactId>
 			<version>${hikari.version}</version>
-			<scope>compile</scope>
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
@@ -112,6 +109,25 @@
 			<artifactId>jstl</artifactId>
 			<version>${jstl.version}</version>
 		</dependency>
+
+        <!-- Spring Framework -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${spring.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
 
 		<!-- JUnit -->
 		<dependency>
@@ -193,7 +209,7 @@
 				<configuration>
 					<path>/computerdatabase</path>
 					<update>true</update>
-					<url>http://localhost:8081/manager/text</url>
+					<url>http://localhost:8080/manager/text</url>
 					<server>tomcatServer</server>
 					<username>tomcat</username>
 					<password>tomcatuser</password>

@@ -67,16 +67,15 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
                     TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
 
                     if (computerDAO.insert(computer) == 1) {
-                        LOG.info("insert computer done.\n");
                         res = 1;
                     } else {
-                        LOG.info("insert computer error.\n");
+                        LOG.error("insert computer error.\n");
                         res = -1;
                     }
 
                     TransactionHolder.get().commit();
                 }
-            } catch (MapperException | DAOException | ConnectionException | SQLException e) {
+            } catch (MapperException | DAOException | SQLException e) {
                 try {
                     TransactionHolder.get().rollback();
                 } catch (SQLException e1) {
@@ -114,7 +113,7 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             TransactionHolder.get().commit();
 
             computerDTO = computerMapper.toDTO(computer);
-        } catch (DAOException | ConnectionException | SQLException e) {
+        } catch (DAOException | SQLException e) {
             try {
                 TransactionHolder.get().rollback();
             } catch (SQLException e1) {
@@ -155,7 +154,7 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         } catch (NumberFormatException | DAOException e) {
             LOG.error("[GETCOMPUTERBYPAGE] Error on getting data.");
             throw new RuntimeException("[GETCOMPUTERBYPAGE] Error on getting data.");
-        } catch (ConnectionException | SQLException e) {
+        } catch (SQLException e) {
             try {
                 TransactionHolder.get().rollback();
             } catch (SQLException e1) {
@@ -190,15 +189,14 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
 
                 computerDAO.update(computer);
                 if (computerDAO.update(computer) == 1) {
-                    LOG.info("Update computer done.\n");
                     res = 1;
                 } else {
-                    LOG.info("Update computer error.\n");
+                    LOG.error("Update computer error.\n");
                     res = -1;
                 }
 
                 TransactionHolder.get().commit();
-            } catch (DAOException | MapperException | SQLException | ConnectionException e) {
+            } catch (DAOException | MapperException | SQLException e) {
                 try {
                     TransactionHolder.get().rollback();
                 } catch (SQLException e1) {
@@ -230,7 +228,7 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             count = computerDAO.count();
 
             TransactionHolder.get().commit();
-        } catch (DAOException | SQLException | ConnectionException e) {
+        } catch (DAOException | SQLException e) {
             try {
                 TransactionHolder.get().rollback();
             } catch (SQLException e1) {
@@ -261,7 +259,7 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             count = computerDAO.countAfterSearch(research);
 
             TransactionHolder.get().commit();
-        } catch (DAOException | SQLException | ConnectionException e) {
+        } catch (DAOException | SQLException e) {
             try {
                 TransactionHolder.get().rollback();
             } catch (SQLException e1) {
@@ -289,15 +287,14 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         try {
             TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
             if (computerDAO.delete(ids) == 1) {
-                LOG.info("Delete computer done.\n");
                 res = 1;
             } else {
-                LOG.info("Delete computer error.\n");
+                LOG.error("Delete computer error.\n");
                 res = 0;
             }
 
             TransactionHolder.get().commit();
-        } catch (DAOException | SQLException | ConnectionException e) {
+        } catch (DAOException | SQLException e) {
             try {
                 TransactionHolder.get().rollback();
             } catch (SQLException e1) {
@@ -324,10 +321,9 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
 
         try {
             if (computerDAO.delete(id) == 1) {
-                LOG.info("Delete computer done.\n");
                 res = 1;
             } else {
-                LOG.info("Delete computer error.\n");
+                LOG.error("Delete computer error.\n");
                 res = 0;
             }
         } catch (SQLException | ConnectionException e) {
@@ -348,10 +344,9 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
 
             if (computerDAO.deleteFromCompanyId(id) == 1) {
-                LOG.info("Delete computer done.\n");
                 res = 1;
             } else {
-                LOG.info("Delete computer error.\n");
+                LOG.error("Delete computer error.\n");
                 res = 0;
             }
 
