@@ -3,6 +3,7 @@ package fr.ebiz.computerdatabase.controllers;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -14,6 +15,8 @@ import fr.ebiz.computerdatabase.models.LikeBoth;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
 import fr.ebiz.computerdatabase.services.ComputerService;
 import fr.ebiz.computerdatabase.utils.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * Servlet implementation class DashboardServlet.
@@ -27,6 +30,15 @@ public class DashboardServlet extends HttpServlet {
     private static final String NAME_COMPUTER = "c.name";
 
     private static final String NAME_COMPANY = "comp.name";
+
+    @Autowired
+    private ComputerService computerService;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -66,7 +78,7 @@ public class DashboardServlet extends HttpServlet {
                     .build();
 
             count = ComputerService.getInstance().count(search);
-            List<ComputerDTO> listComputerDTO = ComputerService.getInstance().getByPage(numPage, nbLine, filter);
+            List<ComputerDTO> listComputerDTO = computerService.getByPage(numPage, nbLine, filter);
 
             request.setAttribute("nbComputer", count);
             request.setAttribute("computers", listComputerDTO);
@@ -93,7 +105,7 @@ public class DashboardServlet extends HttpServlet {
         String selection = request.getParameter("selection");
         String[] ids = selection.split(",");
 
-        ComputerService.getInstance().delete(ids);
+        computerService.delete(ids);
 
         request.setAttribute("numPage", numPage);
         request.setAttribute("search", search);

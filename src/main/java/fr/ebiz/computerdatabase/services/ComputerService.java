@@ -1,8 +1,11 @@
 package fr.ebiz.computerdatabase.services;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.zaxxer.hikari.HikariDataSource;
+import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,8 +18,8 @@ import fr.ebiz.computerdatabase.interfaces.ServiceInterface;
 import fr.ebiz.computerdatabase.mappers.ComputerMapper;
 import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
-import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.validators.ComputerValidator;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Computer service is a singleton class. that will handle
@@ -25,7 +28,9 @@ import fr.ebiz.computerdatabase.validators.ComputerValidator;
  */
 public final class ComputerService implements ServiceInterface<ComputerDTO> {
 
-    private static ComputerService instance = new ComputerService();
+    private static ComputerService instance;
+
+    private static HikariDataSource connection;
 
     static final Logger LOG = LoggerFactory.getLogger(ComputerService.class);
 
@@ -38,8 +43,8 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
      * @throws ConnectionException Error on co to db
      */
     private ComputerService() {
-        computerDAO = new ComputerDAO();
-        computerMapper = new ComputerMapper();
+        //computerDAO = new ComputerDAO();
+        //computerMapper = new ComputerMapper();
     }
 
     /**
@@ -54,6 +59,18 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         return ComputerService.instance;
     }
 
+    public void setComputerDAO(ComputerDAO computerDAO) {
+        this.computerDAO = computerDAO;
+    }
+
+    public void setComputerMapper(ComputerMapper computerMapper) {
+        this.computerMapper = computerMapper;
+    }
+
+    public void setConnection(HikariDataSource connection) {
+        this.connection = connection;
+    }
+
     @Override
     public int add(ComputerDTO computerDTO) {
         int res = 0;
@@ -64,36 +81,19 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             try {
                 Computer computer = computerMapper.toModel(computerDTO);
                 if (computer != null) {
-                    TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
 
                     if (computerDAO.insert(computer) == 1) {
                         res = 1;
                     } else {
-                        LOG.error("insert computer error.\n");
+                        LOG.info("insert computer error.\n");
                         res = -1;
                     }
-
-                    TransactionHolder.get().commit();
                 }
-            } catch (MapperException | DAOException | SQLException e) {
-                try {
-                    TransactionHolder.get().rollback();
-                } catch (SQLException e1) {
-                    LOG.error(e.getMessage());
-                    throw new RuntimeException(e.getMessage());
-                }
+            } catch (MapperException | DAOException e) {
                 LOG.error(e.getMessage());
                 throw new RuntimeException(e.getMessage());
-            } finally {
-                try {
-                    TransactionHolder.get().close();
-                } catch (SQLException e) {
-                    LOG.error(e.getMessage());
-                    throw new RuntimeException(e.getMessage());
-                }
             }
         }
-        TransactionHolder.unset();
         return res;
     }
 
@@ -106,34 +106,16 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             /* ------ GET COMPUTER BY ID ----- */
             Long idComp = Long.parseLong(id);
 
-            TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
-
             computer = computerDAO.find(idComp);
 
-            TransactionHolder.get().commit();
-
             computerDTO = computerMapper.toDTO(computer);
-        } catch (DAOException | SQLException e) {
-            try {
-                TransactionHolder.get().rollback();
-            } catch (SQLException e1) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
+        } catch (DAOException e) {
             LOG.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         } catch (NumberFormatException e) {
             LOG.error("[GETCOMPUTER] Error on ID given.");
             throw new RuntimeException("[GETCOMPUTER] Error on ID given.");
-        } finally {
-            try {
-                TransactionHolder.get().close();
-            } catch (SQLException e) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
         }
-        TransactionHolder.unset();
         return computerDTO;
     }
 
@@ -145,33 +127,12 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             int numP = Integer.parseInt(numPage);
             int nbL = Integer.parseInt(nbLine);
 
-            TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
-
             listComputerDTO = computerDAO.findByPage(filters, numP, nbL);
 
-
-            TransactionHolder.get().commit();
         } catch (NumberFormatException | DAOException e) {
             LOG.error("[GETCOMPUTERBYPAGE] Error on getting data.");
             throw new RuntimeException("[GETCOMPUTERBYPAGE] Error on getting data.");
-        } catch (SQLException e) {
-            try {
-                TransactionHolder.get().rollback();
-            } catch (SQLException e1) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
-            LOG.error(e.getMessage());
-            throw new RuntimeException(e.getMessage());
-        } finally {
-            try {
-                TransactionHolder.get().close();
-            } catch (SQLException e) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
         }
-        TransactionHolder.unset();
         return listComputerDTO;
     }
 
@@ -185,36 +146,19 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             try {
                 Computer computer = computerMapper.toModel(computerDTO);
 
-                TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
-
                 computerDAO.update(computer);
                 if (computerDAO.update(computer) == 1) {
                     res = 1;
                 } else {
-                    LOG.error("Update computer error.\n");
+                    LOG.info("Update computer error.\n");
                     res = -1;
                 }
 
-                TransactionHolder.get().commit();
-            } catch (DAOException | MapperException | SQLException e) {
-                try {
-                    TransactionHolder.get().rollback();
-                } catch (SQLException e1) {
-                    LOG.error(e.getMessage());
-                    throw new RuntimeException(e.getMessage());
-                }
+            } catch (DAOException | MapperException e) {
                 LOG.error(e.getMessage());
                 throw new RuntimeException(e.getMessage());
-            } finally {
-                try {
-                    TransactionHolder.get().close();
-                } catch (SQLException e) {
-                    LOG.error(e.getMessage());
-                    throw new RuntimeException(e.getMessage());
-                }
             }
         }
-        TransactionHolder.unset();
         return res;
     }
 
@@ -223,29 +167,11 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         int count = 0;
 
         try {
-            TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
-
             count = computerDAO.count();
-
-            TransactionHolder.get().commit();
-        } catch (DAOException | SQLException e) {
-            try {
-                TransactionHolder.get().rollback();
-            } catch (SQLException e1) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
+        } catch (DAOException e) {
             LOG.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
-        } finally {
-            try {
-                TransactionHolder.get().close();
-            } catch (SQLException e) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
         }
-        TransactionHolder.unset();
         return count;
     }
 
@@ -254,64 +180,29 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         int count = 0;
 
         try {
-            TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
-
             count = computerDAO.countAfterSearch(research);
-
-            TransactionHolder.get().commit();
-        } catch (DAOException | SQLException e) {
-            try {
-                TransactionHolder.get().rollback();
-            } catch (SQLException e1) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
+        } catch (DAOException e) {
             LOG.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
-        } finally {
-            try {
-                TransactionHolder.get().close();
-            } catch (SQLException e) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
         }
-        TransactionHolder.unset();
         return count;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public int delete(String...ids) {
         int res = 0;
-
         try {
-            TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
             if (computerDAO.delete(ids) == 1) {
                 res = 1;
             } else {
-                LOG.error("Delete computer error.\n");
+                LOG.info("Delete computer error.\n");
                 res = 0;
             }
-
-            TransactionHolder.get().commit();
-        } catch (DAOException | SQLException e) {
-            try {
-                TransactionHolder.get().rollback();
-            } catch (SQLException e1) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
+        } catch (DAOException e) {
             LOG.error(e.getMessage());
             throw new RuntimeException("[DELETECOMPUTER] Error on accessing data.");
-        } finally {
-            try {
-                TransactionHolder.get().close();
-            } catch (SQLException e) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
         }
-        TransactionHolder.unset();
         return res;
     }
 
@@ -323,10 +214,10 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
             if (computerDAO.delete(id) == 1) {
                 res = 1;
             } else {
-                LOG.error("Delete computer error.\n");
+                LOG.info("Delete computer error.\n");
                 res = 0;
             }
-        } catch (SQLException | ConnectionException e) {
+        } catch (SQLException | DAOException e) {
             throw new RuntimeException("[DELETECOMPUTER] Error on accessing data.");
         }
         return res;
@@ -337,38 +228,22 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
      * @param id of company id ref
      * @return 1 if deleted 0 either way
      */
+    @Transactional(readOnly = true)
     public int deleteFromCompanyId(String id) {
         int res = 0;
 
         try {
-            TransactionHolder.set(ConnectionDB.getInstance().getHikariDS().getConnection());
-
             if (computerDAO.deleteFromCompanyId(id) == 1) {
+                LOG.info("Delete computer done.\n");
                 res = 1;
             } else {
-                LOG.error("Delete computer error.\n");
+                LOG.info("Delete computer error.\n");
                 res = 0;
             }
-
-            TransactionHolder.get().commit();
-        } catch (SQLException | ConnectionException e) {
-            try {
-                TransactionHolder.get().rollback();
-            } catch (SQLException e1) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
+        } catch (SQLException | DAOException e) {
             LOG.error(e.getMessage());
             throw new RuntimeException("[DELETECOMPANYFROMID] Error on accessing data.");
-        } finally {
-            try {
-                TransactionHolder.get().close();
-            } catch (SQLException e) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
-            }
         }
-        TransactionHolder.unset();
         return res;
     }
 

@@ -4,7 +4,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
 
@@ -94,9 +93,9 @@ public interface DAOInterface<DTO, MODEL> {
      * @param id the model id to delete.
      * @return int depending the delete is done or not.
      * @throws SQLException error on co to db.
-     * @throws ConnectionException Error on accessing data.
+     * @throws DAOException Error on accessing data.
      */
-    int delete(String id) throws SQLException, ConnectionException;
+    int delete(String id) throws SQLException, DAOException;
 
     /**
      * Delete all model contained in parameter.

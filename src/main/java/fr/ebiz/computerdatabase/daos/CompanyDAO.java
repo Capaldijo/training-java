@@ -1,11 +1,13 @@
 package fr.ebiz.computerdatabase.daos;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +18,6 @@ import fr.ebiz.computerdatabase.interfaces.DAOInterface;
 import fr.ebiz.computerdatabase.models.Company;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
 import fr.ebiz.computerdatabase.persistence.ConnectionDB;
-import fr.ebiz.computerdatabase.services.TransactionHolder;
 import fr.ebiz.computerdatabase.utils.Utils;
 
 public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
@@ -31,6 +32,8 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
 
     private static final String QUERY_DELETE = "DELETE FROM " + Utils.COMPANY_TABLE + " WHERE id = ?";
 
+    private static HikariDataSource connection;
+
     /**
      * Constructor companyDAO.
      * @throws ConnectionException Error on co to db.
@@ -38,13 +41,19 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
     public CompanyDAO() {
     }
 
+    public void setConnection(HikariDataSource connection) {
+        this.connection = connection;
+    }
+
     @Override
     public Company find(int id) throws DAOException {
         Company company = null;
         PreparedStatement prepStatement = null;
         ResultSet resultat = null;
+        Connection co = null;
         try {
-            prepStatement = TransactionHolder.get().prepareStatement(QUERY_FIND);
+            co = connection.getConnection();
+            prepStatement = co.prepareStatement(QUERY_FIND);
             prepStatement.setInt(1, id);
 
             resultat = prepStatement.executeQuery();
@@ -57,7 +66,7 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             LOG.error("[FIND] Error accessing data.");
             throw new DAOException("[FIND] Error on accessing data.");
         } finally {
-            ConnectionDB.getInstance().closeObjects(prepStatement, resultat);
+            ConnectionDB.closeObjects(prepStatement, resultat, co);
         }
 
         return company;
@@ -67,8 +76,10 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
     public List<Company> findAll() throws DAOException {
         List<Company> list = null;
         ResultSet resultat = null;
+        Connection co = null;
         try {
-            resultat = TransactionHolder.get().createStatement().executeQuery(QUERY_FINDALL);
+            co = connection.getConnection();
+            resultat = co.createStatement().executeQuery(QUERY_FINDALL);
             if (!resultat.isBeforeFirst()) {
                 throw new DAOException("[FINDALL] No data for request.");
             }
@@ -77,7 +88,7 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             LOG.error("[FINDALL] Error accessing data.");
             throw new DAOException("[FINDALL] Error on accessing data.");
         } finally {
-            ConnectionDB.getInstance().closeObjects(null, resultat);
+            ConnectionDB.closeObjects(null, resultat, co);
         }
         return list;
     }
@@ -87,8 +98,10 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
         List<CompanyDTO> list = new ArrayList<>();
         PreparedStatement prepStatement = null;
         ResultSet resultat = null;
+        Connection co = null;
         try {
-            prepStatement = TransactionHolder.get().prepareStatement(QUERY_FINDBYPAGE);
+            co = connection.getConnection();
+            prepStatement = co.prepareStatement(QUERY_FINDBYPAGE);
             prepStatement.setInt(1, numPage);
             prepStatement.setInt(2, nbLine);
             resultat = prepStatement.executeQuery();
@@ -100,18 +113,19 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             LOG.error("[FINDBYPAGE] Error accessing data.");
             throw new DAOException("[FINDBYPAGE] Error on accessing data.");
         } finally {
-            ConnectionDB.getInstance().closeObjects(prepStatement, resultat);
+            ConnectionDB.closeObjects(prepStatement, resultat, co);
         }
         return list;
     }
 
     @Override
-    public int delete(String id) throws SQLException {
+    public int delete(String id) throws SQLException, DAOException {
 
-        PreparedStatement prepStatement = TransactionHolder.get().prepareStatement(QUERY_DELETE);
+        Connection co = connection.getConnection();
+        PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
         prepStatement.setString(1, id);
         int res = prepStatement.executeUpdate();
-        prepStatement.close();
+        ConnectionDB.closeObjects(prepStatement, null, co);
         return res;
     }
 

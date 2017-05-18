@@ -76,7 +76,7 @@ public class CLIController {
 
         } // while(shouldKeepGoin)
         try {
-            ConnectionDB.getInstance().closeAll();
+            ConnectionDB.getInstance().closeHikari();
         } catch (NullPointerException npe) {
             LOG.error("Error on closing to DB.");
         } catch (ConnectionException e) {

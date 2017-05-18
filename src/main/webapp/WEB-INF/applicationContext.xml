@@ -1,0 +1,58 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+    <bean id="computerDAOBean" class="fr.ebiz.computerdatabase.daos.ComputerDAO">
+        <property name="connection" ref="dataSource"/>
+    </bean>
+    <bean id="companyDAOBean" class="fr.ebiz.computerdatabase.daos.CompanyDAO">
+        <property name="connection" ref="dataSource"/>
+    </bean>
+
+    <bean id="computerMapperBean" class="fr.ebiz.computerdatabase.mappers.ComputerMapper"/>
+    <bean id="companyMapperBean" class="fr.ebiz.computerdatabase.mappers.CompanyMapper"/>
+
+    <bean id="computerServiceBean" class="fr.ebiz.computerdatabase.services.ComputerService" factory-method="getInstance">
+        <property name="computerDAO" ref="computerDAOBean"/>
+        <property name="computerMapper" ref="computerMapperBean"/>
+        <property name="connection" ref="dataSource"/>
+    </bean>
+
+    <bean id="companyServiceBean" class="fr.ebiz.computerdatabase.services.CompanyService" factory-method="getInstance">
+        <property name="companyDAO" ref="companyDAOBean"/>
+        <property name="companyMapper" ref="companyMapperBean"/>
+        <property name="connection" ref="dataSource"/>
+    </bean>
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:hikari.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="poolName" value="springHikariCP" />
+        <property name="dataSourceClassName" value="${dataSourceClassName}" />
+        <property name="maximumPoolSize" value="${maximumPoolSize}" />
+
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="url">${dataSource.url}</prop>
+                <prop key="user">${dataSource.user}</prop>
+                <prop key="password">${dataSource.password}</prop>
+                <prop key="cachePrepStmts">${dataSource.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${dataSource.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${dataSource.prepStmtCacheSqlLimit}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- HikariCP configuration -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig" />
+    </bean>
+</beans>

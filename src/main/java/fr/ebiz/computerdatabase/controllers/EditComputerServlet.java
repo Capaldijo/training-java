@@ -3,6 +3,7 @@ package fr.ebiz.computerdatabase.controllers;
 import java.io.IOException;
 import java.util.List;
 
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -14,6 +15,8 @@ import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.services.CompanyService;
 import fr.ebiz.computerdatabase.services.ComputerService;
 import fr.ebiz.computerdatabase.utils.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 
 /**
  * Servlet implementation class EditComputerServlet.
@@ -24,14 +27,26 @@ public class EditComputerServlet extends HttpServlet {
 
     private static final String EDIT_VIEW = "/WEB-INF/edit_computer.jsp";
 
+    @Autowired
+    private ComputerService computerService;
+
+    @Autowired
+    private CompanyService companyService;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         String id = request.getParameter("id");
 
         try {
-            ComputerDTO computer = ComputerService.getInstance().get(id);
-            List<CompanyDTO> companiesDTO = CompanyService.getInstance().getAll();
+            ComputerDTO computer = computerService.get(id);
+            List<CompanyDTO> companiesDTO = companyService.getAll();
 
             request.setAttribute("computer", computer);
             request.setAttribute("companies", companiesDTO);
@@ -58,7 +73,7 @@ public class EditComputerServlet extends HttpServlet {
                 .discontinued(discontinued)
                 .companyId(companyId).build();
         try {
-            ComputerService.getInstance().update(computerDTO);
+            computerService.update(computerDTO);
 
             response.sendRedirect("dashboard");
         } catch (RuntimeException e) {
