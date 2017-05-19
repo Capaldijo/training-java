@@ -1,17 +1,14 @@
 package fr.ebiz.computerdatabase.daos;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.zaxxer.hikari.HikariDataSource;
+import fr.ebiz.computerdatabase.mappers.ComputerRowMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +21,9 @@ import fr.ebiz.computerdatabase.models.Operator;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
 import fr.ebiz.computerdatabase.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -56,16 +55,16 @@ public class ComputerDAO implements IComputerDAO {
 
     private static final String QUERY_DELETECOMPIDREF = "DELETE FROM " + Utils.COMPUTER_TABLE + " WHERE company_id = ?";
 
-    private HikariDataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
 
     /**
      * Constructor ComputerDAO.
-     * @param dataSource .
+     * @param jdbcTemplate .
      * @throws ConnectionException error on co db
      */
     @Autowired
-    public ComputerDAO(HikariDataSource dataSource) {
-        this.dataSource = dataSource;
+    public ComputerDAO(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
         // formatter for the LocalDateTime computer's fields
         formatterDB = DateTimeFormatter.ofPattern(Utils.FORMATTER_DB);
         formatter = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
@@ -73,28 +72,13 @@ public class ComputerDAO implements IComputerDAO {
 
     @Override
     public Computer find(Long idComp) throws DAOException {
-
         Computer computer = null;
-        PreparedStatement prepStatement = null;
-        ResultSet resultat = null;
-        Connection co = null;
         try {
-            co = DataSourceUtils.getConnection(dataSource);
-            prepStatement = co.prepareStatement(QUERY_FIND);
-            prepStatement.setLong(1, idComp);
-            resultat = prepStatement.executeQuery();
-            if (!resultat.isBeforeFirst()) {
-                throw new DAOException("[FIND] No data for request.");
-            }
-            resultat.next();
-            computer = toModel(resultat);
-        } catch (SQLException e) {
-            throw new DAOException("[FIND] Error on accessing data.");
-        } finally {
-            DataSourceUtils.releaseConnection(co, dataSource);
-            Utils.closeObjects(prepStatement, resultat);
+            computer = jdbcTemplate.queryForObject(QUERY_FIND, new Object[] {idComp}, new ComputerRowMapper());
+        } catch (DataAccessException e) {
+            LOG.info("[FIND] Error queryForObject.");
+            throw new DAOException("[FIND] Error queryForObject.");
         }
-
         return computer;
     }
 
@@ -102,9 +86,7 @@ public class ComputerDAO implements IComputerDAO {
     public List<ComputerDTO> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException {
 
         List<ComputerDTO> list = null;
-        PreparedStatement prepStatement = null;
-        ResultSet rs = null;
-        Connection co = null;
+
         StringBuilder query = new StringBuilder();
         query.append(QUERY_FINDALL);
         try {
@@ -127,84 +109,45 @@ public class ComputerDAO implements IComputerDAO {
 
             query.append(" LIMIT " + numPage + " , " + nbLine + " ");
 
-            co = DataSourceUtils.getConnection(dataSource);
-            prepStatement = co.prepareStatement(query.toString());
-            int paramCount = 1;
-
-            for (Operator op : filters.getFilterValues()) {
-                prepStatement.setString(paramCount++, op.getValue());
-            }
-            rs = prepStatement.executeQuery();
-            list = toDTOs(rs);
-        } catch (SQLException e) {
+            list = jdbcTemplate.query(query.toString(),
+                    filters.getFilterValues().stream().map(Operator::getValue).toArray(),
+                    new ComputerDTORowMapper());
+        } catch (DataAccessException e) {
             LOG.info("[FINDBYSEARCH] Error on accessing data");
             throw new DAOException("[FINDBYSEARCH] Error on accessing data.");
-        } finally {
-            DataSourceUtils.releaseConnection(co, dataSource);
-            Utils.closeObjects(prepStatement, rs);
         }
-
         return list;
     }
 
     @Override
     public int count() throws DAOException {
-
         int count = 0;
-        ResultSet resultat = null;
-        Connection co = null;
+
         try {
-            co = DataSourceUtils.getConnection(dataSource);
-            resultat = co.createStatement().executeQuery(QUERY_COUNT);
-            if (!resultat.isBeforeFirst()) {
-                LOG.error("[COUNT] No data for request.");
-                throw new DAOException("[COUNT] No data for request.");
-            }
-            resultat.next();
-            count = resultat.getInt("count");
-        } catch (SQLException e) {
-            LOG.error("[COUNT] Error on accessing data.");
-            throw new DAOException("[COUNT] Error on accessing data.");
-        } finally {
-            DataSourceUtils.releaseConnection(co, dataSource);
-            Utils.closeObjects(null, resultat);
+            count = jdbcTemplate.queryForObject(QUERY_COUNT, Integer.class);
+        } catch (DataAccessException e) {
+            LOG.info("[COUNT] Error queryForObject.");
+            throw new DAOException("[COUNT] Error queryForObject.");
         }
         return count;
     }
 
     @Override
     public int countAfterSearch(String search) throws DAOException {
-
         int count = 0;
-        PreparedStatement prepStatement = null;
-        ResultSet resultat = null;
-        Connection co = null;
-        try {
-            co = DataSourceUtils.getConnection(dataSource);
-            prepStatement = co.prepareStatement(QUERY_COUNTAFTERSEARCH);
-            prepStatement.setString(1, '%' + search + '%');
-            prepStatement.setString(2, '%' + search + '%');
 
-            resultat = prepStatement.executeQuery();
-            if (!resultat.isBeforeFirst()) {
-                LOG.error("[COUNTSEARCH] No data for request.");
-                throw new DAOException("[COUNTSEARCH] No data for request.");
-            }
-            resultat.next();
-            count = resultat.getInt("count");
-        } catch (SQLException e) {
-            LOG.error("[COUNTSEARCH] Error on accessing data.");
-            throw new DAOException("[COUNTSEARCH] Error on accessing data.");
-        } finally {
-            DataSourceUtils.releaseConnection(co, dataSource);
-            Utils.closeObjects(prepStatement, resultat);
+        try {
+            String s = '%' + search + '%';
+            count = jdbcTemplate.queryForObject(QUERY_COUNTAFTERSEARCH, new Object[] {s, s}, Integer.class);
+        } catch (DataAccessException e) {
+            LOG.info("[COUNT] Error queryForObject.");
+            throw new DAOException("[COUNT] Error queryForObject.");
         }
         return count;
     }
 
     @Override
     public int insert(Computer comp) throws DAOException {
-        Connection co = null;
         String name = comp.getName();
         LocalDate dateIntro = comp.getIntroduced();
         LocalDate dateDiscon = comp.getDiscontinued();
@@ -215,39 +158,30 @@ public class ComputerDAO implements IComputerDAO {
         if (dateIntro != null) {
             strDateIntro = dateIntro.format(formatter);
         }
-
         if (dateDiscon != null) {
             strDateDiscon = dateDiscon.format(formatter);
         }
 
-        PreparedStatement prepStatement = null;
         int res = 0;
         try {
-            co = DataSourceUtils.getConnection(dataSource);
-            prepStatement = co.prepareStatement(QUERY_INSERT);
-            prepStatement.setString(1, name);
-            prepStatement.setString(2, strDateIntro);
-            prepStatement.setString(3, strDateDiscon);
+            Object[] objects = null;
             if (compIdRef != 0) {
-                prepStatement.setInt(4, compIdRef);
+                objects = new Object[] {name, strDateIntro, strDateDiscon, compIdRef};
             } else {
-                prepStatement.setString(4, null);
+                objects = new Object[] {name, strDateIntro, strDateDiscon, null};
             }
+            res = jdbcTemplate.update(QUERY_INSERT, objects);
 
-            res = prepStatement.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error("[INSERT] Error on accessing data.");
-            throw new DAOException("[INSERT] Error on accessing data.");
-        } finally {
-            DataSourceUtils.releaseConnection(co, dataSource);
-            Utils.closeObjects(prepStatement, null);
+        } catch (DataAccessException e) {
+            LOG.error("[INSERT] Error on jdbcTemplate.update.");
+            throw new DAOException("[INSERT] Error on jdbcTemplate.update.");
         }
+
         return res;
     }
 
     @Override
     public int update(Computer comp) throws DAOException {
-        Connection co = null;
         String name = comp.getName();
         LocalDate dateIntro = comp.getIntroduced();
         LocalDate dateDiscon = comp.getDiscontinued();
@@ -258,46 +192,35 @@ public class ComputerDAO implements IComputerDAO {
         if (dateIntro != null) {
             strDateIntro = dateIntro.format(formatter);
         }
-
         if (dateDiscon != null) {
             strDateDiscon = dateDiscon.format(formatter);
         }
 
-        PreparedStatement prepStatement = null;
         int res = 0;
         try {
-            co = DataSourceUtils.getConnection(dataSource);
-            prepStatement = co.prepareStatement(QUERY_UPDATE);
-            prepStatement.setString(1, name);
-            prepStatement.setString(2, strDateIntro);
-            prepStatement.setString(3, strDateDiscon);
+            Object[] objects = null;
             if (compIdRef != 0) {
-                prepStatement.setInt(4, compIdRef);
+                objects = new Object[] {name, strDateIntro, strDateDiscon, compIdRef, comp.getId()};
             } else {
-                prepStatement.setString(4, null);
+                objects = new Object[] {name, strDateIntro, strDateDiscon, null, comp.getId()};
             }
-            prepStatement.setLong(5, comp.getId());
-
-            res = prepStatement.executeUpdate();
-        } catch (SQLException e) {
-            LOG.error("[UPDATE] Error on accessing data.");
-            throw new DAOException("[UPDATE] Error on accessing data.");
-        } finally {
-            DataSourceUtils.releaseConnection(co, dataSource);
-            Utils.closeObjects(prepStatement, null);
+            res = jdbcTemplate.update(QUERY_UPDATE, objects);
+        } catch (DataAccessException e) {
+            LOG.error("[UPDATE] Error on jdbcTemplate.update.");
+            throw new DAOException("[UPDATE] Error on jdbcTemplate.update.");
         }
         return res;
     }
 
     @Override
     public int delete(String id) throws SQLException, DAOException {
-
-        Connection co = DataSourceUtils.getConnection(dataSource);
-        PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
-        prepStatement.setString(1, id);
-        int res = prepStatement.executeUpdate();
-        DataSourceUtils.releaseConnection(co, dataSource);
-        Utils.closeObjects(prepStatement, null);
+        int res = 0;
+        try {
+            res = jdbcTemplate.update(QUERY_DELETE, id);
+        } catch (DataAccessException e) {
+            LOG.error("[DELETE] Error on jdbcTemplate.update.");
+            throw new DAOException("[DELETE] Error on jdbcTemplate.update.");
+        }
         return res;
     }
 
@@ -329,110 +252,45 @@ public class ComputerDAO implements IComputerDAO {
      */
     @Override
     public int deleteFromCompanyId(String id) throws SQLException, DAOException {
-
-        Connection co = DataSourceUtils.getConnection(dataSource);
-        PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETECOMPIDREF);
-        prepStatement.setString(1, id);
-        int res = prepStatement.executeUpdate();
-        DataSourceUtils.releaseConnection(co, dataSource);
-        Utils.closeObjects(prepStatement, null);
+        int res = 0;
+        try {
+            res = jdbcTemplate.update(QUERY_DELETECOMPIDREF, id);
+        } catch (DataAccessException e) {
+            LOG.error("[DELETE] Error on jdbcTemplate.update.");
+            throw new DAOException("[DELETE] Error on jdbcTemplate.update.");
+        }
         return res;
     }
 
-    @Override
-    public Computer toModel(ResultSet resultat) throws DAOException {
-        Computer computer = null;
-        try {
-            Long id = resultat.getLong(Utils.COLUMN_ID);
-            String name = resultat.getString(Utils.COLUMN_NAME);
-            String strDateIntro = resultat.getString(Utils.COLUMN_INTRODUCED);
-            String strDateDiscon = resultat.getString(Utils.COLUMN_DISCONTINUED);
-            int compIdRef = resultat.getInt(Utils.COLUMN_COMPANYID);
+    private class ComputerDTORowMapper implements RowMapper<ComputerDTO> {
+        private final Logger LOG = LoggerFactory.getLogger(ComputerRowMapper.class);
 
-            LocalDate dateIntro = null, dateDiscon = null;
+        @Override
+        public ComputerDTO mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ComputerDTO computer = null;
+            try {
+                String id = rs.getString(Utils.COLUMN_ID);
+                String name = rs.getString(Utils.COLUMN_NAME);
+                String dateIntro = rs.getString(Utils.COLUMN_INTRODUCED);
+                String dateDiscon = rs.getString(Utils.COLUMN_DISCONTINUED);
+                String compIdRef = rs.getString(Utils.COLUMN_COMPANYID);
 
-            if (strDateIntro != null) {
-                dateIntro = LocalDate.parse(strDateIntro, formatterDB);
+                if (dateIntro != null) {
+                    dateIntro = dateIntro.split(" ")[0];
+                }
+                if (dateDiscon != null) {
+                    dateDiscon = dateDiscon.split(" ")[0];
+                }
+
+                computer = new ComputerDTO.Builder(name).introduced(dateIntro).discontinued(dateDiscon).companyId(compIdRef)
+                        .id(id).build();
+
+            } catch (SQLException | DateTimeParseException e) {
+                e.printStackTrace();
+                LOG.error("[TOCOMPUTER] Error on parsing date.");
+                throw new SQLException("[TOCOMPUTER] Error on parsing date.");
             }
-
-            if (strDateDiscon != null) {
-                dateDiscon = LocalDate.parse(strDateDiscon, formatterDB);
-            }
-
-            computer = new Computer.Builder(name).introduced(dateIntro).discontinued(dateDiscon).companyId(compIdRef)
-                    .id(id).build();
-
-        } catch (SQLException e) {
-            LOG.error("[TOCOMPUTER] Error on reading data from db.");
-            throw new DAOException("[TOCOMPUTER] Error on accessing data.");
-        } catch (DateTimeParseException e) {
-            LOG.error("[TOCOMPUTER] Error on parsing date from db.");
-            throw new DAOException("[TOCOMPUTER] Error on parsing date.");
+            return computer;
         }
-        return computer;
-    }
-
-    @Override
-    public List<Computer> toModels(ResultSet resultat) throws DAOException {
-        List<Computer> list = new ArrayList<>();
-
-        try {
-            while (resultat.next()) {
-                list.add(toModel(resultat));
-            }
-        } catch (SQLException sqle) {
-            LOG.error("[TOCOMPUTERS] Error on accessing data.");
-            throw new DAOException("[TOCOMPUTERS] Error on accessing data.");
-        }
-
-        return list;
-    }
-
-    @Override
-    public ComputerDTO toDTO(ResultSet resultat) throws DAOException {
-        ComputerDTO computerDTO = null;
-        try {
-            String id = resultat.getString(Utils.COLUMN_ID);
-            String name = resultat.getString(Utils.COLUMN_NAME);
-            String dateIntro = resultat.getString(Utils.COLUMN_INTRODUCED);
-            String dateDiscon = resultat.getString(Utils.COLUMN_DISCONTINUED);
-            String compIdRef = resultat.getString(Utils.COLUMN_COMPANYID);
-
-            if (dateIntro != null) {
-                dateIntro = dateIntro.split(" ")[0];
-            }
-            if (dateDiscon != null) {
-                dateDiscon = dateDiscon.split(" ")[0];
-            }
-
-            computerDTO = new ComputerDTO.Builder(name).
-                    introduced(dateIntro)
-                    .discontinued(dateDiscon)
-                    .companyId(compIdRef)
-                    .id(id).build();
-
-        } catch (SQLException e) {
-            LOG.error("[TOCOMPUTERDTO] Error on accessing data.");
-            throw new DAOException("[TOCOMPUTERDTO] Error on accessing data.");
-        } catch (DateTimeParseException e) {
-            LOG.error("[TOCOMPUTERDTO] Error on parsing date.");
-            throw new DAOException("[TOCOMPUTERDTO] Error on parsing date.");
-        }
-        return computerDTO;
-    }
-
-    @Override
-    public List<ComputerDTO> toDTOs(ResultSet resultat) throws DAOException {
-        List<ComputerDTO> list = new ArrayList<>();
-
-        try {
-            while (resultat.next()) {
-                list.add(toDTO(resultat));
-            }
-        } catch (SQLException sqle) {
-            LOG.error("[TOCOMPUTERDTOS]Error on reading data from db.");
-            throw new DAOException("[TOCOMPUTERDTOS]Error on reading data from db.");
-        }
-        return list;
     }
 }

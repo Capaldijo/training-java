@@ -1,5 +1,6 @@
 package fr.ebiz.computerdatabase.models;
 
+
 public abstract class Operator {
 
     protected String filter;

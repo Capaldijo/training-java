@@ -1,6 +1,5 @@
 package fr.ebiz.computerdatabase.interfaces;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -89,38 +88,38 @@ public interface IComputerDAO {
      * @throws DAOException .
      */
     int deleteFromCompanyId(String id) throws SQLException, DAOException;
-
-    /**
+/*
+    *//**
      * Build a model from the different data from the ResultSet pass in
      * parameter.
      * @param resultat contains a model
      * @return a model object
      * @throws DAOException error on mapping model
-     */
+     *//*
     Computer toModel(ResultSet resultat) throws DAOException;
 
-    /**
+    *//**
      * Build a List of model from the different data from the ResultSet pass
      * in parameter.
      * @param resultat contains all models
      * @return a List of model object
      * @throws DAOException error on mapping model
-     */
+     *//*
     List<Computer> toModels(ResultSet resultat) throws DAOException;
 
-    /**
+    *//**
      * Build a modelComputerDTO directly from the db.
      * @param resultat contains a model
      * @return a modelComputerDTO
      * @throws DAOException Error on mapping data
-     */
+     *//*
     ComputerDTO toDTO(ResultSet resultat) throws DAOException;
 
-    /**
+    *//**
      * Build a list of modelDTO directly from the db.
      * @param resultat contains all the model from db
      * @return a list of modelDTO
      * @throws DAOException Error on mapping data
-     */
-    List<ComputerDTO> toDTOs(ResultSet resultat) throws DAOException;
+     *//*
+    List<ComputerDTO> toDTOs(ResultSet resultat) throws DAOException;*/
 }

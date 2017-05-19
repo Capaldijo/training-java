@@ -4,7 +4,6 @@ import fr.ebiz.computerdatabase.dtos.CompanyDTO;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.models.Company;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -17,14 +16,6 @@ public interface ICompanyDAO {
      * @throws DAOException Error on getting data.
      */
     Company find(int id) throws DAOException;
-
-    /**
-     * Get a model by its ID.
-     * @param idComp id model.
-     * @return A model.
-     * @throws DAOException error on getting data.
-     */
-    Company find(Long idComp) throws DAOException;
 
     /**
      * Get all the model from the db.
@@ -52,38 +43,4 @@ public interface ICompanyDAO {
      * @throws DAOException Error on accessing data.
      */
     int delete(String id) throws SQLException, DAOException;
-
-    /**
-     * Build a model from the different data from the ResultSet pass in
-     * parameter.
-     * @param resultat contains a model
-     * @return a model object
-     * @throws DAOException error on mapping model
-     */
-    Company toModel(ResultSet resultat) throws DAOException;
-
-    /**
-     * Build a List of model from the different data from the ResultSet pass
-     * in parameter.
-     * @param resultat contains all models
-     * @return a List of model object
-     * @throws DAOException error on mapping model
-     */
-    List<Company> toModels(ResultSet resultat) throws DAOException;
-
-    /**
-     * Build a modelCompanyDTO directly from the db.
-     * @param resultat contains a model
-     * @return a modelCompanyDTO
-     * @throws DAOException Error on mapping data
-     */
-    CompanyDTO toDTO(ResultSet resultat) throws DAOException;
-
-    /**
-     * Build a list of modelCompanyDTO directly from the db.
-     * @param resultat contains all the model from db
-     * @return a list of modelCompanyDTO
-     * @throws DAOException Error on mapping data
-     */
-    List<CompanyDTO> toDTOs(ResultSet resultat) throws DAOException;
 }

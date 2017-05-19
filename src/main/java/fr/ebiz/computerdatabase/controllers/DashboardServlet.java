@@ -78,7 +78,7 @@ public class DashboardServlet extends HttpServlet {
                     .orderBy(Utils.HEADERTABLE_NAME[order], Boolean.parseBoolean(asc))
                     .build();
 
-            if (search == null) {
+            if (search.equals("")) {
                 count = computerService.count();
             } else {
                 search = search.trim();
