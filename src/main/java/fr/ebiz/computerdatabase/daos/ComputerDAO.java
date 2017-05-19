@@ -18,16 +18,19 @@ import org.slf4j.LoggerFactory;
 import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
-import fr.ebiz.computerdatabase.interfaces.DAOInterface;
+import fr.ebiz.computerdatabase.interfaces.IComputerDAO;
 import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.models.Operator;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
-import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.utils.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.stereotype.Repository;
 
-public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
+@Repository
+public class ComputerDAO implements IComputerDAO {
 
-    static final Logger LOG = LoggerFactory.getLogger(ComputerDAO.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerDAO.class);
 
     private DateTimeFormatter formatter, formatterDB;
 
@@ -53,20 +56,19 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
 
     private static final String QUERY_DELETECOMPIDREF = "DELETE FROM " + Utils.COMPUTER_TABLE + " WHERE company_id = ?";
 
-    private static HikariDataSource connection;
+    private HikariDataSource dataSource;
 
     /**
      * Constructor ComputerDAO.
+     * @param dataSource .
      * @throws ConnectionException error on co db
      */
-    public ComputerDAO() {
+    @Autowired
+    public ComputerDAO(HikariDataSource dataSource) {
+        this.dataSource = dataSource;
         // formatter for the LocalDateTime computer's fields
         formatterDB = DateTimeFormatter.ofPattern(Utils.FORMATTER_DB);
         formatter = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
-    }
-
-    public void setConnection(HikariDataSource connection) {
-            this.connection = connection;
     }
 
     @Override
@@ -77,7 +79,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         ResultSet resultat = null;
         Connection co = null;
         try {
-            co = connection.getConnection();
+            co = DataSourceUtils.getConnection(dataSource);
             prepStatement = co.prepareStatement(QUERY_FIND);
             prepStatement.setLong(1, idComp);
             resultat = prepStatement.executeQuery();
@@ -89,32 +91,11 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         } catch (SQLException e) {
             throw new DAOException("[FIND] Error on accessing data.");
         } finally {
-            ConnectionDB.closeObjects(prepStatement, resultat, co);
+            DataSourceUtils.releaseConnection(co, dataSource);
+            Utils.closeObjects(prepStatement, resultat);
         }
 
         return computer;
-    }
-
-    @Override
-    public List<Computer> findAll() throws DAOException {
-
-        List<Computer> list = null;
-        Connection co = null;
-        try {
-            co = connection.getConnection();
-            ResultSet resultat = co.createStatement().executeQuery(QUERY_FINDALL);
-            if (!resultat.isBeforeFirst()) {
-                LOG.error("[FINDALL] No data for request.");
-                throw new DAOException("[FINDALL] No data for request.");
-            }
-            list = toModels(resultat);
-        } catch (SQLException e) {
-            LOG.error("[FINDALL] Error on accessing data.");
-            throw new DAOException("[FINDALL] Error on accessing data.");
-        } finally {
-            ConnectionDB.closeObjects(null, null, co);
-        }
-        return list;
     }
 
     @Override
@@ -146,7 +127,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
 
             query.append(" LIMIT " + numPage + " , " + nbLine + " ");
 
-            co = connection.getConnection();
+            co = DataSourceUtils.getConnection(dataSource);
             prepStatement = co.prepareStatement(query.toString());
             int paramCount = 1;
 
@@ -159,7 +140,8 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             LOG.info("[FINDBYSEARCH] Error on accessing data");
             throw new DAOException("[FINDBYSEARCH] Error on accessing data.");
         } finally {
-            ConnectionDB.closeObjects(prepStatement, rs, co);
+            DataSourceUtils.releaseConnection(co, dataSource);
+            Utils.closeObjects(prepStatement, rs);
         }
 
         return list;
@@ -172,7 +154,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         ResultSet resultat = null;
         Connection co = null;
         try {
-            co = connection.getConnection();
+            co = DataSourceUtils.getConnection(dataSource);
             resultat = co.createStatement().executeQuery(QUERY_COUNT);
             if (!resultat.isBeforeFirst()) {
                 LOG.error("[COUNT] No data for request.");
@@ -184,7 +166,8 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             LOG.error("[COUNT] Error on accessing data.");
             throw new DAOException("[COUNT] Error on accessing data.");
         } finally {
-            ConnectionDB.closeObjects(null, resultat, co);
+            DataSourceUtils.releaseConnection(co, dataSource);
+            Utils.closeObjects(null, resultat);
         }
         return count;
     }
@@ -197,7 +180,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         ResultSet resultat = null;
         Connection co = null;
         try {
-            co = connection.getConnection();
+            co = DataSourceUtils.getConnection(dataSource);
             prepStatement = co.prepareStatement(QUERY_COUNTAFTERSEARCH);
             prepStatement.setString(1, '%' + search + '%');
             prepStatement.setString(2, '%' + search + '%');
@@ -213,7 +196,8 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             LOG.error("[COUNTSEARCH] Error on accessing data.");
             throw new DAOException("[COUNTSEARCH] Error on accessing data.");
         } finally {
-            ConnectionDB.closeObjects(prepStatement, resultat, co);
+            DataSourceUtils.releaseConnection(co, dataSource);
+            Utils.closeObjects(prepStatement, resultat);
         }
         return count;
     }
@@ -239,7 +223,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         PreparedStatement prepStatement = null;
         int res = 0;
         try {
-            co = connection.getConnection();
+            co = DataSourceUtils.getConnection(dataSource);
             prepStatement = co.prepareStatement(QUERY_INSERT);
             prepStatement.setString(1, name);
             prepStatement.setString(2, strDateIntro);
@@ -255,7 +239,8 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             LOG.error("[INSERT] Error on accessing data.");
             throw new DAOException("[INSERT] Error on accessing data.");
         } finally {
-            ConnectionDB.closeObjects(prepStatement, null, co);
+            DataSourceUtils.releaseConnection(co, dataSource);
+            Utils.closeObjects(prepStatement, null);
         }
         return res;
     }
@@ -281,7 +266,7 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
         PreparedStatement prepStatement = null;
         int res = 0;
         try {
-            co = connection.getConnection();
+            co = DataSourceUtils.getConnection(dataSource);
             prepStatement = co.prepareStatement(QUERY_UPDATE);
             prepStatement.setString(1, name);
             prepStatement.setString(2, strDateIntro);
@@ -298,8 +283,8 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             LOG.error("[UPDATE] Error on accessing data.");
             throw new DAOException("[UPDATE] Error on accessing data.");
         } finally {
-            connection.close();
-            ConnectionDB.closeObjects(prepStatement, null, co);
+            DataSourceUtils.releaseConnection(co, dataSource);
+            Utils.closeObjects(prepStatement, null);
         }
         return res;
     }
@@ -307,11 +292,12 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
     @Override
     public int delete(String id) throws SQLException, DAOException {
 
-        Connection co = connection.getConnection();
+        Connection co = DataSourceUtils.getConnection(dataSource);
         PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
         prepStatement.setString(1, id);
         int res = prepStatement.executeUpdate();
-        ConnectionDB.closeObjects(prepStatement, null, co);
+        DataSourceUtils.releaseConnection(co, dataSource);
+        Utils.closeObjects(prepStatement, null);
         return res;
     }
 
@@ -341,13 +327,15 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
      * @throws SQLException Error on id given.
      * @throws DAOException Error on connecting to db.
      */
+    @Override
     public int deleteFromCompanyId(String id) throws SQLException, DAOException {
 
-        Connection co = connection.getConnection();
+        Connection co = DataSourceUtils.getConnection(dataSource);
         PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETECOMPIDREF);
         prepStatement.setString(1, id);
         int res = prepStatement.executeUpdate();
-        ConnectionDB.closeObjects(prepStatement, null, co);
+        DataSourceUtils.releaseConnection(co, dataSource);
+        Utils.closeObjects(prepStatement, null);
         return res;
     }
 
@@ -446,11 +434,5 @@ public class ComputerDAO implements DAOInterface<ComputerDTO, Computer> {
             throw new DAOException("[TOCOMPUTERDTOS]Error on reading data from db.");
         }
         return list;
-    }
-
-    @Override
-    public Computer find(int id) throws DAOException {
-        LOG.error("[FIND INT] Not implemented yet.");
-        throw new RuntimeException("[FIND INT] Not implemented yet.");
     }
 }

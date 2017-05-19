@@ -1,4 +1,4 @@
-package fr.ebiz.computerdatabase.view;
+package fr.ebiz.computerdatabase.views;
 
 import java.util.InputMismatchException;
 import java.util.List;

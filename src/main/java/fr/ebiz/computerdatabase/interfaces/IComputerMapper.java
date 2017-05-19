@@ -2,29 +2,31 @@ package fr.ebiz.computerdatabase.interfaces;
 
 import java.util.List;
 
+import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
+import fr.ebiz.computerdatabase.models.Computer;
 
-public interface MapperInterface<DTO, MODEL> {
+public interface IComputerMapper {
 
     /**
      * Map a model to a DTO.
      * @param model model to map
      * @return a DTO
      */
-    DTO toDTO(MODEL model);
+    ComputerDTO toDTO(Computer model);
 
     /**
-     * Map a list of model to list of DTO.
+     * Map a list of model to list of ComputerDTO.
      * @param list models to map
      * @return a list of DTOs
      */
-    List<DTO> toDTO(List<MODEL> list);
+    List<ComputerDTO> toDTO(List<Computer> list);
 
     /**
-     * Map a DTO into a model.
+     * Map a ComputerDTO into a model.
      * @param dto to map
      * @return a computer
      * @throws MapperException error on mapping DTO
      */
-    MODEL toModel(DTO dto) throws MapperException;
+    Computer toModel(ComputerDTO dto) throws MapperException;
 }

@@ -8,21 +8,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.zaxxer.hikari.HikariDataSource;
+import fr.ebiz.computerdatabase.interfaces.ICompanyDAO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.ebiz.computerdatabase.dtos.CompanyDTO;
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
-import fr.ebiz.computerdatabase.interfaces.DAOInterface;
 import fr.ebiz.computerdatabase.models.Company;
-import fr.ebiz.computerdatabase.models.PaginationFilters;
-import fr.ebiz.computerdatabase.persistence.ConnectionDB;
 import fr.ebiz.computerdatabase.utils.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.stereotype.Repository;
 
-public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
+@Repository
+public class CompanyDAO implements ICompanyDAO {
 
-    static final Logger LOG = LoggerFactory.getLogger(CompanyDAO.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CompanyDAO.class);
 
     private static final String QUERY_FIND = "SELECT * FROM " + Utils.COMPANY_TABLE + " WHERE id = ?";
 
@@ -32,17 +34,16 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
 
     private static final String QUERY_DELETE = "DELETE FROM " + Utils.COMPANY_TABLE + " WHERE id = ?";
 
-    private static HikariDataSource connection;
+    private final HikariDataSource dataSource;
 
     /**
      * Constructor companyDAO.
+     * @param dataSource .
      * @throws ConnectionException Error on co to db.
      */
-    public CompanyDAO() {
-    }
-
-    public void setConnection(HikariDataSource connection) {
-        this.connection = connection;
+    @Autowired
+    public CompanyDAO(HikariDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
@@ -52,7 +53,7 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
         ResultSet resultat = null;
         Connection co = null;
         try {
-            co = connection.getConnection();
+            co = DataSourceUtils.getConnection(dataSource);
             prepStatement = co.prepareStatement(QUERY_FIND);
             prepStatement.setInt(1, id);
 
@@ -66,7 +67,8 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             LOG.error("[FIND] Error accessing data.");
             throw new DAOException("[FIND] Error on accessing data.");
         } finally {
-            ConnectionDB.closeObjects(prepStatement, resultat, co);
+            DataSourceUtils.releaseConnection(co, dataSource);
+            Utils.closeObjects(prepStatement, resultat);
         }
 
         return company;
@@ -78,7 +80,7 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
         ResultSet resultat = null;
         Connection co = null;
         try {
-            co = connection.getConnection();
+            co = DataSourceUtils.getConnection(dataSource);
             resultat = co.createStatement().executeQuery(QUERY_FINDALL);
             if (!resultat.isBeforeFirst()) {
                 throw new DAOException("[FINDALL] No data for request.");
@@ -88,19 +90,20 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             LOG.error("[FINDALL] Error accessing data.");
             throw new DAOException("[FINDALL] Error on accessing data.");
         } finally {
-            ConnectionDB.closeObjects(null, resultat, co);
+            DataSourceUtils.releaseConnection(co, dataSource);
+            Utils.closeObjects(null, resultat);
         }
         return list;
     }
 
     @Override
-    public List<CompanyDTO> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException {
+    public List<CompanyDTO> findByPage(int numPage, int nbLine) throws DAOException {
         List<CompanyDTO> list = new ArrayList<>();
         PreparedStatement prepStatement = null;
         ResultSet resultat = null;
         Connection co = null;
         try {
-            co = connection.getConnection();
+            co = DataSourceUtils.getConnection(dataSource);
             prepStatement = co.prepareStatement(QUERY_FINDBYPAGE);
             prepStatement.setInt(1, numPage);
             prepStatement.setInt(2, nbLine);
@@ -113,7 +116,8 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
             LOG.error("[FINDBYPAGE] Error accessing data.");
             throw new DAOException("[FINDBYPAGE] Error on accessing data.");
         } finally {
-            ConnectionDB.closeObjects(prepStatement, resultat, co);
+            DataSourceUtils.releaseConnection(co, dataSource);
+            Utils.closeObjects(prepStatement, resultat);
         }
         return list;
     }
@@ -121,11 +125,14 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
     @Override
     public int delete(String id) throws SQLException, DAOException {
 
-        Connection co = connection.getConnection();
+        Connection co = DataSourceUtils.getConnection(dataSource);
         PreparedStatement prepStatement = co.prepareStatement(QUERY_DELETE);
         prepStatement.setString(1, id);
         int res = prepStatement.executeUpdate();
-        ConnectionDB.closeObjects(prepStatement, null, co);
+        if (!DataSourceUtils.isConnectionTransactional(co, dataSource)) {
+            DataSourceUtils.releaseConnection(co, dataSource);
+        }
+        Utils.closeObjects(prepStatement, null);
         return res;
     }
 
@@ -194,35 +201,5 @@ public class CompanyDAO implements DAOInterface<CompanyDTO, Company> {
     public Company find(Long idComp) throws DAOException {
         LOG.error("[FIND] Not implemented yet.");
         throw new RuntimeException("[FIND] Not implemented yet.");
-    }
-
-    @Override
-    public int count() throws DAOException {
-        LOG.error("[COUNT] Not implemented yet.");
-        throw new RuntimeException("[COUNT] Not implemented yet.");
-    }
-
-    @Override
-    public int countAfterSearch(String search) throws DAOException {
-        LOG.error("[COUNTAFTERSEARCH] Not implemented yet.");
-        throw new RuntimeException("[COUNTAFTERSEARCH] Not implemented yet.");
-    }
-
-    @Override
-    public int insert(Company comp) throws DAOException {
-        LOG.error("[INSERT] Not implemented yet.");
-        throw new RuntimeException("[INSERT] Not implemented yet.");
-    }
-
-    @Override
-    public int update(Company comp) throws DAOException {
-        LOG.error("[UPDATE] Not implemented yet.");
-        throw new RuntimeException("[UPDATE] Not implemented yet.");
-    }
-
-    @Override
-    public int delete(String... modelsId) throws DAOException {
-        LOG.error("[DELETE] Not implemented yet.");
-        throw new RuntimeException("[DELETE] Not implemented yet.");
     }
 }

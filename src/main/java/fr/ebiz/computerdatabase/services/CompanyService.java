@@ -4,63 +4,50 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.zaxxer.hikari.HikariDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.ebiz.computerdatabase.daos.CompanyDAO;
 import fr.ebiz.computerdatabase.dtos.CompanyDTO;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
-import fr.ebiz.computerdatabase.interfaces.ServiceInterface;
+import fr.ebiz.computerdatabase.interfaces.ICompanyService;
 import fr.ebiz.computerdatabase.mappers.CompanyMapper;
 import fr.ebiz.computerdatabase.models.Company;
-import fr.ebiz.computerdatabase.models.PaginationFilters;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /*
  * Company service is a singleton class. that will handle
  * all the Company service part, get all or one company
  * using the CompanyDAO class and CompanyMapper class
  */
-public final class CompanyService implements ServiceInterface<CompanyDTO> {
+@Service
+@Transactional
+public final class CompanyService implements ICompanyService {
 
-    private static CompanyService instance;
+    private static final Logger LOG = LoggerFactory.getLogger(CompanyService.class);
 
-    static final Logger LOG = LoggerFactory.getLogger(CompanyService.class);
+    private final CompanyDAO companyDAO;
 
-    private static HikariDataSource connection;
+    private final CompanyMapper companyMapper;
 
-    private CompanyDAO companyDAO;
-
-    private CompanyMapper companyMapper;
+    /**
+     * Default Constructor.
+     * @param companyDAO .
+     * @param companyMapper .
+     */
+    @Autowired
+    public CompanyService(CompanyDAO companyDAO, CompanyMapper companyMapper) {
+        this.companyDAO = companyDAO;
+        this.companyMapper = companyMapper;
+    }
 
     /**
      * Constructor CompanyService.
      */
-    private CompanyService() { }
 
-    /**
-     * GetInstance.
-     * @return CompanyService instance
-     */
-    public static CompanyService getInstance() {
-
-        if (CompanyService.instance == null) {
-            CompanyService.instance = new CompanyService();
-        }
-        return CompanyService.instance;
-    }
-
-    public void setCompanyDAO(CompanyDAO companyDAO) {
-        this.companyDAO = companyDAO;
-    }
-
-    public void setCompanyMapper(CompanyMapper companyMapper) {
-        this.companyMapper = companyMapper;
-    }
-
-    public void setConnection(HikariDataSource connection) {
-        this.connection = connection;
-    }
 
     @Override
     public List<CompanyDTO> getAll() {
@@ -79,7 +66,7 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
 
     @Override
     public CompanyDTO get(String id) {
-        CompanyDTO companyDTO = new CompanyDTO();
+        CompanyDTO companyDTO = null;
 
         try {
             int idComp = Integer.parseInt(id);
@@ -95,6 +82,7 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
     }
 
     @Override
+    @Transactional(rollbackFor = {DAOException.class, SQLException.class})
     public int delete(String id) {
         int res = 0;
 
@@ -113,49 +101,19 @@ public final class CompanyService implements ServiceInterface<CompanyDTO> {
     }
 
     @Override
-    public List<CompanyDTO> getByPage(String numPage, String nbLine, PaginationFilters filters) {
+    public List<CompanyDTO> getByPage(String numPage, String nbLine) {
         List<CompanyDTO> listCompanyDTO = null;
 
         try {
             int numP = Integer.parseInt(numPage);
             int nbL = Integer.parseInt(nbLine);
 
-            listCompanyDTO = companyDAO.findByPage(filters, numP, nbL);
+            listCompanyDTO = companyDAO.findByPage(numP, nbL);
 
         } catch (NumberFormatException | DAOException e) {
             LOG.error("[GETCOMPANYBYPAGE] Error on getting data.");
             throw new RuntimeException("[GETCOMPANYBYPAGE] Error on getting data.");
         }
         return listCompanyDTO;
-    }
-
-    @Override
-    public int count() {
-        LOG.error("[SERVICE] [COUNT] Not implemented.");
-        throw new RuntimeException("[SERVICE] [COUNT] Not implemented.");
-    }
-
-    @Override
-    public int count(String research) {
-        LOG.error("[SERVICE] [COUNT] Not implemented.");
-        throw new RuntimeException("[SERVICE] [COUNT] Not implemented.");
-    }
-
-    @Override
-    public int add(CompanyDTO entity) {
-        LOG.error("[SERVICE] [ADD] Not implemented.");
-        throw new RuntimeException("[SERVICE] [ADD] Not implemented.");
-    }
-
-    @Override
-    public int update(CompanyDTO dto) {
-        LOG.error("[SERVICE] [UPDATE] Not implemented.");
-        throw new RuntimeException("[SERVICE] [UPDATE] Not implemented.");
-    }
-
-    @Override
-    public int delete(String... ids) {
-        LOG.error("[SERVICE] [DELETE] Not implemented.");
-        throw new RuntimeException("[SERVICE] [DELETE] Not implemented.");
     }
 }

@@ -3,17 +3,18 @@ package fr.ebiz.computerdatabase.mappers;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.ebiz.computerdatabase.interfaces.ICompanyMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.ebiz.computerdatabase.dtos.CompanyDTO;
-import fr.ebiz.computerdatabase.exceptions.MapperException;
-import fr.ebiz.computerdatabase.interfaces.MapperInterface;
 import fr.ebiz.computerdatabase.models.Company;
+import org.springframework.stereotype.Component;
 
-public class CompanyMapper implements MapperInterface<CompanyDTO, Company> {
+@Component
+public class CompanyMapper implements ICompanyMapper {
 
-    static final Logger LOG = LoggerFactory.getLogger(CompanyMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CompanyMapper.class);
 
     /**
      * Constructor CompanyMapper.
@@ -45,11 +46,5 @@ public class CompanyMapper implements MapperInterface<CompanyDTO, Company> {
         companyDTO.setName(name);
 
         return companyDTO;
-    }
-
-    @Override
-    public Company toModel(CompanyDTO dto) throws MapperException {
-        LOG.error("[MAPPER] [TOMODEL] Not implemented yet.");
-        throw new RuntimeException("[MAPPER] [TOMODEL] Not implemented yet.");
     }
 }

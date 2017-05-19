@@ -11,9 +11,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import fr.ebiz.computerdatabase.dtos.ComputerDTO;
+import fr.ebiz.computerdatabase.interfaces.IComputerService;
 import fr.ebiz.computerdatabase.models.LikeBoth;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
-import fr.ebiz.computerdatabase.services.ComputerService;
 import fr.ebiz.computerdatabase.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
@@ -32,12 +32,13 @@ public class DashboardServlet extends HttpServlet {
     private static final String NAME_COMPANY = "comp.name";
 
     @Autowired
-    private ComputerService computerService;
+    private IComputerService computerService;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
+        // Allow the context of tomcat to load the context of Spring
         super.init(config);
-        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     @Override
@@ -77,7 +78,12 @@ public class DashboardServlet extends HttpServlet {
                     .orderBy(Utils.HEADERTABLE_NAME[order], Boolean.parseBoolean(asc))
                     .build();
 
-            count = ComputerService.getInstance().count(search);
+            if (search == null) {
+                count = computerService.count();
+            } else {
+                search = search.trim();
+                count = computerService.count(search);
+            }
             List<ComputerDTO> listComputerDTO = computerService.getByPage(numPage, nbLine, filter);
 
             request.setAttribute("nbComputer", count);

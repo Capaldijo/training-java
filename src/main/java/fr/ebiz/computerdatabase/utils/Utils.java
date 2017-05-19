@@ -1,5 +1,11 @@
 package fr.ebiz.computerdatabase.utils;
 
+import fr.ebiz.computerdatabase.exceptions.DAOException;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
 public interface Utils {
 
     // ---- Var For DataBase
@@ -40,4 +46,27 @@ public interface Utils {
 
     String FORMATTER_WEB = "yyyy-MM-dd";
 
+    /**
+     *
+     * @param st statement to close.
+     * @param rs resultSet to close.
+     * @throws DAOException exception to throw
+     */
+    static void closeObjects(Statement st, ResultSet rs) throws DAOException {
+
+        if (rs != null) {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                throw new DAOException(e.getMessage());
+            }
+        }
+        if (st != null) {
+            try {
+                st.close();
+            } catch (SQLException e) {
+                throw new DAOException(e.getMessage());
+            }
+        }
+    }
 }

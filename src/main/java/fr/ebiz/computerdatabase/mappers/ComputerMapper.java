@@ -11,13 +11,15 @@ import org.slf4j.LoggerFactory;
 
 import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
-import fr.ebiz.computerdatabase.interfaces.MapperInterface;
+import fr.ebiz.computerdatabase.interfaces.IComputerMapper;
 import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.utils.Utils;
+import org.springframework.stereotype.Component;
 
-public class ComputerMapper implements MapperInterface<ComputerDTO, Computer> {
+@Component
+public class ComputerMapper implements IComputerMapper {
 
-    final Logger logger = LoggerFactory.getLogger(ComputerMapper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerMapper.class);
 
     private static DateTimeFormatter formatterWEB;
 
@@ -88,6 +90,7 @@ public class ComputerMapper implements MapperInterface<ComputerDTO, Computer> {
                     .companyId(compIdRef).build();
 
         } catch (DateTimeParseException e) {
+            LOG.error("[TOMODEL] Error on parsing date.");
             throw new MapperException("[TOMODEL] Error on parsing date.");
         }
 

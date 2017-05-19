@@ -4,19 +4,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
+import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
 
-public interface DAOInterface<DTO, MODEL> {
-
-
-    /**
-     * Get a model by its ID.
-     * @param id id model
-     * @return a model
-     * @throws DAOException Error on getting data.
-     */
-    MODEL find(int id) throws DAOException;
+public interface IComputerDAO {
 
     /**
      * Get a model by its ID.
@@ -24,24 +17,7 @@ public interface DAOInterface<DTO, MODEL> {
      * @return A model.
      * @throws DAOException error on getting data.
      */
-    MODEL find(Long idComp) throws DAOException;
-
-    /**
-     * Get all the model from the db.
-     * @return All models.
-     * @throws DAOException error on getting data.
-     */
-    List<MODEL> findAll() throws DAOException;
-
-    //    /**
-    //     * Following the parameters, build a query that get only 10nth lines of the
-    //     * model's table and return them.
-    //     * @param numPage the page the user want to go on.
-    //     * @param nbLine number of line to print.
-    //     * @return a list of 10 model.
-    //     * @throws DAOException error on getting data.
-    //     */
-    //    List<DTO> findByPage(int numPage, int nbLine) throws DAOException;
+    Computer find(Long idComp) throws DAOException;
 
     /**
      * Following the parameters, build a query, depending the research, that get
@@ -52,7 +28,7 @@ public interface DAOInterface<DTO, MODEL> {
      * @return a list of 10 model.
      * @throws DAOException error on getting data.
      */
-    List<DTO> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException;
+    List<ComputerDTO> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException;
 
     /**
      * Count number of model in DB.
@@ -76,7 +52,7 @@ public interface DAOInterface<DTO, MODEL> {
      * @return the result of the query.
      * @throws DAOException error on getting data.
      */
-    int insert(MODEL comp) throws DAOException;
+    int insert(Computer comp) throws DAOException;
 
     /**
      * Update the model given in parameter into the database. Get each of its
@@ -85,7 +61,7 @@ public interface DAOInterface<DTO, MODEL> {
      * @return the result of the query.
      * @throws DAOException error on getting data.
      */
-    int update(MODEL comp) throws DAOException;
+    int update(Computer comp) throws DAOException;
 
     /**
      * According to the given id in parameter, build the query, find and delete
@@ -106,13 +82,22 @@ public interface DAOInterface<DTO, MODEL> {
     int delete(String...modelsId) throws DAOException;
 
     /**
+     * Delete all computers where compId is id.
+     * @param id .
+     * @return 1 if deleted or 0.
+     * @throws SQLException .
+     * @throws DAOException .
+     */
+    int deleteFromCompanyId(String id) throws SQLException, DAOException;
+
+    /**
      * Build a model from the different data from the ResultSet pass in
      * parameter.
      * @param resultat contains a model
      * @return a model object
      * @throws DAOException error on mapping model
      */
-    MODEL toModel(ResultSet resultat) throws DAOException;
+    Computer toModel(ResultSet resultat) throws DAOException;
 
     /**
      * Build a List of model from the different data from the ResultSet pass
@@ -121,15 +106,15 @@ public interface DAOInterface<DTO, MODEL> {
      * @return a List of model object
      * @throws DAOException error on mapping model
      */
-    List<MODEL> toModels(ResultSet resultat) throws DAOException;
+    List<Computer> toModels(ResultSet resultat) throws DAOException;
 
     /**
-     * Build a modelDTO directly from the db.
+     * Build a modelComputerDTO directly from the db.
      * @param resultat contains a model
-     * @return a modelDTO
+     * @return a modelComputerDTO
      * @throws DAOException Error on mapping data
      */
-    DTO toDTO(ResultSet resultat) throws DAOException;
+    ComputerDTO toDTO(ResultSet resultat) throws DAOException;
 
     /**
      * Build a list of modelDTO directly from the db.
@@ -137,5 +122,5 @@ public interface DAOInterface<DTO, MODEL> {
      * @return a list of modelDTO
      * @throws DAOException Error on mapping data
      */
-    List<DTO> toDTOs(ResultSet resultat) throws DAOException;
+    List<ComputerDTO> toDTOs(ResultSet resultat) throws DAOException;
 }

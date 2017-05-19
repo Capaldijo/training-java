@@ -12,7 +12,11 @@ import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
 import fr.ebiz.computerdatabase.mappers.ComputerMapper;
 import fr.ebiz.computerdatabase.models.Computer;
+import org.junit.runner.RunWith;
 
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+@RunWith(SpringJUnit4ClassRunner.class)
 public class ComputerMapperTest {
 
     private ComputerMapper computerMapper = null;

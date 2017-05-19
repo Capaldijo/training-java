@@ -6,28 +6,31 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+
+import fr.ebiz.computerdatabase.interfaces.ICompanyService;
+import fr.ebiz.computerdatabase.interfaces.IComputerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.ebiz.computerdatabase.views.Cli;
 import fr.ebiz.computerdatabase.dtos.CompanyDTO;
 import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
-import fr.ebiz.computerdatabase.persistence.ConnectionDB;
-import fr.ebiz.computerdatabase.services.CompanyService;
-import fr.ebiz.computerdatabase.services.ComputerService;
 import fr.ebiz.computerdatabase.utils.Utils;
-import fr.ebiz.computerdatabase.view.Cli;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
 public class CLIController {
 
     private static final Logger LOG = LoggerFactory.getLogger(CLIController.class);
 
-    private ComputerService computerService;
+    private final IComputerService computerService;
 
-    private CompanyService companyService;
+    private final ICompanyService companyService;
 
     private boolean shouldKeepGoin = true;
 
@@ -37,12 +40,15 @@ public class CLIController {
 
     /**
      * Constructor CLIController.
+     * @param computerService .
+     * @param companyService .
      * @throws ConnectionException error on co to db
      */
-    public CLIController() {
+    @Autowired
+    public CLIController(IComputerService computerService, ICompanyService companyService) {
         formatter = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
-        computerService = ComputerService.getInstance();
-        companyService = CompanyService.getInstance();
+        this.computerService = computerService;
+        this.companyService = companyService;
         view = new Cli();
     }
 
@@ -75,13 +81,6 @@ public class CLIController {
             }
 
         } // while(shouldKeepGoin)
-        try {
-            ConnectionDB.getInstance().closeHikari();
-        } catch (NullPointerException npe) {
-            LOG.error("Error on closing to DB.");
-        } catch (ConnectionException e) {
-            LOG.error(e.getMessage());
-        }
     } // init
 
     /**
@@ -231,14 +230,14 @@ public class CLIController {
             boolean stop = false;
             while (!stop) {
                 // get 10 companies in the list
-                list = companyService.getByPage(String.valueOf(numPage), String.valueOf(Utils.PAGEABLE_NBLINE), null);
+                list = companyService.getByPage(String.valueOf(numPage), String.valueOf(Utils.PAGEABLE_NBLINE));
 
                 // if list is empty bc the user gone to far in pages, get to
                 // previous half full list
                 if (list.isEmpty() && numPage > 0) {
                     LOG.info("Next was selected but Company's list is Empty, getting back to last page.");
                     numPage -= Utils.PAGEABLE_NBLINE;
-                    list = companyService.getByPage(String.valueOf(numPage), String.valueOf(Utils.PAGEABLE_NBLINE), null);
+                    list = companyService.getByPage(String.valueOf(numPage), String.valueOf(Utils.PAGEABLE_NBLINE));
                 }
                 switch (view.printPageableList(list)) {
                 case 1: // Previous Page
@@ -388,7 +387,7 @@ public class CLIController {
                 view.print("No company to delete.");
                 LOG.info("No company to delete.\n");
             }
-        } catch (RuntimeException e) {
+        } catch (DAOException | SQLException | RuntimeException e) {
             view.print("\nError on deleting company");
             LOG.error("Error on delete company");
         }

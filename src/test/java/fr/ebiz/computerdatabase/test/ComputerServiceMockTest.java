@@ -2,6 +2,8 @@ package fr.ebiz.computerdatabase.test;
 
 import static org.junit.Assert.assertEquals;
 
+import fr.ebiz.computerdatabase.interfaces.IComputerDAO;
+import fr.ebiz.computerdatabase.interfaces.IComputerService;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -14,14 +16,19 @@ import fr.ebiz.computerdatabase.dtos.ComputerDTO;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.services.ComputerService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
+@ContextConfiguration(locations = "/WEB-INF/applicationContext.xml")
+@TestExecutionListeners(DependencyInjectionTestExecutionListener.class)
 public class ComputerServiceMockTest {
 
-    @InjectMocks
-    ComputerService computerService = ComputerService.getInstance();
-
     @Mock
-    ComputerDAO computerDAO;
+    @Autowired
+    IComputerDAO computerDAO;
 
     ComputerDTO computerDTO;
 

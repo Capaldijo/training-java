@@ -1,24 +1,22 @@
 package fr.ebiz.computerdatabase.services;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.zaxxer.hikari.HikariDataSource;
-import fr.ebiz.computerdatabase.persistence.ConnectionDB;
+import fr.ebiz.computerdatabase.interfaces.IComputerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import fr.ebiz.computerdatabase.daos.ComputerDAO;
 import fr.ebiz.computerdatabase.dtos.ComputerDTO;
-import fr.ebiz.computerdatabase.exceptions.ConnectionException;
 import fr.ebiz.computerdatabase.exceptions.DAOException;
 import fr.ebiz.computerdatabase.exceptions.MapperException;
-import fr.ebiz.computerdatabase.interfaces.ServiceInterface;
 import fr.ebiz.computerdatabase.mappers.ComputerMapper;
 import fr.ebiz.computerdatabase.models.Computer;
 import fr.ebiz.computerdatabase.models.PaginationFilters;
 import fr.ebiz.computerdatabase.validators.ComputerValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -26,50 +24,27 @@ import org.springframework.transaction.annotation.Transactional;
  * all the Computer service part, get all or one company
  * using the ComputerDAO class and ComputerMapper class
  */
-public final class ComputerService implements ServiceInterface<ComputerDTO> {
+@Service
+@Transactional
+public final class ComputerService implements IComputerService {
 
-    private static ComputerService instance;
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerService.class);
 
-    private static HikariDataSource connection;
+    private final ComputerDAO computerDAO;
 
-    static final Logger LOG = LoggerFactory.getLogger(ComputerService.class);
-
-    private ComputerDAO computerDAO;
-
-    private ComputerMapper computerMapper;
+    private final ComputerMapper computerMapper;
 
     /**
-     * Constructor ComputerService.
-     * @throws ConnectionException Error on co to db
+     * Default constructor.
+     * @param computerDAO .
+     * @param computerMapper .
      */
-    private ComputerService() {
-        //computerDAO = new ComputerDAO();
-        //computerMapper = new ComputerMapper();
-    }
-
-    /**
-     * Get the instance of ComputerService Singleton class.
-     * @return the instance of ComputerSerice.
-     */
-    public static ComputerService getInstance() {
-
-        if (ComputerService.instance == null) {
-            ComputerService.instance = new ComputerService();
-        }
-        return ComputerService.instance;
-    }
-
-    public void setComputerDAO(ComputerDAO computerDAO) {
+    @Autowired
+    public ComputerService(ComputerDAO computerDAO, ComputerMapper computerMapper) {
         this.computerDAO = computerDAO;
-    }
-
-    public void setComputerMapper(ComputerMapper computerMapper) {
         this.computerMapper = computerMapper;
     }
 
-    public void setConnection(HikariDataSource connection) {
-        this.connection = connection;
-    }
 
     @Override
     public int add(ComputerDTO computerDTO) {
@@ -188,8 +163,8 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
         return count;
     }
 
-    @Transactional(readOnly = true)
     @Override
+    @Transactional(rollbackFor = DAOException.class)
     public int delete(String...ids) {
         int res = 0;
         try {
@@ -207,6 +182,7 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
     }
 
     @Override
+    @Transactional(rollbackFor = {DAOException.class, SQLException.class})
     public int delete(String id) {
         int res = 0;
 
@@ -228,7 +204,7 @@ public final class ComputerService implements ServiceInterface<ComputerDTO> {
      * @param id of company id ref
      * @return 1 if deleted 0 either way
      */
-    @Transactional(readOnly = true)
+    @Transactional(rollbackFor = {DAOException.class, SQLException.class})
     public int deleteFromCompanyId(String id) {
         int res = 0;
 

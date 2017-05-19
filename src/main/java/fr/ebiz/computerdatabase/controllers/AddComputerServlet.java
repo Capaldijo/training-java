@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import fr.ebiz.computerdatabase.dtos.CompanyDTO;
 import fr.ebiz.computerdatabase.dtos.ComputerDTO;
+import fr.ebiz.computerdatabase.interfaces.ICompanyService;
+import fr.ebiz.computerdatabase.interfaces.IComputerService;
 import fr.ebiz.computerdatabase.services.CompanyService;
 import fr.ebiz.computerdatabase.services.ComputerService;
 import fr.ebiz.computerdatabase.utils.Utils;
@@ -28,15 +30,15 @@ public class AddComputerServlet extends HttpServlet {
     private static final String ADD_VIEW = "/WEB-INF/add_computer.jsp";
 
     @Autowired
-    private ComputerService computerService;
+    private IComputerService computerService;
 
     @Autowired
-    private CompanyService companyService;
+    private ICompanyService companyService;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
-        SpringBeanAutowiringSupport.processInjectionBasedOnServletContext(this, config.getServletContext());
+        SpringBeanAutowiringSupport.processInjectionBasedOnCurrentContext(this);
     }
 
     @Override
