@@ -1,5 +1,5 @@
 Training: computer-database    
-===========================  
+===========================
 
 # Content
 This training material holds a sequence of steps and features to implement in a Computer Database webapp.  

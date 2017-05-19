@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd">
+
+    <context:component-scan base-package="fr.ebiz.computerdatabase.daos"/>
+    <context:component-scan base-package="fr.ebiz.computerdatabase.mappers"/>
+    <context:component-scan base-package="fr.ebiz.computerdatabase.services"/>
+    <context:annotation-config/>
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:hikari.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="hikariConfig" class="com.zaxxer.hikari.HikariConfig">
+        <property name="poolName" value="springHikariCP" />
+        <property name="dataSourceClassName" value="${dataSourceClassName}" />
+        <property name="maximumPoolSize" value="${maximumPoolSize}" />
+
+        <property name="dataSourceProperties">
+            <props>
+                <prop key="url">${dataSource.url}</prop>
+                <prop key="user">${dataSource.user}</prop>
+                <prop key="password">${dataSource.password}</prop>
+                <prop key="cachePrepStmts">${dataSource.cachePrepStmts}</prop>
+                <prop key="prepStmtCacheSize">${dataSource.prepStmtCacheSize}</prop>
+                <prop key="prepStmtCacheSqlLimit">${dataSource.prepStmtCacheSqlLimit}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- HikariCP configuration -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <constructor-arg ref="hikariConfig" />
+    </bean>
+
+    <tx:annotation-driven />
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+</beans>
