@@ -52,6 +52,7 @@ public final class ComputerService implements IComputerService {
 
         if (!ComputerValidator.isValid(computerDTO)) {
             LOG.error("[VALIDATION] The computer you tried to add is not valid.");
+            throw new RuntimeException("[VALIDATION] The computer you tried to add is not valid.");
         } else {
             try {
                 Computer computer = computerMapper.toModel(computerDTO);
@@ -221,11 +222,5 @@ public final class ComputerService implements IComputerService {
             throw new RuntimeException("[DELETECOMPANYFROMID] Error on accessing data.");
         }
         return res;
-    }
-
-    @Override
-    public List<ComputerDTO> getAll() {
-        LOG.error("[SERVICE] [GETALL] Not implemented anymore.");
-        throw new RuntimeException("[SERVICE] [GETALL] Not implemented anymore.");
     }
 }

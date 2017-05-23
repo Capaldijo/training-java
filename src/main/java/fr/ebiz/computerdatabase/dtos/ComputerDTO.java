@@ -13,6 +13,11 @@ public class ComputerDTO {
     private String company_id;
 
     /**
+     * Default constructor.
+     */
+    public ComputerDTO() {}
+
+    /**
      * Constructor dto.
      * @param builder to build computerDTO
      */

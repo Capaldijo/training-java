@@ -26,12 +26,6 @@ public interface IComputerService {
     List<ComputerDTO> getByPage(String numPage, String nbLine, PaginationFilters filters);
 
     /**
-     * GeComputer all Computer objecComputer from db.
-     * @return all T.
-     */
-    List<ComputerDTO> getAll();
-
-    /**
      * GeComputer the number of all entities into the db.
      * @return the number of computer following the research.
      */
@@ -50,6 +44,7 @@ public interface IComputerService {
      * Add an Computer objecComputer into db.
      * @param entity to add into db.
      * @return a inComputer depending if inserted or not.
+     * @throws DAOException .
      */
     int add(ComputerDTO entity);
 

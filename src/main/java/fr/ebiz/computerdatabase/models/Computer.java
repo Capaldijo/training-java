@@ -22,7 +22,7 @@ public class Computer {
 
     /**
      * The Computer's ID, that can't be changed.
-     * @see Computer#Computer(int, String, LocalDateTime, LocalDateTime, int)
+     * @see Computer#Computer(Builder b)
      * @see Computer#getId()
      */
     private Long id;
@@ -50,8 +50,8 @@ public class Computer {
 
     /**
      * The Computer's referenced company's id, that can be change.
-     * @see Computer#getCompany_id()
-     * @see Computer#setCompany_id(int)
+     * @see Computer#getCompanyId()
+     * @see Computer#setCompanyId(int)
      */
     private int company_id;
 

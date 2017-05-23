@@ -148,10 +148,8 @@ public class ComputerDAO implements IComputerDAO {
 
     @Override
     public int insert(Computer comp) throws DAOException {
-        String name = comp.getName();
         LocalDate dateIntro = comp.getIntroduced();
         LocalDate dateDiscon = comp.getDiscontinued();
-        int compIdRef = comp.getCompanyId();
 
         String strDateIntro = null, strDateDiscon = null;
 
@@ -165,14 +163,14 @@ public class ComputerDAO implements IComputerDAO {
         int res = 0;
         try {
             Object[] objects = null;
-            if (compIdRef != 0) {
-                objects = new Object[] {name, strDateIntro, strDateDiscon, compIdRef};
+            if (comp.getCompanyId() != 0) {
+                objects = new Object[] {comp.getName(), strDateIntro, strDateDiscon, comp.getCompanyId()};
             } else {
-                objects = new Object[] {name, strDateIntro, strDateDiscon, null};
+                objects = new Object[] {comp.getName(), strDateIntro, strDateDiscon, null};
             }
             res = jdbcTemplate.update(QUERY_INSERT, objects);
-
         } catch (DataAccessException e) {
+            e.printStackTrace();
             LOG.error("[INSERT] Error on jdbcTemplate.update.");
             throw new DAOException("[INSERT] Error on jdbcTemplate.update.");
         }
@@ -182,10 +180,8 @@ public class ComputerDAO implements IComputerDAO {
 
     @Override
     public int update(Computer comp) throws DAOException {
-        String name = comp.getName();
         LocalDate dateIntro = comp.getIntroduced();
         LocalDate dateDiscon = comp.getDiscontinued();
-        int compIdRef = comp.getCompanyId();
 
         String strDateIntro = null, strDateDiscon = null;
 
@@ -199,10 +195,10 @@ public class ComputerDAO implements IComputerDAO {
         int res = 0;
         try {
             Object[] objects = null;
-            if (compIdRef != 0) {
-                objects = new Object[] {name, strDateIntro, strDateDiscon, compIdRef, comp.getId()};
+            if (comp.getCompanyId() != 0) {
+                objects = new Object[] {comp.getName(), strDateIntro, strDateDiscon, comp.getCompanyId()};
             } else {
-                objects = new Object[] {name, strDateIntro, strDateDiscon, null, comp.getId()};
+                objects = new Object[] {comp.getName(), strDateIntro, strDateDiscon, null};
             }
             res = jdbcTemplate.update(QUERY_UPDATE, objects);
         } catch (DataAccessException e) {

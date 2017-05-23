@@ -5,9 +5,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import fr.ebiz.computerdatabase.dtos.ComputerDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ComputerValidator {
-
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerValidator.class);
     /**
      * Check if the computer is a valid computer, that is to say if it has a
      * name, if it has a valid intro & discon date yyyy-DD-mm and a valid
@@ -17,6 +19,7 @@ public class ComputerValidator {
      * @return true of false depending the validity
      */
     public static boolean isValid(ComputerDTO computer) {
+
         boolean isValid = true;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -32,17 +35,20 @@ public class ComputerValidator {
             if (computer.getId() != null) {
                 if (Long.parseLong(computer.getId()) <= 0L) {
                     isValid = false;
+                    LOG.info("[VALIDATOR] getID false");
                 }
             }
 
             // check if name isn't empty string
             if (name != null && name.trim() == "") {
                 isValid = false;
+                LOG.info("[VALIDATOR] getName empty false");
             }
 
             // check if name contain some tag elmt like <abc/>
             if (name.matches("(?s).*(<(\\w+)[^>]*>.*</\\2>|<(\\w+)[^>]*/>).*")) {
                 isValid = false;
+                LOG.info("[VALIDATOR] getName tag false");
             }
 
             // check if date are parsable => type of yyyy-MM-dd
@@ -57,17 +63,20 @@ public class ComputerValidator {
             if (intro != null && discon != null) {
                 if (intro.isAfter(discon)) {
                     isValid = false;
+                    LOG.info("[VALIDATOR] intro before discon false");
                 }
             }
 
             if (computer.getCompanyId() != null) {
                 int compIdRef = Integer.parseInt(computer.getCompanyId());
-                if (compIdRef <= 0) {
+                if (compIdRef < 0) {
                     isValid = false;
+                    LOG.info("[VALIDATOR] getCompanyId false");
                 }
             }
         } catch (NumberFormatException | DateTimeParseException | NullPointerException e) {
             isValid = false;
+            LOG.info("[VALIDATOR] error exception");
         }
 
         return isValid;
