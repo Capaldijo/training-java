@@ -9,8 +9,14 @@ import fr.ebiz.computerdatabase.interfaces.IComputerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.Validator;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +31,19 @@ public class EditComputerController {
 
     @Autowired
     private ICompanyService companyService;
+
+    @Autowired
+    @Qualifier("computerValidator")
+    private Validator validator;
+
+    /**
+     * Set custom validator to binder.
+     * @param binder .
+     */
+    @InitBinder
+    private void initBinder(WebDataBinder binder) {
+        binder.setValidator(validator);
+    }
 
     @RequestMapping(value = {"/edit_computer"}, method = RequestMethod.GET)
     public String editComputer(ModelMap model, @RequestParam("id") String id) {
@@ -42,8 +61,12 @@ public class EditComputerController {
     }
 
     @RequestMapping(value = {"/edit_computer"}, method = RequestMethod.POST)
-    public String editComputer(ComputerDTO computerDTO) {
+    public String editComputer(@Validated ComputerDTO computerDTO, BindingResult bindingResult) {
         try {
+            if (bindingResult.hasErrors()) {
+                LOG.info("[CONTROLLER] [EDIT] Computer not valid");
+                return "add_computer";
+            }
             computerService.update(computerDTO);
         } catch (RuntimeException e) {
             LOG.error(e.getMessage());

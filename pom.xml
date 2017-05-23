@@ -19,8 +19,12 @@
 		<javaxservlet.version>3.1.0</javaxservlet.version>
 		<hikari.version>2.6.1</hikari.version>
         <spring.version>4.3.8.RELEASE</spring.version>
-		<direcheckstyle>src/main/resources</direcheckstyle>
-		<skipTests>true</skipTests>
+		<tomcat.version>2.2</tomcat.version>
+		<java.version>1.8</java.version>
+        <maven.compiler.version>3.5.1</maven.compiler.version>
+        <maven.war.version>3.0.0</maven.war.version>
+        <maven.surefire.version>2.17</maven.surefire.version>
+        <dircheckstyle>src/main/resources</dircheckstyle>
 	</properties>
 
 	<profiles>
@@ -76,6 +80,7 @@
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
 			<version>${jcloverslf4j.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- Logback -->
@@ -83,11 +88,13 @@
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 			<version>${logback.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-core</artifactId>
 			<version>${logback.version}</version>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- HikariCP -->
@@ -204,17 +211,17 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>${maven.war.version}</version>
 				<!--<configuration>
 					<outputDirectory>target/war</outputDirectory>
 				</configuration>-->
 			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
+				<version>${maven.compiler.version}</version>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
 				</configuration>
 			</plugin>
 
@@ -224,9 +231,9 @@
 				<artifactId>maven-checkstyle-plugin</artifactId>
 				<version>${checkstyle.version}</version>
 				<configuration>
-					<propertyExpansion>config_loc=${direcheckstyle}/checkstyle</propertyExpansion>
-					<configLocation>${direcheckstyle}/checkstyle/checkstyle.xml</configLocation>
-					<suppressionsLocation>${direcheckstyle}/checkstyle/suppressions.xml</suppressionsLocation>
+					<propertyExpansion>config_loc=${dircheckstyle}/checkstyle</propertyExpansion>
+					<configLocation>${dircheckstyle}/checkstyle/checkstyle.xml</configLocation>
+					<suppressionsLocation>${dircheckstyle}/checkstyle/suppressions.xml</suppressionsLocation>
 					<includeTestSourceDirectory>true</includeTestSourceDirectory>
 					<consoleOutput>true</consoleOutput>
 				</configuration>
@@ -236,7 +243,7 @@
 			<plugin>
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
-				<version>2.2</version>
+				<version>${tomcat.version}</version>
 				<configuration>
 					<path>/computerdatabase</path>
 					<update>true</update>
@@ -251,7 +258,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.17</version>
+				<version>${maven.surefire.version}</version>
 				<configuration>
 					<excludes>
 						<exclude>**/SeleniumIntegrationTest.java</exclude>

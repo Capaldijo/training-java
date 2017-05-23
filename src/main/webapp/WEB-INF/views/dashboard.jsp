@@ -103,6 +103,13 @@
         <myTag:pagination numPage="${numPage}" nbComputer="${nbComputer}" nbLine="${nbLine}" search="${search}"/>
     </div>
 </footer>
+<script type="application/javascript">
+    var trad = {
+        "edit" : "<spring:message code="dashboard.edit"/>",
+        "view" : "<spring:message code="dashboard.view"/>",
+        "delete" : "<spring:message code="dashboard.delete"/>"
+    }
+</script>
 <script src="../../js/jquery.min.js"></script>
 <script src="../../js/bootstrap.min.js"></script>
 <script src="../../js/dashboard.js"></script>

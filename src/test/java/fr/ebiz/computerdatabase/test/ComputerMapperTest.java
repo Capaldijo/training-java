@@ -14,11 +14,15 @@ import fr.ebiz.computerdatabase.mappers.ComputerMapper;
 import fr.ebiz.computerdatabase.models.Computer;
 import org.junit.runner.RunWith;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@ContextConfiguration(locations = "/WEB-INF/applicationContext.xml")
 @RunWith(SpringJUnit4ClassRunner.class)
 public class ComputerMapperTest {
 
+    @Autowired
     private ComputerMapper computerMapper = null;
 
     private ComputerDTO computerDTO = null;

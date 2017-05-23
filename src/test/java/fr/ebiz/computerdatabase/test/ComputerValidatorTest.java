@@ -38,7 +38,7 @@ public class ComputerValidatorTest {
         computerInvalidDisconDate = new ComputerDTO.Builder("test").discontinued("123456").build();
         computerInvalidOrderDates = new ComputerDTO.Builder("test").introduced("2001-06-04")
                 .discontinued("1995-05-01").build();
-        computerInvalidCompanyId = new ComputerDTO.Builder("test").companyId("0").build();
+        computerInvalidCompanyId = new ComputerDTO.Builder("test").companyId("-1").build();
     }
 
     /**
