@@ -30,7 +30,14 @@
 <section id="main">
     <div class="container">
         <h1 id="homeTitle">
-            <spring:message code="dashboard.nbComputers" arguments="${nbComputer}"/>
+            <c:choose>
+                <c:when test="${nbComputer > 1}">
+                    <spring:message code="dashboard.nbComputers" arguments="${nbComputer}"/>
+                </c:when>
+                <c:otherwise>
+                    <spring:message code="dashboard.nbComputer" arguments="${nbComputer}"/>
+                </c:otherwise>
+            </c:choose>
         </h1>
         <div id="actions" class="form-horizontal">
             <div class="pull-left">
@@ -100,7 +107,8 @@
 
 <footer class="navbar-fixed-bottom">
     <div class="container text-center">
-        <myTag:pagination numPage="${numPage}" nbComputer="${nbComputer}" nbLine="${nbLine}" search="${search}"/>
+        <myTag:pagination numPage="${numPage}" nbComputer="${nbComputer}" nbLine="${nbLine}"
+                          search="${search}" orderBy="${orderBy}" asc="${asc}"/>
     </div>
 </footer>
 <script type="application/javascript">

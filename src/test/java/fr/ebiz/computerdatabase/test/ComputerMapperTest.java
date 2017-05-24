@@ -8,10 +8,10 @@ import java.time.format.DateTimeFormatter;
 import org.junit.Before;
 import org.junit.Test;
 
-import fr.ebiz.computerdatabase.dtos.ComputerDTO;
-import fr.ebiz.computerdatabase.exceptions.MapperException;
-import fr.ebiz.computerdatabase.mappers.ComputerMapper;
-import fr.ebiz.computerdatabase.models.Computer;
+import fr.ebiz.computerdatabase.dto.ComputerDTO;
+import fr.ebiz.computerdatabase.exception.MapperException;
+import fr.ebiz.computerdatabase.mapper.ComputerMapper;
+import fr.ebiz.computerdatabase.model.Computer;
 import org.junit.runner.RunWith;
 
 import org.springframework.beans.factory.annotation.Autowired;

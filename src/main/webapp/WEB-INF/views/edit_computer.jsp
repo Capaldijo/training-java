@@ -2,6 +2,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib prefix="springForm" uri="http://www.springframework.org/tags/form" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -38,40 +39,43 @@
                 </div>
                 <h1><spring:message code="computer.edit.title" /></h1>
 
-                <form action="edit_computer" method="POST" id="editForm">
-                    <input type="hidden" value="${computer.id}" id="id" name="id"/>
+                <springForm:form commandName="computer" action="edit_computer" method="POST" id="editForm">
+                    <springForm:input path="id" type="hidden" value="${computer.id}" id="id" name="id"/>
                     <fieldset>
                         <div class="form-group">
                             <label for="computerName"><spring:message code="computer.name" /></label>
-                            <input type="text" class="form-control" id="computerName" name="name"
-                                   value="${computer.name}" placeholder="<spring:message code="computer.name" />"
-                                   maxlength="25" required/>
+                            <spring:message code="computer.name" var="name"/>
+                            <springForm:input path="name" type="text" class="form-control" id="computerName" name="name"
+                                   value="${computer.name}" placeholder="${name}"
+                                   maxlength="25" required="true"/>
                         </div>
                         <div class="form-group">
                             <label for="introduced"><spring:message code="computer.introDate" /></label>
-                            <input type="text" class="form-control" id="introduced" name="introduced"
-                                   value="${computer.introduced}" placeholder="<spring:message code="computer.introDate" />"/>
+                            <spring:message code="computer.introDate" var="introduced"/>
+                            <springForm:input path="introduced" type="text" class="form-control" id="introduced" name="introduced"
+                                   value="${computer.introduced}" placeholder="${introduced}"/>
                         </div>
                         <div class="form-group">
                             <label for="discontinued"><spring:message code="computer.disconDate" /></label>
-                            <input type="text" class="form-control" id="discontinued" name="discontinued"
-                                   value="${computer.discontinued}" placeholder="<spring:message code="computer.disconDate" />"/>
+                            <spring:message code="computer.disconDate" var="discontinued"/>
+                            <springForm:input path="discontinued" type="text" class="form-control" id="discontinued" name="discontinued"
+                                   value="${computer.discontinued}" placeholder="${discontinued}"/>
                         </div>
                         <div class="form-group">
                             <label for="companyId"><spring:message code="computer.company" /></label>
-                            <select class="form-control" id="companyId" name="companyId">
-                                <option value="0">---</option>
+                            <springForm:select path="companyId" class="form-control" id="companyId" name="companyId">
+                                <springForm:option value="0">---</springForm:option>
                                 <c:forEach var="company" items="${companies}">
                                     <c:choose>
                                         <c:when test="${company.id == computer.companyId}">
-                                            <option value="${company.id}" selected>${company.name}</option>
+                                            <springForm:option value="${company.id}" selected="true">${company.name}</springForm:option>
                                         </c:when>
                                         <c:otherwise>
-                                            <option value="${company.id}">${company.name}</option>
+                                            <springForm:option value="${company.id}">${company.name}</springForm:option>
                                         </c:otherwise>
                                     </c:choose>
                                 </c:forEach>
-                            </select>
+                            </springForm:select>
                         </div>
                     </fieldset>
                     <div class="actions pull-right">
@@ -82,7 +86,7 @@
                             <spring:message code="computer.submit.cancel" />
                         </a>
                     </div>
-                </form>
+                </springForm:form>
             </div>
         </div>
     </div>

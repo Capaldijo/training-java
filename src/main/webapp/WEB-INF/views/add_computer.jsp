@@ -2,6 +2,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
 <%@taglib uri="http://www.springframework.org/tags" prefix="spring" %>
+<%@ taglib prefix="springForm" uri="http://www.springframework.org/tags/form" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -34,31 +35,38 @@
         <div class="row">
             <div class="col-xs-8 col-xs-offset-2 box">
                 <h1><spring:message code="computer.add.title" /></h1>
-                <form action="add_computer" method="POST" id="addForm">
+                <springForm:form commandName="computer" action="add_computer" method="POST" id="addForm">
                     <fieldset>
                         <div class="form-group">
                             <label for="computerName"><spring:message code="computer.name" /></label>
-                            <input type="text" class="form-control" id="computerName" name="name"
-                                   placeholder="<spring:message code="computer.name" />" maxlength="20" required/>
+                            <spring:message code="computer.name" var="name"/>
+                            <springForm:input path="name" type="text" class="form-control" id="computerName"
+                                              name="name" placeholder="${name}" maxlength="20"/>
+                            <span><springForm:errors path="name" cssClass="error" /></span>
                         </div>
                         <div class="form-group">
                             <label for="introduced"><spring:message code="computer.introDate" /></label>
-                            <input type='text' class="form-control" id='introduced' name="introduced"
-                                   placeholder="<spring:message code="computer.introDate" />"/>
+                            <spring:message code="computer.introDate" var="introduced"/>
+                            <springForm:input path="introduced" type='text' class="form-control" id='introduced'
+                                              name="introduced" placeholder="${introduced}"/>
+                            <span><springForm:errors path="introduced" cssClass="error" /></span>
                         </div>
                         <div class="form-group">
                             <label for="discontinued"><spring:message code="computer.disconDate" /></label>
-                            <input type="text" class="form-control" id="discontinued" name="discontinued"
-                                   placeholder="<spring:message code="computer.disconDate" />"/>
+                            <spring:message code="computer.disconDate" var="discontinued"/>
+                            <springForm:input path="discontinued" type="text" class="form-control" id="discontinued"
+                                              name="discontinued" placeholder="${discontinued}"/>
+                            <span><springForm:errors path="discontinued" cssClass="error" /></span>
                         </div>
                         <div class="form-group">
                             <label for="companyId"><spring:message code="computer.company" /></label>
-                            <select class="form-control" id="companyId" name="companyId">
-                                <option value="0">---</option>
+                            <springForm:select path="companyId" class="form-control" id="companyId" name="companyId">
+                                <springForm:option value="0">---</springForm:option>
                                 <c:forEach var="company" items="${companies}">
-                                    <option value="${company.id}">${company.name}</option>
+                                    <springForm:option value="${company.id}">${company.name}</springForm:option>
                                 </c:forEach>
-                            </select>
+                            </springForm:select>
+                            <span><springForm:errors path="companyId" cssClass="error" /></span>
                         </div>
                     </fieldset>
                     <div class="actions pull-right">
@@ -69,7 +77,7 @@
                             <spring:message code="computer.submit.cancel" />
                         </a>
                     </div>
-                </form>
+                </springForm:form>
             </div>
         </div>
     </div>

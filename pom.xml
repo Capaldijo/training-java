@@ -7,6 +7,14 @@
 	<packaging>war</packaging>
 	<name>computerdatabase</name>
 
+	<repositories>
+		<repository>
+			<id>version99</id>
+			<!-- highly available repository serving empty artifacts -->
+			<url>http://version99.qos.ch/</url>
+		</repository>
+	</repositories>
+
 	<properties>
         <jcloverslf4j.version>1.7.25</jcloverslf4j.version>
 		<logback.version>1.2.3</logback.version>
@@ -24,6 +32,7 @@
         <maven.compiler.version>3.5.1</maven.compiler.version>
         <maven.war.version>3.0.0</maven.war.version>
         <maven.surefire.version>2.17</maven.surefire.version>
+        <jcl.version>99-empty</jcl.version>
         <dircheckstyle>src/main/resources</dircheckstyle>
 	</properties>
 
@@ -76,6 +85,13 @@
 			<scope>provided</scope>
 		</dependency>
 
+        <!-- get empty jar for jcl in order to have slf4j for spring-->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>${jcl.version}</version>
+        </dependency>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>jcl-over-slf4j</artifactId>
@@ -123,12 +139,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
             <version>${spring.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
 		<dependency>

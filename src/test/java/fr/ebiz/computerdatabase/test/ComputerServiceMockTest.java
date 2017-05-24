@@ -2,22 +2,17 @@ package fr.ebiz.computerdatabase.test;
 
 import static org.junit.Assert.assertEquals;
 
-import fr.ebiz.computerdatabase.interfaces.IComputerDAO;
-import fr.ebiz.computerdatabase.interfaces.IComputerService;
+import fr.ebiz.computerdatabase.dao.IComputerDAO;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
-import fr.ebiz.computerdatabase.daos.ComputerDAO;
-import fr.ebiz.computerdatabase.dtos.ComputerDTO;
-import fr.ebiz.computerdatabase.exceptions.DAOException;
-import fr.ebiz.computerdatabase.models.Computer;
-import fr.ebiz.computerdatabase.services.ComputerService;
+import fr.ebiz.computerdatabase.dto.ComputerDTO;
+import fr.ebiz.computerdatabase.exception.DAOException;
+import fr.ebiz.computerdatabase.model.Computer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
