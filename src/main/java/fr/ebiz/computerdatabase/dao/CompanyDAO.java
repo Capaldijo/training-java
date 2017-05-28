@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import fr.ebiz.computerdatabase.mapper.CompanyMapper;
-import fr.ebiz.computerdatabase.mapper.CompanyRowMapper;
+import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,40 +31,31 @@ public class CompanyDAO implements ICompanyDAO {
 
     private static final String QUERY_DELETE = "DELETE FROM " + Utils.COMPANY_TABLE + " WHERE id = ?";
 
-    private final JdbcTemplate jdbcTemplate;
+    private SessionFactory sessionFactory;
 
     /**
      * Constructor companyDAO.
-     * @param jdbcTemplate .
+     * @param sessionFactory .
      * @throws ConnectionException Error on co to db.
      */
     @Autowired
-    public CompanyDAO(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
+    public CompanyDAO(SessionFactory sessionFactory) {
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
-    public Company find(int id) throws DAOException {
-        Company company = null;
-
-        try {
-            company = jdbcTemplate.queryForObject(QUERY_FIND, new Object[] {id}, new CompanyRowMapper());
-        } catch (DataAccessException e) {
-            LOG.error("[FIND] Error queryForObject.");
-            throw new DAOException("[FIND] Error queryForObject.");
-        }
-
-        return company;
+    public Company find(Long id) throws DAOException {
+        return sessionFactory.getCurrentSession().get(Company.class, id);
     }
 
     @Override
     public List<Company> findAll() throws DAOException {
-        return jdbcTemplate.query(QUERY_FIND_ALL, new CompanyRowMapper());
+        return sessionFactory.getCurrentSession().createQuery("from Company").list();
     }
 
     @Override
     public List<CompanyDTO> findByPage(int numPage, int nbLine) throws DAOException {
-        List<Company> list = jdbcTemplate.query(QUERY_FIND_BY_PAGE, new CompanyRowMapper());
+        List<Company> list = sessionFactory.getCurrentSession().createQuery("from Company").list();
         return new CompanyMapper().toDTO(list);
     }
 
@@ -73,7 +64,10 @@ public class CompanyDAO implements ICompanyDAO {
         int res = 1;
 
         try {
-            jdbcTemplate.update(QUERY_DELETE, id);
+            //jdbcTemplate.update(QUERY_DELETE, id);
+            res = sessionFactory.getCurrentSession().createQuery("delete from Company where id=:id")
+                    .setParameter("id", id)
+                    .executeUpdate();
         } catch (DataAccessException e) {
             LOG.error("[DELETE] error on deleting company.");
             res = 0;

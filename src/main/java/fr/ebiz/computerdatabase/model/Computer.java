@@ -3,28 +3,37 @@ package fr.ebiz.computerdatabase.model;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+import javax.persistence.ManyToOne;
+import javax.persistence.CascadeType;
 
 /**
  * Computer is the class representing a computer in the database. A computer got
  * the following information: A unique identifier that stay still. A name, that
  * can be changed. An introduced date, that can be changed. A discontinued date,
- * that can be changed. And a company_id referencing the company's ID which
+ * that can be changed. And a company referencing the company's ID which
  * built it.
  * @see LocalDateTime
  * @see Company
  * @author capaldijo
  */
+@Entity
+@Table(name = "computer")
 public class Computer {
-
-    final Logger logger = LoggerFactory.getLogger(Computer.class);
 
     /**
      * The Computer's ID, that can't be changed.
      * @see Computer#Computer(Builder b)
      * @see Computer#getId()
      */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
@@ -32,6 +41,7 @@ public class Computer {
      * @see Computer#getName()
      * @see Computer#setName(String)
      */
+    @Column(name = "name")
     private String name;
 
     /**
@@ -39,6 +49,7 @@ public class Computer {
      * @see Computer#getIntroduced()
      * @see Computer#setIntroduced(LocalDate)
      */
+    @Column(name = "introduced")
     private LocalDate introduced;
 
     /**
@@ -46,14 +57,38 @@ public class Computer {
      * @see Computer#getDiscontinued()
      * @see Computer#setDiscontinued(LocalDate)
      */
+    @Column(name = "discontinued")
     private LocalDate discontinued;
 
     /**
      * The Computer's referenced company's id, that can be change.
-     * @see Computer#getCompanyId()
-     * @see Computer#setCompanyId(int)
+     * @see Computer#setCompany(Company)
      */
-    private int company_id;
+    @ManyToOne(targetEntity = Company.class, cascade = CascadeType.ALL)
+    private Company company;
+
+    /**
+     * .
+     */
+    public Computer() {
+
+    }
+
+    /**
+     * Contructor for HQL.
+     * @param id .
+     * @param name .
+     * @param introduced .
+     * @param discontinued .
+     * @param company .
+     */
+    public Computer(Long id, String name, LocalDate introduced, LocalDate discontinued, Company company) {
+        this.id = id;
+        this.name = name;
+        this.introduced = introduced;
+        this.discontinued = discontinued;
+        this.company = company;
+    }
 
     /**
      * Computer Constructor.
@@ -65,7 +100,7 @@ public class Computer {
         this.name = builder.name;
         this.introduced = builder.introduced;
         this.discontinued = builder.discontinued;
-        this.company_id = builder.company_id;
+        this.company = builder.company_id;
     }
 
     /**
@@ -89,7 +124,6 @@ public class Computer {
      * @param name The new Computer's name.
      */
     public void setName(String name) {
-        logger.debug("Name set to {}. Old name was {}.", name, this.name);
         this.name = name;
     }
 
@@ -106,7 +140,6 @@ public class Computer {
      * @param introduced name The new Computer's introduced date.
      */
     public void setIntroduced(LocalDate introduced) {
-        logger.debug("Introduced date set to {}. Old date was {}.", introduced, this.introduced);
         this.introduced = introduced;
     }
 
@@ -123,25 +156,23 @@ public class Computer {
      * @param discontinued The new Computer's discontinued date.
      */
     public void setDiscontinued(LocalDate discontinued) {
-        logger.debug("Discontinued date set to {}. Old date was {}.", discontinued, this.discontinued);
         this.discontinued = discontinued;
     }
 
     /**
-     * Return the Company's referenced ID.
-     * @return Company's referenced ID.
+     * Return the company's computer.
+     * @return company.
      */
-    public int getCompanyId() {
-        return company_id;
+    public Company getCompany() {
+       return this.company;
     }
 
     /**
      * Update the Company referenced ID.
-     * @param companyId The new Company referenced ID.
+     * @param company The new Company referenced ID.
      */
-    public void setCompanyId(int companyId) {
-        logger.debug("Company_id set to {}. Old company_id was {}.", company_id, this.company_id);
-        this.company_id = companyId;
+    public void setCompany(Company company) {
+        this.company = company;
     }
 
     /**
@@ -151,65 +182,43 @@ public class Computer {
     @Override
     public String toString() {
         return "ID: " + this.id + "\nName: " + this.name + "\nIntroduced: " + this.introduced + "\nDiscontinued: "
-                + this.discontinued + "\nCompany_id: " + this.company_id;
+                + this.discontinued + "\nCompany: " + this.company;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Computer computer = (Computer) o;
+
+        if (id != null ? !id.equals(computer.id) : computer.id != null) {
+            return false;
+        }
+        if (!name.equals(computer.name)) {
+            return false;
+        }
+        if (introduced != null ? !introduced.equals(computer.introduced) : computer.introduced != null) {
+            return false;
+        }
+        if (discontinued != null ? !discontinued.equals(computer.discontinued) : computer.discontinued != null) {
+            return false;
+        }
+        return company != null ? company.equals(computer.company) : computer.company == null;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + company_id;
-        result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + (introduced != null ? introduced.hashCode() : 0);
+        result = 31 * result + (discontinued != null ? discontinued.hashCode() : 0);
+        result = 31 * result + (company != null ? company.hashCode() : 0);
         return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        Computer other = (Computer) obj;
-        if (company_id != other.company_id) {
-            return false;
-        }
-        if (discontinued == null) {
-            if (other.discontinued != null) {
-                return false;
-            }
-        } else if (!discontinued.equals(other.discontinued)) {
-            return false;
-        }
-        if (id == null) {
-            if (other.id != null) {
-                return false;
-            }
-        } else if (!id.equals(other.id)) {
-            return false;
-        }
-        if (introduced == null) {
-            if (other.introduced != null) {
-                return false;
-            }
-        } else if (!introduced.equals(other.introduced)) {
-            return false;
-        }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        return true;
     }
 
     public static class Builder {
@@ -222,7 +231,7 @@ public class Computer {
 
         private LocalDate discontinued;
 
-        private int company_id;
+        private Company company_id;
 
         /**
          * Builder for computer.
@@ -267,7 +276,7 @@ public class Computer {
          * @param companyId new company id
          * @return builder
          */
-        public Builder companyId(int companyId) {
+        public Builder company(Company companyId) {
             this.company_id = companyId;
             return this;
         }

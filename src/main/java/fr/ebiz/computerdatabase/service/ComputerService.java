@@ -96,7 +96,7 @@ public final class ComputerService implements IComputerService {
         List<ComputerDTO> listComputerDTO = null;
 
         try {
-            listComputerDTO = computerDAO.findByPage(filters, numPage, nbLine);
+            listComputerDTO = computerMapper.toDTO(computerDAO.findByPage(filters, numPage, nbLine));
         } catch (DAOException e) {
             LOG.error("[GET_COMPUTER_BY_PAGE] Error on getting data.");
             throw new RuntimeException(e.getMessage());
@@ -135,7 +135,7 @@ public final class ComputerService implements IComputerService {
         int count = 0;
         research = research.trim();
         try {
-            count = computerDAO.countAfterSearch(research);
+            count = computerDAO.count(research);
         } catch (DAOException e) {
             LOG.error(e.getMessage());
             throw new RuntimeException(e.getMessage());

@@ -15,7 +15,7 @@ public interface ICompanyDAO {
      * @return a model
      * @throws DAOException Error on getting data.
      */
-    Company find(int id) throws DAOException;
+    Company find(Long id) throws DAOException;
 
     /**
      * Get all the model from the db.

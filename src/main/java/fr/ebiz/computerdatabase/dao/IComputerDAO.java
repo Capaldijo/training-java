@@ -3,7 +3,6 @@ package fr.ebiz.computerdatabase.dao;
 import java.sql.SQLException;
 import java.util.List;
 
-import fr.ebiz.computerdatabase.dto.ComputerDTO;
 import fr.ebiz.computerdatabase.exception.DAOException;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.model.utils.PaginationFilters;
@@ -27,7 +26,7 @@ public interface IComputerDAO {
      * @return a list of 10 model.
      * @throws DAOException error on getting data.
      */
-    List<ComputerDTO> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException;
+    List<Computer> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException;
 
     /**
      * Count number of model in DB following the research given.
@@ -35,7 +34,7 @@ public interface IComputerDAO {
      * @return The number of model depending the research.
      * @throws DAOException error on getting data.
      */
-    int countAfterSearch(String search) throws DAOException;
+    int count(String search) throws DAOException;
 
     /**
      * Insert the model given in parameter into the database. Get each of its

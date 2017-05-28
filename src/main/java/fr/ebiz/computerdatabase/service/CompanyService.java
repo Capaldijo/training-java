@@ -68,7 +68,7 @@ public final class CompanyService implements ICompanyService {
         CompanyDTO companyDTO = null;
 
         try {
-            int idComp = Integer.parseInt(id);
+            Long idComp = Long.parseLong(id);
 
             Company company = companyDAO.find(idComp);
 

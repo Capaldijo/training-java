@@ -6,6 +6,11 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.ebiz.computerdatabase.dao.CompanyDAO;
+import fr.ebiz.computerdatabase.dao.ICompanyDAO;
+import fr.ebiz.computerdatabase.exception.DAOException;
+import fr.ebiz.computerdatabase.model.Company;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +18,7 @@ import fr.ebiz.computerdatabase.dto.ComputerDTO;
 import fr.ebiz.computerdatabase.exception.MapperException;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.util.Utils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -22,10 +28,13 @@ public class ComputerMapper implements IComputerMapper {
 
     private static DateTimeFormatter formatterWEB;
 
+    private final ICompanyDAO companyService;
     /**
      * Constructor ComputerMapper.
      */
-    public ComputerMapper() {
+    @Autowired
+    public ComputerMapper(CompanyDAO companyService) {
+        this.companyService = companyService;
         // formatter for the LocalDateTime computer's fields
         formatterWEB = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
     }
@@ -35,18 +44,21 @@ public class ComputerMapper implements IComputerMapper {
     public ComputerDTO toDTO(Computer computer) {
         ComputerDTO computerDTO = null;
 
+        String companyId = computer.getCompany() != null ? computer.getCompany().getName() : "";
+
         ComputerDTO.Builder builder = new ComputerDTO.Builder(computer.getName())
-                .id(String.valueOf(computer.getId())).companyId(String.valueOf(computer.getCompanyId()));
+                .id(String.valueOf(computer.getId()))
+                .companyId(companyId);
 
         if (computer.getIntroduced() != null) {
             builder.introduced(computer.getIntroduced().format(formatterWEB));
         } else {
-            builder.introduced("null");
+            builder.introduced("");
         }
         if (computer.getDiscontinued() != null) {
             builder.discontinued(computer.getDiscontinued().format(formatterWEB));
         } else {
-            builder.discontinued("null");
+            builder.discontinued("");
         }
 
         computerDTO = builder.build();
@@ -80,13 +92,21 @@ public class ComputerMapper implements IComputerMapper {
             if (computerDTO.getDiscontinued().trim() != "") {
                 discon = LocalDate.parse(computerDTO.getDiscontinued(), formatterWEB);
             }
-            int compIdRef = Integer.parseInt(computerDTO.getCompanyId());
+            Long compIdRef = Long.parseLong(computerDTO.getCompanyId());
+
+            Company company = null;
+            try {
+                company = companyService.find(compIdRef);
+            } catch (DAOException e) {
+                LOG.error(e.getMessage());
+                throw  new MapperException(e.getMessage());
+            }
 
             computer = new Computer.Builder(computerDTO.getName())
                     .id(id)
                     .introduced(intro)
                     .discontinued(discon)
-                    .companyId(compIdRef).build();
+                    .company(company).build();
 
         } catch (DateTimeParseException e) {
             LOG.error("[TOMODEL] Error on parsing date.");

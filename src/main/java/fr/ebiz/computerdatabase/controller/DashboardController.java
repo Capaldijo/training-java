@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class DashboardController {
 
-    private static final String[] HEADER_TABLE_NAME = {null, "c.name", "c.introduced", "c.discontinued", "comp.name"};
+    private static final String[] HEADER_TABLE_NAME = {null, "c.name", "c.introduced", "c.discontinued", "c.company.name"};
 
     private static final String NAME_COMPUTER = "c.name";
-    private static final String NAME_COMPANY = "comp.name";
+    private static final String NAME_COMPANY = "c.company.name";
 
     private static final String PAGE = "numPage";
     private static final String LINE = "nbLine";

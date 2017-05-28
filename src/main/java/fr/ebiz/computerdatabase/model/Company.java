@@ -1,7 +1,12 @@
 package fr.ebiz.computerdatabase.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.Id;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Column;
+
 
 /**
  * Company is the class representing a company in the database. A company got
@@ -9,15 +14,18 @@ import org.slf4j.LoggerFactory;
  * can be changed.
  * @author capaldijo
  */
+@Entity
+@Table(name = "company")
 public class Company {
-
-    final Logger logger = LoggerFactory.getLogger(Company.class);
 
     /**
      * The Company's ID, that can't be changed.
-     * @see Company#Company(int, String)
+     * @see Company#Company(Long, String)
      * @see Company#getId()
      */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
@@ -25,7 +33,15 @@ public class Company {
      * @see Company#getName()
      * @see Company#setName(String)
      */
+    @Column(name = "name")
     private String name;
+
+    /**
+     * .
+     */
+    public Company() {
+
+    }
 
     /**
      * Company Constructor. Each field is instantiated through the parameters.
@@ -61,7 +77,6 @@ public class Company {
      * @param name The new Company's name.
      */
     public void setName(String name) {
-        logger.debug("Name set to {}. Old name was {}.", name, this.name);
         this.name = name;
     }
 
