@@ -1,6 +1,5 @@
 package fr.ebiz.computerdatabase.service;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,21 +80,17 @@ public final class CompanyService implements ICompanyService {
     }
 
     @Override
-    @Transactional(rollbackFor = {DAOException.class, SQLException.class})
+    @Transactional(rollbackFor = DAOException.class)
     public int delete(String id) {
         int res = 0;
 
-        try {
-            if (companyDAO.delete(id) == 1) {
-                res = 1;
-            } else {
-                LOG.info("Delete company error.\n");
-                res = 0;
-            }
-        } catch (SQLException | DAOException e) {
-            LOG.error(e.getMessage());
-            throw new RuntimeException("[DELETECOMPANY] Error on accessing data.");
+        if (companyDAO.delete(id) == 1) {
+            res = 1;
+        } else {
+            LOG.info("Delete company error.\n");
+            res = 0;
         }
+
         return res;
     }
 

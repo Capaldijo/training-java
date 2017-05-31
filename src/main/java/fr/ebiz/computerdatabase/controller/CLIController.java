@@ -1,30 +1,28 @@
 package fr.ebiz.computerdatabase.controller;
 
-import java.sql.SQLException;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-
-import fr.ebiz.computerdatabase.service.ICompanyService;
-import fr.ebiz.computerdatabase.service.IComputerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.ebiz.computerdatabase.service.ICompanyService;
+import fr.ebiz.computerdatabase.service.IComputerService;
 import fr.ebiz.computerdatabase.view.Cli;
 import fr.ebiz.computerdatabase.dto.CompanyDTO;
 import fr.ebiz.computerdatabase.dto.ComputerDTO;
-import fr.ebiz.computerdatabase.exception.ConnectionException;
-import fr.ebiz.computerdatabase.exception.DAOException;
-import fr.ebiz.computerdatabase.exception.MapperException;
 import fr.ebiz.computerdatabase.model.utils.PaginationFilters;
 import fr.ebiz.computerdatabase.util.Utils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CLIController {
+
+    private static final int PAGEABLE_NB_LINE = 10;
 
     private static final Logger LOG = LoggerFactory.getLogger(CLIController.class);
 
@@ -42,7 +40,6 @@ public class CLIController {
      * Constructor CLIController.
      * @param computerService .
      * @param companyService .
-     * @throws ConnectionException error on co to db
      */
     @Autowired
     public CLIController(IComputerService computerService, ICompanyService companyService) {
@@ -54,9 +51,6 @@ public class CLIController {
 
     /**
      * Init method.
-     * @throws DAOException Error on getting data from db.
-     * @throws MapperException Error on mapping data.
-     * @throws SQLException Error on getting data.
      */
     public void init() {
 
@@ -111,9 +105,6 @@ public class CLIController {
 
     /**
      * Only print info about computers: List, Show details, Update or Delete.
-     * @throws DAOException Error on getting data from db.
-     * @throws MapperException Error on mapping data.
-     * @throws SQLException Error on getting data.
      */
     private void computerMenu() {
         boolean stop = false;
@@ -149,7 +140,6 @@ public class CLIController {
     /**
      * Create a computer, enter its name, introduce and discontinued date, and
      * its referenced company id return the computer constructed by those fields.
-     * @throws DAOException Error on getting data to DB.
      */
     private void createComputer() {
 
@@ -162,12 +152,14 @@ public class CLIController {
             view.print("\nDiscontinued date can not be before introduce one.");
             discon = this.stringToDate("\nEnter the discontinued date again:");
         }
-        int compIdRed = view.getIntChoice("\nEnter a company id reference (for a null company: 0): ");
+        int compIdRef = view.getIntChoice("\nEnter a company id reference (for a null company: 0): ");
+
+        CompanyDTO  companyDTO = new CompanyDTO(String.valueOf(compIdRef), null);
 
         ComputerDTO computer = new ComputerDTO.Builder(name)
                 .introduced(intro.format(formatter))
                 .discontinued(discon.format(formatter))
-                .companyId(String.valueOf(compIdRed)).build();
+                .company(companyDTO).build();
 
         if (computer != null) {
             if (computerService.add(computer) == 1) {
@@ -188,33 +180,32 @@ public class CLIController {
         while (!stop) {
             // get 10 computers in the list
             PaginationFilters filter = new PaginationFilters.Builder().build();
-            list = computerService.getByPage(numPage, Utils.PAGEABLE_NBLINE, filter);
+            list = computerService.getByPage(numPage, PAGEABLE_NB_LINE, filter);
             // if list is empty bc the user gone to far in pages, get to
             // previous half full list
             if (list.isEmpty() && numPage > 0) {
                 LOG.info("Next was selected but Computer's list is Empty, getting back to last page.");
-                numPage -= Utils.PAGEABLE_NBLINE;
-                list = computerService.getByPage(numPage, Utils.PAGEABLE_NBLINE, filter);
+                numPage -= PAGEABLE_NB_LINE;
+                list = computerService.getByPage(numPage, PAGEABLE_NB_LINE, filter);
             }
             switch (view.printPageableList(list)) {
-            case 1: // Previous Page
-                if (numPage > 0) {
-                    numPage -= Utils.PAGEABLE_NBLINE;
-                } else {
-                    LOG.info("Previous was selected but already at first page.");
-                }
-                break;
-            case 2: // Next Page
-                if (!list.isEmpty()) {
-                    numPage += Utils.PAGEABLE_NBLINE;
-                }
-                break;
-            case 3: // Quit
-                stop = true;
-                break;
-            default:
-                view.print("Error choice listing Computer.");
-
+                case 1: // Previous Page
+                    if (numPage > 0) {
+                        numPage -= PAGEABLE_NB_LINE;
+                    } else {
+                        LOG.info("Previous was selected but already at first page.");
+                    }
+                    break;
+                case 2: // Next Page
+                    if (!list.isEmpty()) {
+                        numPage += PAGEABLE_NB_LINE;
+                    }
+                    break;
+                case 3: // Quit
+                    stop = true;
+                    break;
+                default:
+                    view.print("Error choice listing Computer.");
             }
         }
     }
@@ -230,33 +221,33 @@ public class CLIController {
             boolean stop = false;
             while (!stop) {
                 // get 10 companies in the list
-                list = companyService.getByPage(String.valueOf(numPage), String.valueOf(Utils.PAGEABLE_NBLINE));
+                list = companyService.getByPage(String.valueOf(numPage), String.valueOf(PAGEABLE_NB_LINE));
 
                 // if list is empty bc the user gone to far in pages, get to
                 // previous half full list
                 if (list.isEmpty() && numPage > 0) {
                     LOG.info("Next was selected but Company's list is Empty, getting back to last page.");
-                    numPage -= Utils.PAGEABLE_NBLINE;
-                    list = companyService.getByPage(String.valueOf(numPage), String.valueOf(Utils.PAGEABLE_NBLINE));
+                    numPage -= PAGEABLE_NB_LINE;
+                    list = companyService.getByPage(String.valueOf(numPage), String.valueOf(PAGEABLE_NB_LINE));
                 }
                 switch (view.printPageableList(list)) {
-                case 1: // Previous Page
-                    if (numPage > 0) {
-                        numPage -= Utils.PAGEABLE_NBLINE;
-                    } else {
-                        LOG.info("Previous was selected but already at first page.");
-                    }
-                    break;
-                case 2: // Next Page
-                    if (!list.isEmpty()) {
-                        numPage += Utils.PAGEABLE_NBLINE;
-                    }
-                    break;
-                case 3: // Quit
-                    stop = true;
-                    break;
-                default:
-                    view.print("Error choice listing Computer.");
+                    case 1: // Previous Page
+                        if (numPage > 0) {
+                            numPage -= PAGEABLE_NB_LINE;
+                        } else {
+                            LOG.info("Previous was selected but already at first page.");
+                        }
+                        break;
+                    case 2: // Next Page
+                        if (!list.isEmpty()) {
+                            numPage += PAGEABLE_NB_LINE;
+                        }
+                        break;
+                    case 3: // Quit
+                        stop = true;
+                        break;
+                    default:
+                        view.print("Error choice listing Computer.");
                 }
             }
         } catch (RuntimeException e) {
@@ -268,8 +259,6 @@ public class CLIController {
     /**
      * Let the user choose the computer id he wants to get details of and print
      * it.
-     * @throws DAOException Error on getting data from DB.
-     * @throws MapperException Error on mapping data.
      */
     private void showDetails() {
 
@@ -281,7 +270,7 @@ public class CLIController {
         computer = computerService.get(id);
         if (computer != null) {
             /* ------ GET COMPANY BY ID ----- */
-            company = companyService.get(computer.getCompanyId());
+            company = companyService.get(computer.getCompany().getId());
             view.print(computer + ", which reference company [" + company + "]");
         }
     }
@@ -289,8 +278,6 @@ public class CLIController {
     /**
      * Update a computer, ask the user which computer he wants to update with
      * which fields.
-     * @throws DAOException Error on getting data from DB.
-     * @throws MapperException Error on mapping data.
      */
     private void updateComputer() {
 
@@ -355,7 +342,8 @@ public class CLIController {
             choice = view.getStringChoice("\nDo you want to change the company ref id ?");
             if (choice.toLowerCase().equals("yes")) {
                 int compIdRef = view.getIntChoice("\nEnter a new company ref id (for a null company: 0):");
-                computer.setCompanyId(String.valueOf(compIdRef));
+                CompanyDTO  companyDTO = new CompanyDTO(String.valueOf(compIdRef), null);
+                computer.setCompany(companyDTO);
             }
         } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 
@@ -378,7 +366,6 @@ public class CLIController {
         // ask the user to chose an id
         String id = String.valueOf(view.printDeleteCompanyAction());
         try {
-            computerService.deleteFromCompanyId(id);
             // if delete success print success
             if (companyService.delete(id) == 1) {
                 view.print("delete done.");
@@ -422,7 +409,7 @@ public class CLIController {
      * @param msg print to the user
      * @return the LocalDateTime object built by the user's given answers
      */
-    public LocalDate stringToDate(String msg) {
+    private LocalDate stringToDate(String msg) {
         view.print(msg);
         LocalDate time = null;
         while (time == null) {

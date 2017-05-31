@@ -13,7 +13,9 @@ import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
 public class ComputerValidator implements Validator {
+
     private static final Logger LOG = LoggerFactory.getLogger(ComputerValidator.class);
+
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
     /**
      * Check if the computer is a valid computer, that is to say if it has a
@@ -71,8 +73,8 @@ public class ComputerValidator implements Validator {
                 }
             }
 
-            if (computer.getCompanyId() != null) {
-                int compIdRef = Integer.parseInt(computer.getCompanyId());
+            if (computer.getCompany() != null) {
+                int compIdRef = Integer.parseInt(computer.getCompany().getId());
                 if (compIdRef < 0) {
                     isValid = false;
                     LOG.info("[VALIDATOR] getCompanyId false");
@@ -120,8 +122,8 @@ public class ComputerValidator implements Validator {
             }
         }
 
-        if (computerDTO.getCompanyId() != null) {
-            int compIdRef = Integer.parseInt(computerDTO.getCompanyId());
+        if (computerDTO.getCompany() != null) {
+            int compIdRef = Integer.parseInt(computerDTO.getCompany().getId());
             if (compIdRef < 0) {
                 LOG.error("[VALIDATOR] COMPANY_ID: can't have negative value");
                 errors.rejectValue("company_id", "negative.value", new Object[]{"company_id"},

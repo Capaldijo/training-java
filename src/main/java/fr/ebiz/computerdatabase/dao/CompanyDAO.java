@@ -1,42 +1,38 @@
 package fr.ebiz.computerdatabase.dao;
 
-import java.sql.SQLException;
 import java.util.List;
 
-import fr.ebiz.computerdatabase.mapper.CompanyMapper;
 import org.hibernate.SessionFactory;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import fr.ebiz.computerdatabase.mapper.CompanyMapper;
 import fr.ebiz.computerdatabase.dto.CompanyDTO;
-import fr.ebiz.computerdatabase.exception.ConnectionException;
 import fr.ebiz.computerdatabase.exception.DAOException;
 import fr.ebiz.computerdatabase.model.Company;
-import fr.ebiz.computerdatabase.util.Utils;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import javax.persistence.TypedQuery;
 
 @Repository
 public class CompanyDAO implements ICompanyDAO {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompanyDAO.class);
 
-    private static final String QUERY_FIND = "SELECT * FROM " + Utils.COMPANY_TABLE + " WHERE id = ?";
+    private static final String QUERY_FIND = "from Company where Company.id = ?";
 
-    private static final String QUERY_FIND_ALL = "SELECT * FROM " + Utils.COMPANY_TABLE;
+    private static final String QUERY_FIND_ALL = "from Company";
 
-    private static final String QUERY_FIND_BY_PAGE = "SELECT * FROM " + Utils.COMPANY_TABLE + " LIMIT ?, ?";
-
-    private static final String QUERY_DELETE = "DELETE FROM " + Utils.COMPANY_TABLE + " WHERE id = ?";
+    private static final String QUERY_DELETE = "delete from Company where Company.id = ?";
 
     private SessionFactory sessionFactory;
 
     /**
      * Constructor companyDAO.
-     * @param sessionFactory .
-     * @throws ConnectionException Error on co to db.
+     * @param sessionFactory handle the connections and creation of query.
      */
     @Autowired
     public CompanyDAO(SessionFactory sessionFactory) {
@@ -45,30 +41,52 @@ public class CompanyDAO implements ICompanyDAO {
 
     @Override
     public Company find(Long id) throws DAOException {
-        return sessionFactory.getCurrentSession().get(Company.class, id);
+        TypedQuery<Company> queryDB = sessionFactory.getCurrentSession().createQuery(QUERY_FIND, Company.class);
+        Company company = null;
+        try {
+            company = queryDB.setParameter(0, id).getResultList().get(0);
+        } catch (RuntimeException e) {
+            LOG.error(e.getMessage());
+            throw new DAOException(e.getMessage());
+        }
+        return company;
     }
 
     @Override
     public List<Company> findAll() throws DAOException {
-        return sessionFactory.getCurrentSession().createQuery("from Company").list();
+        TypedQuery<Company> queryDB = sessionFactory.getCurrentSession().createQuery(QUERY_FIND_ALL, Company.class);
+        List<Company> list = null;
+        try {
+            list = queryDB.getResultList();
+        } catch (RuntimeException e) {
+            LOG.error(e.getMessage());
+            throw new DAOException(e.getMessage());
+        }
+        return list;
     }
 
     @Override
     public List<CompanyDTO> findByPage(int numPage, int nbLine) throws DAOException {
-        List<Company> list = sessionFactory.getCurrentSession().createQuery("from Company").list();
+        TypedQuery<Company> queryDB = sessionFactory.getCurrentSession().createQuery(QUERY_FIND_ALL, Company.class);
+        List<Company> list = null;
+        try {
+            list = queryDB.setFirstResult(numPage).setMaxResults(nbLine).getResultList();
+        } catch (RuntimeException e) {
+            LOG.error(e.getMessage());
+            throw new DAOException(e.getMessage());
+        }
         return new CompanyMapper().toDTO(list);
     }
 
     @Override
-    public int delete(String id) throws SQLException, DAOException {
+    public int delete(String id) {
         int res = 1;
 
         try {
-            //jdbcTemplate.update(QUERY_DELETE, id);
-            res = sessionFactory.getCurrentSession().createQuery("delete from Company where id=:id")
-                    .setParameter("id", id)
+            res = sessionFactory.getCurrentSession().createQuery(QUERY_DELETE)
+                    .setParameter(0, id)
                     .executeUpdate();
-        } catch (DataAccessException e) {
+        } catch (RuntimeException e) {
             LOG.error("[DELETE] error on deleting company.");
             res = 0;
         }

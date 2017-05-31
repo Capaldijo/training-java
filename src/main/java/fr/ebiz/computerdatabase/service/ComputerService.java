@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
  * using the ComputerDAO class and ComputerMapper class
  */
 @Service
-@Transactional(rollbackFor = {DAOException.class, SQLException.class, MapperException.class})
+@Transactional(rollbackFor = {DAOException.class, MapperException.class})
 public final class ComputerService implements IComputerService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ComputerService.class);
@@ -57,7 +57,7 @@ public final class ComputerService implements IComputerService {
                 Computer computer = computerMapper.toModel(computerDTO);
                 if (computer != null) {
 
-                    if (computerDAO.insert(computer) == 1) {
+                    if (computerDAO.insert(computer) > 0) {
                         res = 1;
                     } else {
                         LOG.info("[ADD] Insert computer error.\n");
@@ -74,40 +74,31 @@ public final class ComputerService implements IComputerService {
 
     @Override
     public ComputerDTO get(String id) {
-        ComputerDTO computerDTO = null;
-        Computer computer = null;
-
         try {
             /* ------ GET COMPUTER BY ID ----- */
             Long idComp = Long.parseLong(id);
 
-            computer = computerDAO.find(idComp);
+            Computer computer = computerDAO.find(idComp);
 
-            computerDTO = computerMapper.toDTO(computer);
+            return computerMapper.toDTO(computer);
         } catch (NumberFormatException | DAOException e) {
             LOG.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
-        return computerDTO;
     }
 
     @Override
     public List<ComputerDTO> getByPage(int numPage, int nbLine, PaginationFilters filters) {
-        List<ComputerDTO> listComputerDTO = null;
-
         try {
-            listComputerDTO = computerMapper.toDTO(computerDAO.findByPage(filters, numPage, nbLine));
+            return computerMapper.toDTO(computerDAO.findByPage(filters, numPage, nbLine));
         } catch (DAOException e) {
             LOG.error("[GET_COMPUTER_BY_PAGE] Error on getting data.");
             throw new RuntimeException(e.getMessage());
         }
-        return listComputerDTO;
     }
 
     @Override
     public int update(ComputerDTO computerDTO) {
-        int res = 0;
-
         if (!ComputerValidator.isValid(computerDTO)) {
             throw new RuntimeException("[VALIDATION] The computer you tried to update is not valid.");
         } else {
@@ -115,11 +106,11 @@ public final class ComputerService implements IComputerService {
                 Computer computer = computerMapper.toModel(computerDTO);
 
                 computerDAO.update(computer);
-                if (computerDAO.update(computer) == 1) {
-                    res = 1;
+                if (computerDAO.update(computer) > 0) {
+                    return  1;
                 } else {
                     LOG.info("[UPDATE_COMPUTER] Update computer error.\n");
-                    res = -1;
+                    return  -1;
                 }
 
             } catch (DAOException | MapperException e) {
@@ -127,77 +118,41 @@ public final class ComputerService implements IComputerService {
                 throw new RuntimeException(e.getMessage());
             }
         }
-        return res;
     }
 
     @Override
     public int count(String research) {
-        int count = 0;
         research = research.trim();
         try {
-            count = computerDAO.count(research);
+            return computerDAO.count(research);
         } catch (DAOException e) {
             LOG.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
-        return count;
     }
 
     @Override
     public int deleteComputers(String id) {
-        int res = 0;
         if (id != null) { // if POST
             String[] ids = id.split(",");
-            try {
-                if (computerDAO.delete(ids) == 1) {
-                    res = 1;
-                } else {
-                    LOG.info("[DELETE_COMPUTER] Delete computer error.\n");
-                    res = 0;
-                }
-            } catch (DAOException e) {
-                LOG.error(e.getMessage());
-                throw new RuntimeException(e.getMessage());
+            if (computerDAO.delete(ids) == 1) {
+                return  1;
+            } else {
+                LOG.info("[DELETE_COMPUTER] Delete computer error.\n");
+                return  0;
             }
         } else {
-            res = -1;
+            return  -1;
         }
-        return res;
     }
 
     @Override
     public int deleteComputer(String id) {
-        int res = 0;
-
-        try {
-            if (computerDAO.delete(id) == 1) {
-                res = 1;
-            } else {
-                LOG.info("Delete computer error.\n");
-                res = 0;
-            }
-        } catch (SQLException | DAOException e) {
-            throw new RuntimeException(e.getMessage());
+        if (computerDAO.delete(id) == 1) {
+            return  1;
+        } else {
+            LOG.info("Delete computer error.\n");
+            return  0;
         }
-        return res;
-    }
-
-    @Override
-    public int deleteFromCompanyId(String id) {
-        int res = 0;
-
-        try {
-            if (computerDAO.deleteFromCompanyId(id) == 1) {
-                LOG.info("Delete computer done.\n");
-                res = 1;
-            } else {
-                LOG.info("Delete computer error.\n");
-                res = 0;
-            }
-        } catch (SQLException | DAOException e) {
-            LOG.error("[DELETE_COMPANY_FROM_ID] Error on accessing data.");
-            throw new RuntimeException(e.getMessage());
-        }
-        return res;
     }
 }

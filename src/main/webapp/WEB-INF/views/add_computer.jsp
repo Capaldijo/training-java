@@ -60,13 +60,13 @@
                         </div>
                         <div class="form-group">
                             <label for="companyId"><spring:message code="computer.company" /></label>
-                            <springForm:select path="companyId" class="form-control" id="companyId" name="companyId">
+                            <springForm:select path="company.id" class="form-control" id="companyId" name="companyId">
                                 <springForm:option value="0">---</springForm:option>
                                 <c:forEach var="company" items="${companies}">
                                     <springForm:option value="${company.id}">${company.name}</springForm:option>
                                 </c:forEach>
                             </springForm:select>
-                            <span><springForm:errors path="companyId" cssClass="error" /></span>
+                            <span><springForm:errors path="company.id" cssClass="error" /></span>
                         </div>
                     </fieldset>
                     <div class="actions pull-right">

@@ -61,11 +61,4 @@ public interface IComputerService {
      * @return a inComputer depending if deleted or not.
      */
     int deleteComputer(String id);
-
-    /**
-     * Delete a computer which is built by company id parameter.
-     * @param id of company id ref
-     * @return 1 if deleted 0 either way
-     */
-    int deleteFromCompanyId(String id);
 }

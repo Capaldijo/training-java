@@ -71,13 +71,4 @@ public interface IComputerDAO {
      * @return res.
      */
     int delete(String...modelsId) throws DAOException;
-
-    /**
-     * Delete all computers where compId is id.
-     * @param id .
-     * @return 1 if deleted or 0.
-     * @throws SQLException .
-     * @throws DAOException .
-     */
-    int deleteFromCompanyId(String id) throws SQLException, DAOException;
 }

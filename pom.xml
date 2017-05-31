@@ -4,7 +4,15 @@
 	<groupId>fr.ebiz</groupId>
 	<artifactId>computerdatabase</artifactId>
 	<version>0.6.0-SNAPSHOT</version>
-	<packaging>war</packaging>
+    <modules>
+        <module>core</module>
+		<module>Binding</module>
+		<module>persistence</module>
+		<module>service</module>
+		<module>webapp</module>
+		<module>console</module>
+	</modules>
+    <packaging>pom</packaging>
 	<name>computerdatabase</name>
 
 	<repositories>
@@ -27,6 +35,7 @@
 		<javaxservlet.version>3.1.0</javaxservlet.version>
 		<hikari.version>2.6.1</hikari.version>
         <spring.version>4.3.8.RELEASE</spring.version>
+		<spring.security.version>4.2.2.RELEASE</spring.security.version>
 		<hibernate.version>5.2.10.Final</hibernate.version>
 		<tomcat.version>2.2</tomcat.version>
 		<java.version>1.8</java.version>
@@ -166,12 +175,6 @@
 			<version>${spring.version}</version>
 		</dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>
@@ -183,6 +186,18 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-core</artifactId>
 			<version>${hibernate.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>4.2.2.RELEASE</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>4.2.2.RELEASE</version>
 		</dependency>
 
 		<dependency>

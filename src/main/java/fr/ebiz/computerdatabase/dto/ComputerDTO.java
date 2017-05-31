@@ -10,15 +10,17 @@ public class ComputerDTO {
 
     private String discontinued;
 
-    private String company_id;
+    private CompanyDTO company;
 
     /**
      * Default constructor.
      */
-    public ComputerDTO() { }
+    public ComputerDTO() {
+    }
 
     /**
      * Constructor dto.
+     *
      * @param builder to build computerDTO
      */
     private ComputerDTO(Builder builder) {
@@ -26,7 +28,7 @@ public class ComputerDTO {
         this.name = builder.name;
         this.introduced = builder.introduced;
         this.discontinued = builder.discontinued;
-        this.company_id = builder.company_id;
+        this.company = builder.company;
     }
 
     public String getId() {
@@ -61,12 +63,12 @@ public class ComputerDTO {
         this.discontinued = discontinued;
     }
 
-    public String getCompanyId() {
-        return company_id;
+    public CompanyDTO getCompany() {
+        return company;
     }
 
-    public void setCompanyId(String companyId) {
-        this.company_id = companyId;
+    public void setCompany(CompanyDTO company) {
+        this.company = company;
     }
 
     public static class Builder {
@@ -74,10 +76,11 @@ public class ComputerDTO {
         private String id;
         private String introduced;
         private String discontinued;
-        private String company_id;
+        private CompanyDTO company;
 
         /**
          * Constructor for builder.
+         *
          * @param name required name
          */
         public Builder(String name) {
@@ -86,6 +89,7 @@ public class ComputerDTO {
 
         /**
          * Set new id.
+         *
          * @param id new id
          * @return Builder
          */
@@ -96,6 +100,7 @@ public class ComputerDTO {
 
         /**
          * Set new introduced date.
+         *
          * @param introduced new date
          * @return Builder
          */
@@ -106,6 +111,7 @@ public class ComputerDTO {
 
         /**
          * Set new discontinued date.
+         *
          * @param discontinued new date
          * @return Builder
          */
@@ -116,16 +122,18 @@ public class ComputerDTO {
 
         /**
          * Set a new company id ref.
-         * @param companyId new company id
+         *
+         * @param company new company id
          * @return Builder
          */
-        public Builder companyId(String companyId) {
-            this.company_id = companyId;
+        public Builder company(CompanyDTO company) {
+            this.company = company;
             return this;
         }
 
         /**
          * Build a computerDTO.
+         *
          * @return computerDTO
          */
         public ComputerDTO build() {
@@ -133,72 +141,47 @@ public class ComputerDTO {
         }
     }
 
+
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((company_id == null) ? 0 : company_id.hashCode());
-        result = prime * result + ((discontinued == null) ? 0 : discontinued.hashCode());
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result + ((introduced == null) ? 0 : introduced.hashCode());
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ComputerDTO that = (ComputerDTO) o;
+
+        if (!id.equals(that.id)) {
+            return false;
+        }
+        if (!name.equals(that.name)) {
+            return false;
+        }
+        if (introduced != null ? !introduced.equals(that.introduced) : that.introduced != null) {
+            return false;
+        }
+        if (discontinued != null ? !discontinued.equals(that.discontinued) : that.discontinued != null) {
+            return false;
+        }
+        return company != null ? company.equals(that.company) : that.company == null;
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        ComputerDTO other = (ComputerDTO) obj;
-        if (company_id == null) {
-            if (other.company_id != null) {
-                return false;
-            }
-        } else if (!company_id.equals(other.company_id)) {
-            return false;
-        }
-        if (discontinued == null) {
-            if (other.discontinued != null) {
-                return false;
-            }
-        } else if (!discontinued.equals(other.discontinued)) {
-            return false;
-        }
-        if (id == null) {
-            if (other.id != null) {
-                return false;
-            }
-        } else if (!id.equals(other.id)) {
-            return false;
-        }
-        if (introduced == null) {
-            if (other.introduced != null) {
-                return false;
-            }
-        } else if (!introduced.equals(other.introduced)) {
-            return false;
-        }
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        return true;
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + name.hashCode();
+        result = 31 * result + (introduced != null ? introduced.hashCode() : 0);
+        result = 31 * result + (discontinued != null ? discontinued.hashCode() : 0);
+        result = 31 * result + (company != null ? company.hashCode() : 0);
+        return result;
     }
 
     @Override
     public String toString() {
         return "ComputerDTO [id=" + id + ", name=" + name + ", introduced=" + introduced + ", discontinued="
-                + discontinued + ", company_id=" + company_id + "]";
+                + discontinued + ", company=" + company + "]";
     }
 
 }

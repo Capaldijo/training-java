@@ -5,7 +5,9 @@ import javax.persistence.Table;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Column;
+import javax.persistence.OneToMany;
+import javax.persistence.CascadeType;
+import java.util.Set;
 
 
 /**
@@ -25,7 +27,6 @@ public class Company {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
@@ -33,8 +34,10 @@ public class Company {
      * @see Company#getName()
      * @see Company#setName(String)
      */
-    @Column(name = "name")
     private String name;
+
+    @OneToMany(cascade = CascadeType.REMOVE, mappedBy = "company")
+    private Set<Computer> computers;
 
     /**
      * .

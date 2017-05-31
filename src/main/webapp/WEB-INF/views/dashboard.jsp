@@ -24,7 +24,16 @@
     <div class="i18n">
         <a class="flag-icon flag-icon-fr" href="?lang=fr"></a>
         <a class="flag-icon flag-icon-gb" href="?lang=en"></a>
+        <a class="flag-icon flag-icon-it" href="?lang=it"></a>
     </div>
+    <div>
+        <c:url var="logoutUrl" value="/logout"/>
+        <form class="form-inline" action="${logoutUrl}" method="post">
+            <input type="submit" value="Log out" />
+            <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
+        </form>
+    </div>
+
 </header>
 
 <section id="main">
@@ -97,7 +106,7 @@
                     </td>
                     <td>${computer.introduced}</td>
                     <td>${computer.discontinued}</td>
-                    <td>${computer.companyId}</td>
+                    <td>${computer.company.name}</td>
                 </tr>
             </c:forEach>
             </tbody>

@@ -1,8 +1,5 @@
 package fr.ebiz.computerdatabase.dao;
 
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -11,14 +8,10 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.ebiz.computerdatabase.exception.ConnectionException;
 import fr.ebiz.computerdatabase.exception.DAOException;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.model.utils.PaginationFilters;
-import fr.ebiz.computerdatabase.util.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.TypedQuery;
@@ -28,12 +21,7 @@ public class ComputerDAO implements IComputerDAO {
 
     private static final Logger LOG = LoggerFactory.getLogger(ComputerDAO.class);
 
-    private DateTimeFormatter formatter, formatterDB;
-
-    private static final String QUERY_FIND = "SELECT * FROM " + Utils.COMPUTER_TABLE + " WHERE id = ?";
-
-    private static final String QUERY_SELECT = "SELECT c.id, c.name, c.introduced, c.discontinued, comp.name as company_id "
-            + "FROM " + Utils.COMPUTER_TABLE;
+    private static final String QUERY_FIND = "from Computer WHERE id = ?";
 
     private static final String QUERY_FIND_BY_PAGE = "select new Computer(c.id, c.name, c.introduced, c.discontinued, c.company)"
             + " from Computer as c left join c.company";
@@ -41,52 +29,35 @@ public class ComputerDAO implements IComputerDAO {
     private static final String QUERY_COUNT = "select count(*) from Computer as c left join c.company" +
             " where c.name like ? or c.company.name like ?";
 
-    private static final String QUERY_INSERT = "INSERT INTO " + Utils.COMPUTER_TABLE
-            + " (name,introduced,discontinued,company_id) VALUES (?, ?, ?, ?)";
+    private static final String QUERY_UPDATE = "UPDATE Computer SET name = ?,  introduced = ?," +
+            " discontinued = ?, company = ? WHERE id = ?";
 
-    private static final String QUERY_UPDATE = "UPDATE " + Utils.COMPUTER_TABLE
-            + " SET name = ?, introduced = ?, discontinued = ?, company_id = ? WHERE id = ?";
-
-    private static final String QUERY_DELETE = "DELETE FROM " + Utils.COMPUTER_TABLE + " WHERE id = ?";
-
-    private static final String QUERY_DELETE_COMP_IDREF = "DELETE FROM " + Utils.COMPUTER_TABLE + " WHERE company_id = ?";
-
-    private JdbcTemplate jdbcTemplate;
+    private static final String QUERY_DELETE = "DELETE FROM Computer WHERE id = ?";
 
     private SessionFactory sessionFactory;
 
     /**
      * Constructor ComputerDAO.
-     * @param jdbcTemplate query handler.
-     * @param sessionFactory .
-     * @throws ConnectionException error on co db
+     * @param sessionFactory handler for connections and creation of query.
      */
     @Autowired
-    public ComputerDAO(JdbcTemplate jdbcTemplate, SessionFactory sessionFactory) {
-        this.jdbcTemplate = jdbcTemplate;
+    public ComputerDAO(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
-        // formatter for the LocalDateTime computer's fields
-        formatterDB = DateTimeFormatter.ofPattern(Utils.FORMATTER_DB);
-        formatter = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
     }
 
     @Override
     public Computer find(Long idComp) throws DAOException {
-        Computer computer = null;
-        /*try {
-            computer = jdbcTemplate.queryForObject(QUERY_FIND, new Object[] {idComp}, new ComputerRowMapper());
-        } catch (DataAccessException e) {
-            LOG.info("[FIND] Error queryForObject.");
-            throw new DAOException("[FIND] Error queryForObject.");
-        }*/
-        return sessionFactory.getCurrentSession().get(Computer.class, idComp);
+        TypedQuery<Computer> query = sessionFactory.getCurrentSession().createQuery(QUERY_FIND, Computer.class);
+        try {
+            return query.setParameter(0, idComp).getResultList().get(0);
+        } catch (RuntimeException e) {
+            LOG.error(e.getMessage());
+            throw new DAOException(e.getMessage());
+        }
     }
 
     @Override
     public List<Computer> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException {
-
-        List<Computer> list = null;
-
         StringBuilder query = new StringBuilder();
         query.append(QUERY_FIND_BY_PAGE);
         try {
@@ -96,7 +67,10 @@ public class ComputerDAO implements IComputerDAO {
                 query.append(" where ");
                 while (it.hasNext()) {
                     String col = it.next();
-                    query.append(col + " " + filters.getFilterValue(col).getOperator() + " ? ");
+                    query.append(col)
+                            .append(" ")
+                            .append(filters.getFilterValue(col).getOperator())
+                            .append(" ? ");
                     if (it.hasNext()) {
                         query.append(" or ");
                     }
@@ -104,7 +78,10 @@ public class ComputerDAO implements IComputerDAO {
             }
 
             if (filters.getOrderBy() != null) {
-                query.append("ORDER BY " + filters.getOrderBy() + " " + (filters.isAsc() ? " ASC " : " DESC "));
+                query.append("order by ")
+                        .append(filters.getOrderBy())
+                        .append(" ")
+                        .append(filters.isAsc() ? " asc " : " desc ");
             }
 
             // By default, createQuery return raw type, so we have to cast to Computer type.
@@ -117,110 +94,69 @@ public class ComputerDAO implements IComputerDAO {
                 queryDB.setParameter(paramCount++, op.getValue());
             }
 
+            // query Limit, explicit methods.
             queryDB.setFirstResult(numPage).setMaxResults(nbLine);
 
-            list = queryDB.getResultList();
-        } catch (DataAccessException e) {
-            LOG.info("[FIND_BY_SEARCH] Error on accessing data");
-            throw new DAOException("[FIND_BY_SEARCH] Error on accessing data.");
+            return queryDB.getResultList();
+        } catch (Exception e) {
+            LOG.info(e.getMessage());
+            throw new DAOException(e.getMessage());
         }
-        return list;
     }
 
     @Override
     public int count(String search) throws DAOException {
-        int count = 0;
-
         try {
             String s = '%' + search + '%';
-            count = (int) (long) sessionFactory.getCurrentSession().createQuery(QUERY_COUNT)
+            return (int) (long) sessionFactory.getCurrentSession().createQuery(QUERY_COUNT)
                     .setParameter(0, s)
                     .setParameter(1, s)
                     .list().get(0);
-
-        } catch (DataAccessException e) {
-            LOG.info("[COUNT] Error queryForObject.");
-            throw new DAOException("[COUNT] Error queryForObject.");
+        } catch (RuntimeException e) {
+            LOG.info("[COUNT] " + e.getMessage());
+            throw new DAOException("[COUNT]" + e.getMessage());
         }
-        return count;
     }
 
     @Override
     public int insert(Computer comp) throws DAOException {
-        int res = 1;
-        sessionFactory.getCurrentSession().save(comp);
-        return res;
+        return (int) (long) sessionFactory.getCurrentSession().save(comp);
     }
 
     @Override
     public int update(Computer comp) throws DAOException {
-        LocalDate dateIntro = comp.getIntroduced();
-        LocalDate dateDiscon = comp.getDiscontinued();
-
-        String strDateIntro = null, strDateDiscon = null;
-
-        if (dateIntro != null) {
-            strDateIntro = dateIntro.format(formatter);
+        try {
+            return (int) (long) sessionFactory.getCurrentSession().createQuery(QUERY_UPDATE)
+                    .setParameter(0, comp.getName()).setParameter(1, comp.getIntroduced())
+                    .setParameter(2, comp.getDiscontinued()).setParameter(3, comp.getCompany())
+                    .setParameter(4, comp.getId()).executeUpdate();
+        } catch (Exception e) {
+            LOG.error("[UPDATE] " + e.getMessage());
+            throw new DAOException("[UPDATE] " + e.getMessage());
         }
-        if (dateDiscon != null) {
-            strDateDiscon = dateDiscon.format(formatter);
-        }
-
-        int res = 0;
-        /*try {
-            Object[] objects = null;
-            if (comp.getCompanyId() != 0) {
-                objects = new Object[] {comp.getName(), strDateIntro, strDateDiscon, comp.getCompanyId()};
-            } else {
-                objects = new Object[] {comp.getName(), strDateIntro, strDateDiscon, null};
-            }
-            res = jdbcTemplate.update(QUERY_UPDATE, objects);
-        } catch (DataAccessException e) {
-            LOG.error("[UPDATE] Error on jdbcTemplate.update.");
-            throw new DAOException("[UPDATE] Error on jdbcTemplate.update.");
-        }*/
-        return res;
     }
 
     @Override
-    public int delete(String id) throws SQLException, DAOException {
+    public int delete(String id) {
         int res = 0;
         try {
-            res = jdbcTemplate.update(QUERY_DELETE, id);
-        } catch (DataAccessException e) {
-            LOG.error("[DELETE] Error on jdbcTemplate.update.");
-            throw new DAOException("[DELETE] Error on jdbcTemplate.update.");
+            res = (int) (long) sessionFactory.getCurrentSession().createQuery(QUERY_DELETE)
+                    .setParameter(0, Long.parseLong(id))
+                    .executeUpdate();
+        } catch (Exception e) {
+            LOG.error("[DELETE] Error on HQL delete.");
         }
         return res;
     }
 
     @Override
-    public int delete(String... computersId) throws DAOException {
+    public int delete(String... computersId) {
         int res = 1;
         for (String id : computersId) {
-            try {
-                if (delete(id) == 1) {
-                    LOG.info("[DELETE] computerId: " + id + " deleted");
-                } else {
-                    res = -1;
-                }
-            } catch (SQLException e) {
-                e.printStackTrace();
-                LOG.error("[DELETE] error on deleting computers");
-                throw new DAOException("[DELETE] error on deleting computers");
+            if (delete(id) < 1) {
+                res = -1;
+                LOG.error("[DELETE] computerId: " + id + " not deleted");
             }
-        }
-        return res;
-    }
-
-    @Override
-    public int deleteFromCompanyId(String id) throws SQLException, DAOException {
-        int res = 0;
-        try {
-            res = jdbcTemplate.update(QUERY_DELETE_COMP_IDREF, id);
-        } catch (DataAccessException e) {
-            LOG.error("[DELETE] Error on jdbcTemplate.update.");
-            throw new DAOException("[DELETE] Error on jdbcTemplate.update.");
         }
         return res;
     }

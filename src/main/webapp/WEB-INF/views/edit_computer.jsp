@@ -63,11 +63,11 @@
                         </div>
                         <div class="form-group">
                             <label for="companyId"><spring:message code="computer.company" /></label>
-                            <springForm:select path="companyId" class="form-control" id="companyId" name="companyId">
+                            <springForm:select path="company.id" class="form-control" id="companyId" name="companyId">
                                 <springForm:option value="0">---</springForm:option>
                                 <c:forEach var="company" items="${companies}">
                                     <c:choose>
-                                        <c:when test="${company.id == computer.companyId}">
+                                        <c:when test="${company.id == computer.company.id}">
                                             <springForm:option value="${company.id}" selected="true">${company.name}</springForm:option>
                                         </c:when>
                                         <c:otherwise>

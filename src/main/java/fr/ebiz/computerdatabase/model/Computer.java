@@ -8,9 +8,7 @@ import javax.persistence.Table;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.Column;
 import javax.persistence.ManyToOne;
-import javax.persistence.CascadeType;
 
 /**
  * Computer is the class representing a computer in the database. A computer got
@@ -33,7 +31,6 @@ public class Computer {
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
     private Long id;
 
     /**
@@ -41,7 +38,6 @@ public class Computer {
      * @see Computer#getName()
      * @see Computer#setName(String)
      */
-    @Column(name = "name")
     private String name;
 
     /**
@@ -49,7 +45,6 @@ public class Computer {
      * @see Computer#getIntroduced()
      * @see Computer#setIntroduced(LocalDate)
      */
-    @Column(name = "introduced")
     private LocalDate introduced;
 
     /**
@@ -57,30 +52,29 @@ public class Computer {
      * @see Computer#getDiscontinued()
      * @see Computer#setDiscontinued(LocalDate)
      */
-    @Column(name = "discontinued")
     private LocalDate discontinued;
 
     /**
      * The Computer's referenced company's id, that can be change.
      * @see Computer#setCompany(Company)
      */
-    @ManyToOne(targetEntity = Company.class, cascade = CascadeType.ALL)
+    @ManyToOne(targetEntity = Company.class)
     private Company company;
 
     /**
-     * .
+     * Default empty constructor for Hibernate.
      */
     public Computer() {
 
     }
 
     /**
-     * Contructor for HQL.
-     * @param id .
-     * @param name .
-     * @param introduced .
-     * @param discontinued .
-     * @param company .
+     * Contructor for HQL Query.
+     * @param id computer's id.
+     * @param name computer's name.
+     * @param introduced computer's introduced date.
+     * @param discontinued computer's discontinued date.
+     * @param company computer's company.
      */
     public Computer(Long id, String name, LocalDate introduced, LocalDate discontinued, Company company) {
         this.id = id;

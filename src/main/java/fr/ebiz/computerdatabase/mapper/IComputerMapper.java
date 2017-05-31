@@ -4,7 +4,6 @@ import java.util.List;
 
 import fr.ebiz.computerdatabase.dto.ComputerDTO;
 import fr.ebiz.computerdatabase.exception.MapperException;
-import fr.ebiz.computerdatabase.model.Company;
 import fr.ebiz.computerdatabase.model.Computer;
 
 public interface IComputerMapper {

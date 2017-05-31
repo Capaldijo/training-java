@@ -6,9 +6,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.ebiz.computerdatabase.dao.CompanyDAO;
-import fr.ebiz.computerdatabase.dao.ICompanyDAO;
-import fr.ebiz.computerdatabase.exception.DAOException;
+import fr.ebiz.computerdatabase.dto.CompanyDTO;
 import fr.ebiz.computerdatabase.model.Company;
 
 import org.slf4j.Logger;
@@ -28,13 +26,11 @@ public class ComputerMapper implements IComputerMapper {
 
     private static DateTimeFormatter formatterWEB;
 
-    private final ICompanyDAO companyService;
     /**
      * Constructor ComputerMapper.
      */
     @Autowired
-    public ComputerMapper(CompanyDAO companyService) {
-        this.companyService = companyService;
+    public ComputerMapper() {
         // formatter for the LocalDateTime computer's fields
         formatterWEB = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
     }
@@ -44,11 +40,11 @@ public class ComputerMapper implements IComputerMapper {
     public ComputerDTO toDTO(Computer computer) {
         ComputerDTO computerDTO = null;
 
-        String companyId = computer.getCompany() != null ? computer.getCompany().getName() : "";
+        CompanyDTO companyDTO = computer.getCompany() != null ? new CompanyMapper().toDTO(computer.getCompany()) : null;
 
         ComputerDTO.Builder builder = new ComputerDTO.Builder(computer.getName())
                 .id(String.valueOf(computer.getId()))
-                .companyId(companyId);
+                .company(companyDTO);
 
         if (computer.getIntroduced() != null) {
             builder.introduced(computer.getIntroduced().format(formatterWEB));
@@ -92,14 +88,12 @@ public class ComputerMapper implements IComputerMapper {
             if (computerDTO.getDiscontinued().trim() != "") {
                 discon = LocalDate.parse(computerDTO.getDiscontinued(), formatterWEB);
             }
-            Long compIdRef = Long.parseLong(computerDTO.getCompanyId());
+            Long compIdRef = Long.parseLong(computerDTO.getCompany().getId());
 
             Company company = null;
-            try {
-                company = companyService.find(compIdRef);
-            } catch (DAOException e) {
-                LOG.error(e.getMessage());
-                throw  new MapperException(e.getMessage());
+
+            if (compIdRef != 0L) {
+                company = new Company(compIdRef, null);
             }
 
             computer = new Computer.Builder(computerDTO.getName())
