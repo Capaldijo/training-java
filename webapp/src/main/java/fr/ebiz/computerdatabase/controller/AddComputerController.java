@@ -48,7 +48,7 @@ public class AddComputerController {
     @RequestMapping(value = {"/add_computer"}, method = RequestMethod.GET)
     public String addComputer(ModelMap model) {
         model.addAttribute("companies", companyService.getAll());
-        model.addAttribute("computer", new Computer());
+        model.addAttribute("computer", new ComputerDTO());
         return "add_computer";
     }
 

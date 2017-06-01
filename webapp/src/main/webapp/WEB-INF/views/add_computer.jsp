@@ -27,6 +27,7 @@
     <div class="i18n">
         <a class="flag-icon flag-icon-fr" href="?lang=fr"></a>
         <a class="flag-icon flag-icon-gb" href="?lang=en"></a>
+        <a class="flag-icon flag-icon-it" href="?lang=it"></a>
     </div>
 </header>
 

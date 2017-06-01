@@ -28,6 +28,7 @@
     <div class="i18n">
         <a class="flag-icon flag-icon-fr" href="?id=${computer.id}&lang=fr"></a>
         <a class="flag-icon flag-icon-gb" href="?id=${computer.id}&lang=en"></a>
+        <a class="flag-icon flag-icon-it" href="?id=${computer.id}&lang=it"></a>
     </div>
 </header>
 <section id="main">
@@ -39,7 +40,7 @@
                 </div>
                 <h1><spring:message code="computer.edit.title" /></h1>
 
-                <springForm:form commandName="computer" action="edit_computer" method="POST" id="editForm">
+                <springForm:form modelAttribute="computer" action="edit_computer" method="POST" id="editForm">
                     <springForm:input path="id" type="hidden" value="${computer.id}" id="id" name="id"/>
                     <fieldset>
                         <div class="form-group">
