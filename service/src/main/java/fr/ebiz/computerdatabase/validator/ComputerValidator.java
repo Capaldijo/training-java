@@ -4,9 +4,6 @@ import fr.ebiz.computerdatabase.dto.ComputerDTO;
 import fr.ebiz.computerdatabase.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.validation.Errors;
-import org.springframework.validation.ValidationUtils;
-import org.springframework.validation.Validator;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

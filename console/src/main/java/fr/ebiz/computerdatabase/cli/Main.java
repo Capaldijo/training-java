@@ -12,7 +12,7 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            ApplicationContext context = new ClassPathXmlApplicationContext("../../../");
+            ApplicationContext context = new ClassPathXmlApplicationContext("/WEB-INF/applicationContext.xml");
             CLIController controller = (CLIController) context.getBean("cLIController");
             controller.init();
         } catch (RuntimeException e) {
