@@ -9,9 +9,9 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class ComputerValidator {
+public class ComputerValidatorService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ComputerValidator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerValidatorService.class);
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
     /**

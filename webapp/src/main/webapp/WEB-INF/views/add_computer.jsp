@@ -21,14 +21,7 @@
 </head>
 <body>
 <header class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <a class="navbar-brand" href="dashboard"> Application - Computer Database </a>
-    </div>
-    <div class="i18n">
-        <a class="flag-icon flag-icon-fr" href="?lang=fr"></a>
-        <a class="flag-icon flag-icon-gb" href="?lang=en"></a>
-        <a class="flag-icon flag-icon-it" href="?lang=it"></a>
-    </div>
+    <%@include file="header.jsp"%>
 </header>
 
 <section id="main">

@@ -18,22 +18,7 @@
 </head>
 <body>
 <header class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container">
-        <a class="navbar-brand" href="dashboard"> Application - Computer Database </a>
-        <div class="col-md-offset-11">
-            <c:url var="logoutUrl" value="/logout"/>
-            <form class="form-inline" action="${logoutUrl}" method="post">
-                <input type="submit" value="Log out" />
-                <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
-            </form>
-        </div>
-    </div>
-    <div class="container col-md-4">
-        <a class="flag-icon flag-icon-fr" href="?lang=fr"></a>
-        <a class="flag-icon flag-icon-gb" href="?lang=en"></a>
-        <a class="flag-icon flag-icon-it" href="?lang=it"></a>
-    </div>
-
+    <%@include file="header.jsp"%>
 </header>
 
 <section id="main">
@@ -73,6 +58,7 @@
         <input type="hidden" value="${search}" name="search"/>
         <input type="hidden" value="${nbLine}" name="nbLine"/>
         <input type="hidden" value="${numPage}" name="numPage"/>
+        <input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
     </form>
 
     <div class="container" style="margin-top: 10px;">

@@ -13,7 +13,7 @@ import org.springframework.validation.Validator;
 
 public class ComputerValidator implements Validator {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ComputerValidator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ComputerValidatorService.class);
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
 

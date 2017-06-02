@@ -1,6 +1,5 @@
 package fr.ebiz.computerdatabase.dao;
 
-import fr.ebiz.computerdatabase.dto.CompanyDTO;
 import fr.ebiz.computerdatabase.model.Company;
 
 import java.sql.SQLException;

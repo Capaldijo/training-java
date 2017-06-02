@@ -12,7 +12,7 @@ import fr.ebiz.computerdatabase.mapper.MapperException;
 import fr.ebiz.computerdatabase.mapper.ComputerMapper;
 import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.model.utils.PaginationFilters;
-import fr.ebiz.computerdatabase.validator.ComputerValidator;
+import fr.ebiz.computerdatabase.validator.ComputerValidatorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,7 +48,7 @@ public final class ComputerService implements IComputerService {
     public int add(ComputerDTO computerDTO) {
         int res = 0;
 
-        if (!ComputerValidator.isValid(computerDTO)) {
+        if (!ComputerValidatorService.isValid(computerDTO)) {
             LOG.error("[VALIDATION] The computer you tried to add is not valid.");
             throw new RuntimeException("[VALIDATION] The computer you tried to add is not valid.");
         } else {
@@ -98,7 +98,7 @@ public final class ComputerService implements IComputerService {
 
     @Override
     public int update(ComputerDTO computerDTO) {
-        if (!ComputerValidator.isValid(computerDTO)) {
+        if (!ComputerValidatorService.isValid(computerDTO)) {
             throw new RuntimeException("[VALIDATION] The computer you tried to update is not valid.");
         } else {
             try {

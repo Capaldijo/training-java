@@ -1,7 +1,6 @@
 package fr.ebiz.computerdatabase.controller;
 
 import fr.ebiz.computerdatabase.dto.ComputerDTO;
-import fr.ebiz.computerdatabase.model.Computer;
 import fr.ebiz.computerdatabase.service.ICompanyService;
 import fr.ebiz.computerdatabase.service.IComputerService;
 import org.springframework.beans.factory.annotation.Autowired;

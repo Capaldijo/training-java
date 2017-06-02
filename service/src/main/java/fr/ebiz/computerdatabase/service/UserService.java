@@ -2,8 +2,6 @@ package fr.ebiz.computerdatabase.service;
 
 
 import fr.ebiz.computerdatabase.dao.UserDAO;
-import fr.ebiz.computerdatabase.dao.DAOException;
-import fr.ebiz.computerdatabase.mapper.MapperException;
 import fr.ebiz.computerdatabase.model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-@Transactional(rollbackFor = {DAOException.class, MapperException.class})
+@Transactional()
 public class UserService implements UserDetailsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserService.class);

@@ -8,7 +8,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import fr.ebiz.computerdatabase.dto.ComputerDTO;
-import fr.ebiz.computerdatabase.validator.ComputerValidator;
+import fr.ebiz.computerdatabase.validator.ComputerValidatorService;
 
 public class ComputerValidatorTest {
 
@@ -47,8 +47,8 @@ public class ComputerValidatorTest {
      */
     @Test
     public void testIsValidId() {
-        assertTrue("ID is valid", ComputerValidator.isValid(computerValidNameId));
-        assertFalse("ID is invalid", ComputerValidator.isValid(computerInvalidId));
+        assertTrue("ID is valid", ComputerValidatorService.isValid(computerValidNameId));
+        assertFalse("ID is invalid", ComputerValidatorService.isValid(computerInvalidId));
     }
 
     /**
@@ -56,9 +56,9 @@ public class ComputerValidatorTest {
      */
     @Test
     public void testIsValidName() {
-        assertTrue("Name is valid", ComputerValidator.isValid(computerValidName));
-        assertFalse("Name is invalid => null", ComputerValidator.isValid(computerInvalidNameNull));
-        assertFalse("Name is invalid => tag", ComputerValidator.isValid(computerInvalideNameTag));
+        assertTrue("Name is valid", ComputerValidatorService.isValid(computerValidName));
+        assertFalse("Name is invalid => null", ComputerValidatorService.isValid(computerInvalidNameNull));
+        assertFalse("Name is invalid => tag", ComputerValidatorService.isValid(computerInvalideNameTag));
     }
 
     /**
@@ -66,8 +66,8 @@ public class ComputerValidatorTest {
      */
     @Test
     public void testIsValidIntroducedDates() {
-        assertTrue("Intro date is valid", ComputerValidator.isValid(computerValidAll));
-        assertFalse("Intro date is invalid", ComputerValidator.isValid(computerInvalidIntroDate));
+        assertTrue("Intro date is valid", ComputerValidatorService.isValid(computerValidAll));
+        assertFalse("Intro date is invalid", ComputerValidatorService.isValid(computerInvalidIntroDate));
     }
 
     /**
@@ -75,8 +75,8 @@ public class ComputerValidatorTest {
      */
     @Test
     public void testIsValidDiscontinuedDates() {
-        assertTrue("Discon date is valid", ComputerValidator.isValid(computerValidAll));
-        assertFalse("Discon date is invalid", ComputerValidator.isValid(computerInvalidDisconDate));
+        assertTrue("Discon date is valid", ComputerValidatorService.isValid(computerValidAll));
+        assertFalse("Discon date is invalid", ComputerValidatorService.isValid(computerInvalidDisconDate));
     }
 
     /**
@@ -84,8 +84,8 @@ public class ComputerValidatorTest {
      */
     @Test
     public void testIsValidIntroDateBeforeDisconDate() {
-        assertTrue("Order dates is valid", ComputerValidator.isValid(computerValidAll));
-        assertFalse("Order dates is invalid", ComputerValidator.isValid(computerInvalidOrderDates));
+        assertTrue("Order dates is valid", ComputerValidatorService.isValid(computerValidAll));
+        assertFalse("Order dates is invalid", ComputerValidatorService.isValid(computerInvalidOrderDates));
     }
 
     /**
@@ -93,8 +93,8 @@ public class ComputerValidatorTest {
      */
     @Test
     public void testIsValidCompanyId() {
-        assertTrue("Company id is valid", ComputerValidator.isValid(computerValidAll));
-        assertFalse("Company id is invalid", ComputerValidator.isValid(computerInvalidCompanyId));
+        assertTrue("Company id is valid", ComputerValidatorService.isValid(computerValidAll));
+        assertFalse("Company id is invalid", ComputerValidatorService.isValid(computerInvalidCompanyId));
     }
 
 }

@@ -10,12 +10,18 @@
     <link href="../../css/datepicker.min.css" rel="stylesheet" media="screen">
     <link href="../../css/font-awesome.css" rel="stylesheet" media="screen">
     <link href="../../css/main.css" rel="stylesheet" media="screen">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/2.3.1/css/flag-icon.min.css" rel="stylesheet"/>
 </head>
 <body>
 <header class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
-        <a class="navbar-brand" href="/"> Application -
-            Computer Database </a>
+        <a class="navbar-brand" href="/"> Application - Computer Database </a>
+
+        <div class="pull-left col-xs-5">
+            <a class="flag-icon flag-icon-fr" href="?lang=fr"></a>
+            <a class="flag-icon flag-icon-gb" href="?lang=en"></a>
+            <a class="flag-icon flag-icon-it" href="?lang=it"></a>
+        </div>
     </div>
 </header>
 <section id="main">

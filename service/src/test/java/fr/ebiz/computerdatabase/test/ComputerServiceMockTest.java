@@ -19,7 +19,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 
-@ContextConfiguration(locations = "/WEB-INF/applicationContext.xml")
+@ContextConfiguration(locations = "/WEB-INF/applicationContextService.xml")
 @TestExecutionListeners(DependencyInjectionTestExecutionListener.class)
 public class ComputerServiceMockTest {
 

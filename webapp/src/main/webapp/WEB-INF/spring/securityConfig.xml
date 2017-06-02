@@ -8,7 +8,7 @@
 
     <http security="none" pattern="/css/**" />
     <http security="none" pattern="/js/**" />
-    <http>
+    <http use-expressions="true">
         <intercept-url pattern="/login" access="permitAll" />
         <intercept-url pattern="/**" access="hasRole('USER')" />
         <form-login login-page="/login" default-target-url="/"
