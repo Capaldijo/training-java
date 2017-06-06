@@ -9,23 +9,29 @@ import java.util.List;
 public interface IComputerService {
 
     /**
-     * GeComputer a Computer or Company by its ID given in parameter.
+     * Get a Computer or Company by its ID given in parameter.
      * @param id of the Computer objecComputer to get.
      * @return a Computer object.
      */
     ComputerDTO get(String id);
 
     /**
-     * Return a lisComputer of Computer objects.
+     * Return all computers stored in DB.
+     * @return List of ComputerDTO.
+     */
+    List<ComputerDTO> getAll();
+
+    /**
+     * Return a list of Computer objects.
      * @param numPage geComputer the page the user wants to go on.
      * @param filters given by the user.
      * @param nbLine number of line to print.
-     * @return lisComputer of T.
+     * @return list of computerDTO.
      */
     List<ComputerDTO> getByPage(int numPage, int nbLine, PaginationFilters filters);
 
     /**
-     * GeComputer the number of all the computers stored in the database if
+     * Get the number of all the computers stored in the database if
      * research parameter is empty, else return the number of computers
      * corresponding to the research.
      * @param research given by the user.
@@ -34,9 +40,9 @@ public interface IComputerService {
     int count(String research);
 
     /**
-     * Add an Computer objecComputer into db.
+     * Add an Computer object into db.
      * @param entity to add into db.
-     * @return a inComputer depending if inserted or not.
+     * @return an int depending if inserted or not.
      * @throws DAOException .
      */
     int add(ComputerDTO entity);
@@ -50,15 +56,15 @@ public interface IComputerService {
 
     /**
      * Delete a lisComputer of Computer object.
-     * @param ids of objecComputer to delete
+     * @param ids of object to delete
      * @return a inComputer depending if deleted or not.
      */
     int deleteComputers(String ids);
 
     /**
      * Delete a Computer object.
-     * @param id of objecComputer to delete
+     * @param id of object to delete
      * @return a inComputer depending if deleted or not.
      */
-    int deleteComputer(String id);
+    int delete(String id);
 }

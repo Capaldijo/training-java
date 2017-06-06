@@ -45,7 +45,7 @@ public class ComputerMapperTest {
 
         computerMapper = new ComputerMapper();
 
-        computerDTO = new ComputerDTO.Builder("src/main/resources/test")
+        computerDTO = new ComputerDTO.Builder("toto")
                 .id("1")
                 .introduced(intro)
                 .discontinued(discon)
@@ -55,7 +55,7 @@ public class ComputerMapperTest {
         introDate = LocalDate.parse(intro, formatter);
         disconDate = LocalDate.parse(discon, formatter);
 
-        computer = new Computer.Builder("src/main/resources/test")
+        computer = new Computer.Builder("toto")
                 .id(1L)
                 .introduced(introDate)
                 .discontinued(disconDate)

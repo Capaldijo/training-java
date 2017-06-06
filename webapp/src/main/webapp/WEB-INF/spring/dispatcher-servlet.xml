@@ -8,7 +8,13 @@
        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
     <mvc:default-servlet-handler />
-    <mvc:annotation-driven />
+
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.StringHttpMessageConverter"/>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
     <context:component-scan base-package="fr.ebiz.computerdatabase.controller" />
 
     <bean id="computerValidator"

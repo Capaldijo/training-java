@@ -5,30 +5,26 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import fr.ebiz.computerdatabase.service.ICompanyService;
-import fr.ebiz.computerdatabase.service.IComputerService;
 import fr.ebiz.computerdatabase.view.Cli;
 import fr.ebiz.computerdatabase.dto.CompanyDTO;
 import fr.ebiz.computerdatabase.dto.ComputerDTO;
-import fr.ebiz.computerdatabase.model.utils.PaginationFilters;
 import fr.ebiz.computerdatabase.util.Utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
 
-@Component
 public class CLIController {
 
     private static final int PAGEABLE_NB_LINE = 10;
 
     private static final Logger LOG = LoggerFactory.getLogger(CLIController.class);
-
-    private final IComputerService computerService;
-
-    private final ICompanyService companyService;
 
     private boolean shouldKeepGoin = true;
 
@@ -36,16 +32,17 @@ public class CLIController {
 
     private DateTimeFormatter formatter;
 
+    private static final String URI_API = "http://localhost:8080/api/";
+
+    private static final String URI_API_COMPUTER = URI_API + "computers";
+
+    private static final String URI_API_COMPANY = URI_API + "companies";
+
     /**
      * Constructor CLIController.
-     * @param computerService .
-     * @param companyService .
      */
-    @Autowired
-    public CLIController(IComputerService computerService, ICompanyService companyService) {
+    public CLIController() {
         formatter = DateTimeFormatter.ofPattern(Utils.FORMATTER_WEB);
-        this.computerService = computerService;
-        this.companyService = companyService;
         view = new Cli();
     }
 
@@ -142,30 +139,32 @@ public class CLIController {
      * its referenced company id return the computer constructed by those fields.
      */
     private void createComputer() {
+        Client client = getAuthenticatedClient("toto", "toto");
 
         view.print("\n---- Create a Computer ----");
+
         String name = view.getStringChoice("\nEnter a name:");
         LocalDate intro = this.stringToDate("\nIntroduced date:");
         LocalDate discon = this.stringToDate("\nDiscontinued date:");
+
         // discontinued date can not be before introduced one
         while ((intro != null && discon != null) && discon.isBefore(intro)) {
             view.print("\nDiscontinued date can not be before introduce one.");
             discon = this.stringToDate("\nEnter the discontinued date again:");
         }
-        int compIdRef = view.getIntChoice("\nEnter a company id reference (for a null company: 0): ");
+        String compIdRef = view.getStringChoice("\nEnter a company id reference (for a null company: 0): ");
 
-        CompanyDTO  companyDTO = new CompanyDTO(String.valueOf(compIdRef), null);
+        CompanyDTO  companyDTO = new CompanyDTO(compIdRef, null);
 
         ComputerDTO computer = new ComputerDTO.Builder(name)
-                .introduced(intro.format(formatter))
-                .discontinued(discon.format(formatter))
+                .introduced(intro != null ? intro.format(formatter) : "")
+                .discontinued(discon != null ? discon.format(formatter) : "")
                 .company(companyDTO).build();
 
         if (computer != null) {
-            if (computerService.add(computer) == 1) {
-                view.print("Insert done");
-                LOG.info("insert computer done.\n");
-            }
+            client.target(URI_API_COMPUTER + "/")
+                    .request(MediaType.APPLICATION_JSON)
+                    .post(Entity.entity(computer, MediaType.APPLICATION_JSON), ComputerDTO.class);
         }
     }
 
@@ -174,31 +173,29 @@ public class CLIController {
      * or next ou quit.
      */
     private void pageableListComputer() {
+        Client client = getAuthenticatedClient("toto", "toto");
         int numPage = 0;
         List<ComputerDTO> list = null;
         boolean stop = false;
         while (!stop) {
             // get 10 computers in the list
-            PaginationFilters filter = new PaginationFilters.Builder().build();
-            list = computerService.getByPage(numPage, PAGEABLE_NB_LINE, filter);
-            // if list is empty bc the user gone to far in pages, get to
-            // previous half full list
-            if (list.isEmpty() && numPage > 0) {
-                LOG.info("Next was selected but Computer's list is Empty, getting back to last page.");
-                numPage -= PAGEABLE_NB_LINE;
-                list = computerService.getByPage(numPage, PAGEABLE_NB_LINE, filter);
-            }
+            list = client.target(URI_API_COMPUTER + "/pages/" + numPage + "/lines/" + PAGEABLE_NB_LINE)
+                    .request(MediaType.APPLICATION_JSON).get(new GenericType<List<ComputerDTO>>() {
+
+                    });
             switch (view.printPageableList(list)) {
                 case 1: // Previous Page
                     if (numPage > 0) {
-                        numPage -= PAGEABLE_NB_LINE;
+                        numPage -= 1;
                     } else {
                         LOG.info("Previous was selected but already at first page.");
                     }
                     break;
                 case 2: // Next Page
-                    if (!list.isEmpty()) {
-                        numPage += PAGEABLE_NB_LINE;
+                    if (list != null && list.size() == PAGEABLE_NB_LINE) {
+                        numPage += 1;
+                    } else {
+                        LOG.info("Next was selected but Computer's list is Empty, getting back to last page.");
                     }
                     break;
                 case 3: // Quit
@@ -216,31 +213,30 @@ public class CLIController {
      */
     public void pageableListCompanies() {
         try {
+            Client client = getAuthenticatedClient("toto", "toto");
+
             int numPage = 0;
             List<CompanyDTO> list = null;
             boolean stop = false;
             while (!stop) {
                 // get 10 companies in the list
-                list = companyService.getByPage(String.valueOf(numPage), String.valueOf(PAGEABLE_NB_LINE));
+                list = client.target(URI_API_COMPANY + "/pages/" + numPage + "/lines/" + PAGEABLE_NB_LINE)
+                        .request(MediaType.APPLICATION_JSON).get(new GenericType<List<CompanyDTO>>() {
 
-                // if list is empty bc the user gone to far in pages, get to
-                // previous half full list
-                if (list.isEmpty() && numPage > 0) {
-                    LOG.info("Next was selected but Company's list is Empty, getting back to last page.");
-                    numPage -= PAGEABLE_NB_LINE;
-                    list = companyService.getByPage(String.valueOf(numPage), String.valueOf(PAGEABLE_NB_LINE));
-                }
+                        });
                 switch (view.printPageableList(list)) {
                     case 1: // Previous Page
                         if (numPage > 0) {
-                            numPage -= PAGEABLE_NB_LINE;
+                            numPage -= 1;
                         } else {
                             LOG.info("Previous was selected but already at first page.");
                         }
                         break;
                     case 2: // Next Page
-                        if (!list.isEmpty()) {
-                            numPage += PAGEABLE_NB_LINE;
+                        if (list != null && list.size() == PAGEABLE_NB_LINE) {
+                            numPage += 1;
+                        } else {
+                            LOG.info("Next was selected but Computer's list is Empty, getting back to last page.");
                         }
                         break;
                     case 3: // Quit
@@ -261,18 +257,17 @@ public class CLIController {
      * it.
      */
     private void showDetails() {
+        Client client = getAuthenticatedClient("toto", "toto");
 
         String id = String.valueOf(view.printShowDetailsAction());
 
         ComputerDTO computer = null;
         CompanyDTO company = null;
         /* ------ GET COMPUTER BY ID ----- */
-        computer = computerService.get(id);
-        if (computer != null) {
-            /* ------ GET COMPANY BY ID ----- */
-            company = companyService.get(computer.getCompany().getId());
-            view.print(computer + ", which reference company [" + company + "]");
-        }
+        computer = client.target(URI_API_COMPUTER + "/" + id)
+                .request(MediaType.APPLICATION_JSON)
+                .get(ComputerDTO.class);
+        view.print(computer.toString());
     }
 
     /**
@@ -280,11 +275,14 @@ public class CLIController {
      * which fields.
      */
     private void updateComputer() {
+        Client client = getAuthenticatedClient("toto", "toto");
 
-        String idComputer = String.valueOf(view.getIntChoice("\nChoose a computer id to update: "));
+        String idComputer = view.getStringChoice("\nChoose a computer id to update: ");
 
         // find the computer chosen
-        ComputerDTO computer = computerService.get(idComputer);
+        ComputerDTO computer = client.target(URI_API_COMPUTER + "/" + idComputer)
+                .request(MediaType.APPLICATION_JSON)
+                .get(ComputerDTO.class);
 
         // ask the user what to edit
         view.print("Here is the computer's info you want to update:");
@@ -304,13 +302,12 @@ public class CLIController {
         } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 
         do { // check in the db if introduced date is before discontinued
-            // one
             choice = null;
             do {
                 choice = view.getStringChoice("\nDo you want to change the introduced date ?");
                 if (choice.toLowerCase().equals("yes")) {
                     intro = this.stringToDate("\nEnter a new introduced date:");
-                    computer.setIntroduced(intro.format(formatter));
+                    computer.setIntroduced(intro != null ? intro.format(formatter) : "");
                 }
             } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 
@@ -331,7 +328,7 @@ public class CLIController {
                         view.print("Discontinued can not be before introduced one");
                         choice = null;
                     } else {
-                        computer.setDiscontinued(discon.format(formatter));
+                        computer.setDiscontinued(discon != null ? discon.format(formatter) : "");
                     }
                 }
             } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
@@ -341,20 +338,16 @@ public class CLIController {
         do {
             choice = view.getStringChoice("\nDo you want to change the company ref id ?");
             if (choice.toLowerCase().equals("yes")) {
-                int compIdRef = view.getIntChoice("\nEnter a new company ref id (for a null company: 0):");
-                CompanyDTO  companyDTO = new CompanyDTO(String.valueOf(compIdRef), null);
+                String compIdRef = view.getStringChoice("\nEnter a new company ref id (for a null company: 0):");
+                CompanyDTO  companyDTO = new CompanyDTO(compIdRef, null);
                 computer.setCompany(companyDTO);
             }
         } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 
         if (computer != null) {
-            if (computerService.update(computer) == 1) {
-                view.print("Update success");
-                LOG.info("Update computer done.\n");
-            } else {
-                view.print("Update error");
-                LOG.info("Update computer error.\n");
-            }
+            client.target(URI_API_COMPUTER + "/" + idComputer)
+                    .request(MediaType.APPLICATION_JSON)
+                    .put(Entity.entity(computer, MediaType.APPLICATION_JSON), ComputerDTO.class);
         }
     }
 
@@ -362,18 +355,13 @@ public class CLIController {
      * Delete the company that the user chose.
      */
     private void deleteCompany() {
-
+        Client client = getAuthenticatedClient("toto", "toto");
         // ask the user to chose an id
         String id = String.valueOf(view.printDeleteCompanyAction());
         try {
-            // if delete success print success
-            if (companyService.delete(id) == 1) {
-                view.print("delete done.");
-                LOG.info("delete company done.\n");
-            } else {
-                view.print("No company to delete.");
-                LOG.info("No company to delete.\n");
-            }
+            client.target(URI_API_COMPANY + "/" + id)
+                    .request(MediaType.APPLICATION_JSON)
+                    .delete(CompanyDTO.class);
         } catch (RuntimeException e) {
             view.print("\nError on deleting company");
             LOG.error("Error on delete company");
@@ -384,18 +372,13 @@ public class CLIController {
      * Delete the computer that the user chose.
      */
     private void deleteComputer() {
-
+        Client client = getAuthenticatedClient("toto", "toto");
         // ask the user to chose an id
         String id = String.valueOf(view.printDeleteComputerAction());
         try {
-            // if delete success print success
-            if (computerService.deleteComputer(id) == 1) {
-                view.print("delete done.");
-                LOG.info("delete computer done.\n");
-            } else {
-                view.print("No computer to delete.");
-                LOG.info("No computer to delete.\n");
-            }
+            client.target(URI_API_COMPUTER + "/" + id)
+                    .request(MediaType.APPLICATION_JSON)
+                    .delete(ComputerDTO.class);
         } catch (RuntimeException e) {
             view.print("\nError on deleting computer");
             LOG.error("Error on delete computer");
@@ -442,5 +425,17 @@ public class CLIController {
             }
         }
         return time;
+    }
+
+    /**
+     * Get an authenticated client.
+     * @param user username.
+     * @param passwd password.
+     * @return client.
+     */
+    private Client getAuthenticatedClient(String user, String passwd) {
+        Client client = ClientBuilder.newClient();
+        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic("toto", "toto");
+        return client.register(feature);
     }
 }

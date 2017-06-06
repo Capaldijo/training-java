@@ -40,7 +40,7 @@ public class Company {
     private Set<Computer> computers;
 
     /**
-     * .
+     * Default no parameters Company Constructor.
      */
     public Company() {
 
@@ -90,5 +90,29 @@ public class Company {
     @Override
     public String toString() {
         return "id: " + this.id + ", name: " + this.name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Company company = (Company) o;
+
+        if (id != null ? !id.equals(company.id) : company.id != null) {
+            return false;
+        }
+        return name != null ? name.equals(company.name) : company.name == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        return result;
     }
 }

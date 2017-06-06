@@ -12,8 +12,7 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            ApplicationContext context = new ClassPathXmlApplicationContext("/WEB-INF/applicationContext.xml");
-            CLIController controller = (CLIController) context.getBean("cLIController");
+            CLIController controller = new CLIController();
             controller.init();
         } catch (RuntimeException e) {
             System.out.println(e.getMessage());

@@ -141,7 +141,6 @@ public class ComputerDTO {
         }
     }
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -153,10 +152,10 @@ public class ComputerDTO {
 
         ComputerDTO that = (ComputerDTO) o;
 
-        if (!id.equals(that.id)) {
+        if (id != null ? !id.equals(that.id) : that.id != null) {
             return false;
         }
-        if (!name.equals(that.name)) {
+        if (name != null ? !name.equals(that.name) : that.name != null) {
             return false;
         }
         if (introduced != null ? !introduced.equals(that.introduced) : that.introduced != null) {
@@ -170,8 +169,8 @@ public class ComputerDTO {
 
     @Override
     public int hashCode() {
-        int result = id.hashCode();
-        result = 31 * result + name.hashCode();
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (introduced != null ? introduced.hashCode() : 0);
         result = 31 * result + (discontinued != null ? discontinued.hashCode() : 0);
         result = 31 * result + (company != null ? company.hashCode() : 0);

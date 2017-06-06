@@ -43,7 +43,6 @@ public final class ComputerService implements IComputerService {
         this.computerMapper = computerMapper;
     }
 
-
     @Override
     public int add(ComputerDTO computerDTO) {
         int res = 0;
@@ -81,6 +80,16 @@ public final class ComputerService implements IComputerService {
 
             return computerMapper.toDTO(computer);
         } catch (NumberFormatException | DAOException e) {
+            LOG.error(e.getMessage());
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<ComputerDTO> getAll() {
+        try {
+            return computerMapper.toDTO(computerDAO.findAll());
+        } catch (DAOException e) {
             LOG.error(e.getMessage());
             throw new RuntimeException(e.getMessage());
         }
@@ -146,7 +155,7 @@ public final class ComputerService implements IComputerService {
     }
 
     @Override
-    public int deleteComputer(String id) {
+    public int delete(String id) {
         if (computerDAO.delete(id) == 1) {
             return  1;
         } else {

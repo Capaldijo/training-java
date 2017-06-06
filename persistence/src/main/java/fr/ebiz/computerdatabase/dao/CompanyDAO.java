@@ -12,18 +12,16 @@ import fr.ebiz.computerdatabase.model.Company;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.TypedQuery;
-
 @Repository
 public class CompanyDAO implements ICompanyDAO {
 
     private static final Logger LOG = LoggerFactory.getLogger(CompanyDAO.class);
 
-    private static final String QUERY_FIND = "from Company where Company.id = ?";
+    private static final String QUERY_FIND = "from Company where id = ?";
 
     private static final String QUERY_FIND_ALL = "from Company";
 
-    private static final String QUERY_DELETE = "delete from Company where Company.id = ?";
+    private static final String QUERY_DELETE = "delete from Company where id = ?";
 
     private SessionFactory sessionFactory;
 
@@ -38,35 +36,30 @@ public class CompanyDAO implements ICompanyDAO {
 
     @Override
     public Company find(Long id) throws DAOException {
-        TypedQuery<Company> queryDB = sessionFactory.getCurrentSession().createQuery(QUERY_FIND, Company.class);
-        Company company = null;
         try {
-            company = queryDB.setParameter(0, id).getResultList().get(0);
-        } catch (RuntimeException e) {
+            return sessionFactory.getCurrentSession().createQuery(QUERY_FIND, Company.class)
+                    .setParameter(0, id).getResultList().get(0);
+        } catch (Exception e) {
             LOG.error(e.getMessage());
             throw new DAOException(e.getMessage());
         }
-        return company;
     }
 
     @Override
     public List<Company> findAll() throws DAOException {
-        TypedQuery<Company> queryDB = sessionFactory.getCurrentSession().createQuery(QUERY_FIND_ALL, Company.class);
-        List<Company> list = null;
         try {
-            list = queryDB.getResultList();
+            return sessionFactory.getCurrentSession().createQuery(QUERY_FIND_ALL, Company.class).getResultList();
         } catch (RuntimeException e) {
             LOG.error(e.getMessage());
             throw new DAOException(e.getMessage());
         }
-        return list;
     }
 
     @Override
     public List<Company> findByPage(int numPage, int nbLine) throws DAOException {
-        TypedQuery<Company> queryDB = sessionFactory.getCurrentSession().createQuery(QUERY_FIND_ALL, Company.class);
         try {
-            return queryDB.setFirstResult(numPage).setMaxResults(nbLine).getResultList();
+            return sessionFactory.getCurrentSession().createQuery(QUERY_FIND_ALL, Company.class)
+                    .setFirstResult(numPage).setMaxResults(nbLine).getResultList();
         } catch (RuntimeException e) {
             LOG.error(e.getMessage());
             throw new DAOException(e.getMessage());

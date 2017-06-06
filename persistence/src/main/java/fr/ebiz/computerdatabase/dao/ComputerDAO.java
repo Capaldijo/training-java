@@ -20,7 +20,9 @@ public class ComputerDAO implements IComputerDAO {
 
     private static final Logger LOG = LoggerFactory.getLogger(ComputerDAO.class);
 
-    private static final String QUERY_FIND = "from Computer WHERE id = ?";
+    private static final String QUERY_FIND_ALL = "from Computer";
+
+    private static final String QUERY_FIND_BY_ID = QUERY_FIND_ALL + " WHERE id = ?";
 
     private static final String QUERY_FIND_BY_PAGE = "select new Computer(c.id, c.name, c.introduced, c.discontinued, c.company)"
             + " from Computer as c left join c.company";
@@ -46,9 +48,9 @@ public class ComputerDAO implements IComputerDAO {
 
     @Override
     public Computer find(Long idComp) throws DAOException {
-        TypedQuery<Computer> query = sessionFactory.getCurrentSession().createQuery(QUERY_FIND, Computer.class);
         try {
-            return query.setParameter(0, idComp).getResultList().get(0);
+            return sessionFactory.getCurrentSession().createQuery(QUERY_FIND_BY_ID, Computer.class)
+                    .setParameter(0, idComp).getResultList().get(0);
         } catch (RuntimeException e) {
             LOG.error(e.getMessage());
             throw new DAOException(e.getMessage());
@@ -104,6 +106,16 @@ public class ComputerDAO implements IComputerDAO {
     }
 
     @Override
+    public List<Computer> findAll() throws DAOException {
+        try {
+            return sessionFactory.getCurrentSession().createQuery(QUERY_FIND_ALL, Computer.class).getResultList();
+        } catch (RuntimeException e) {
+            LOG.error("[GET_ALL]" + e.getMessage());
+            throw new DAOException("[GET_ALL]" + e.getMessage());
+        }
+    }
+
+    @Override
     public int count(String search) throws DAOException {
         try {
             String s = '%' + search + '%';
@@ -112,7 +124,7 @@ public class ComputerDAO implements IComputerDAO {
                     .setParameter(1, s)
                     .list().get(0);
         } catch (RuntimeException e) {
-            LOG.info("[COUNT] " + e.getMessage());
+            LOG.error("[COUNT] " + e.getMessage());
             throw new DAOException("[COUNT]" + e.getMessage());
         }
     }

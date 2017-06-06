@@ -88,19 +88,12 @@ public final class CompanyService implements ICompanyService {
     }
 
     @Override
-    public List<CompanyDTO> getByPage(String numPage, String nbLine) {
-        List<CompanyDTO> listCompanyDTO = null;
-
+    public List<CompanyDTO> getByPage(int numPage, int nbLine) {
         try {
-            int numP = Integer.parseInt(numPage);
-            int nbL = Integer.parseInt(nbLine);
-
-            listCompanyDTO = companyMapper.toDTO(companyDAO.findByPage(numP, nbL));
-
-        } catch (NumberFormatException | DAOException e) {
+            return companyMapper.toDTO(companyDAO.findByPage(numPage, nbLine));
+        } catch (DAOException e) {
             LOG.error("[GETCOMPANYBYPAGE] Error on getting data.");
             throw new RuntimeException("[GETCOMPANYBYPAGE] Error on getting data.");
         }
-        return listCompanyDTO;
     }
 }

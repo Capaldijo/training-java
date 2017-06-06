@@ -193,7 +193,7 @@ public class Computer {
         if (id != null ? !id.equals(computer.id) : computer.id != null) {
             return false;
         }
-        if (!name.equals(computer.name)) {
+        if (name != null ? !name.equals(computer.name) : computer.name != null) {
             return false;
         }
         if (introduced != null ? !introduced.equals(computer.introduced) : computer.introduced != null) {
@@ -208,7 +208,7 @@ public class Computer {
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + name.hashCode();
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (introduced != null ? introduced.hashCode() : 0);
         result = 31 * result + (discontinued != null ? discontinued.hashCode() : 0);
         result = 31 * result + (company != null ? company.hashCode() : 0);

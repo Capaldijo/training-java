@@ -10,10 +10,13 @@
     <http security="none" pattern="/js/**" />
     <http use-expressions="true">
         <intercept-url pattern="/login" access="permitAll" />
+        <!--<intercept-url pattern="/api/**" access="permitAll" />-->
         <intercept-url pattern="/**" access="hasRole('USER')" />
         <form-login login-page="/login" default-target-url="/"
             authentication-failure-url="/login?error=true"/>
+        <http-basic />
         <logout logout-success-url="/login?logout=true"/>
+        <csrf disabled="true" />
         <session-management>
             <concurrency-control max-sessions="1" />
         </session-management>

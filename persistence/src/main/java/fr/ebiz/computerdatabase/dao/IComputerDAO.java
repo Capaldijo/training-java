@@ -28,6 +28,13 @@ public interface IComputerDAO {
     List<Computer> findByPage(PaginationFilters filters, int numPage, int nbLine) throws DAOException;
 
     /**
+     * Return all computers stiored in DB.
+     * @return list of Computer.
+     * @throws DAOException error on getting data.
+     */
+    List<Computer> findAll() throws DAOException;
+
+    /**
      * Count number of fr.ebiz.computerdatabase.model in DB following the research given.
      * @param search type in by the user.
      * @return The number of fr.ebiz.computerdatabase.model depending the research.

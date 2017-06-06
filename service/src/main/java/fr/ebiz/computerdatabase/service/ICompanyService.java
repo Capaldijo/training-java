@@ -19,7 +19,7 @@ public interface ICompanyService {
      * @param nbLine number of line to print.
      * @return list of CompanyDTO.
      */
-    List<CompanyDTO> getByPage(String numPage, String nbLine);
+    List<CompanyDTO> getByPage(int numPage, int nbLine);
 
     /**
      * Get all CompanyDTO object from db.
