@@ -435,7 +435,7 @@ public class CLIController {
      */
     private Client getAuthenticatedClient(String user, String passwd) {
         Client client = ClientBuilder.newClient();
-        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic("toto", "toto");
+        HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(user, passwd);
         return client.register(feature);
     }
 }

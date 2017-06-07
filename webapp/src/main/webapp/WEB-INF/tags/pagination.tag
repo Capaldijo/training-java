@@ -8,7 +8,14 @@
 <%@ attribute name="orderBy" required="false" type="java.lang.String" description="The column to orderBy." %>
 <%@ attribute name="asc" required="false" type="java.lang.String" description="Ascending or descending order by" %>
 
-<fmt:parseNumber var="lastPage" type="number" integerOnly="true" value="${Math.floor(nbComputer/nbLine)*nbLine}"/>
+<c:choose>
+	<c:when test="${nbComputer%nbLine == 0}">
+		<fmt:parseNumber var="lastPage" type="number" integerOnly="true" value="${Math.floor((nbComputer/nbLine)-1)*nbLine}"/>
+	</c:when>
+	<c:otherwise>
+		<fmt:parseNumber var="lastPage" type="number" integerOnly="true" value="${Math.floor(nbComputer/nbLine)*nbLine}"/>
+	</c:otherwise>
+</c:choose>
 
 <c:set var="nbPages" value="${Math.ceil(nbComputer/nbLine)}"/>
 
