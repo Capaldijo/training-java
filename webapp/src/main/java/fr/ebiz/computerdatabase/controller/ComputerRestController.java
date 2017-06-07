@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.List;
 
@@ -64,7 +63,7 @@ public class ComputerRestController {
     }
 
     @RequestMapping(value = "/", method = RequestMethod.POST)
-    public ResponseEntity<Void> createComputer(@RequestBody ComputerDTO computerDTO, UriComponentsBuilder ucBuilder) {
+    public ResponseEntity<Void> createComputer(@RequestBody ComputerDTO computerDTO) {
         int insert = computerService.add(computerDTO);
         if (insert < 0) {
             return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
@@ -90,11 +89,6 @@ public class ComputerRestController {
         if (delete > 0) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        return new ResponseEntity<>(HttpStatus.UNPROCESSABLE_ENTITY);
-    }
-
-    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
-    public ResponseEntity<ComputerDTO> createComputerError() {
-        return new ResponseEntity<>(HttpStatus.NOT_ACCEPTABLE);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 }

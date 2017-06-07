@@ -19,6 +19,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 public class CLIController {
 
@@ -162,9 +163,14 @@ public class CLIController {
                 .company(companyDTO).build();
 
         if (computer != null) {
-            client.target(URI_API_COMPUTER + "/")
+            Response response = client.target(URI_API_COMPUTER + "/")
                     .request(MediaType.APPLICATION_JSON)
-                    .post(Entity.entity(computer, MediaType.APPLICATION_JSON), ComputerDTO.class);
+                    .post(Entity.entity(computer, MediaType.APPLICATION_JSON), Response.class);
+            if (response.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)) {
+                view.print("Computer created.");
+            } else {
+                view.print("Error on Computer created. " + response.getStatus());
+            }
         }
     }
 
@@ -262,12 +268,15 @@ public class CLIController {
         String id = String.valueOf(view.printShowDetailsAction());
 
         ComputerDTO computer = null;
-        CompanyDTO company = null;
         /* ------ GET COMPUTER BY ID ----- */
-        computer = client.target(URI_API_COMPUTER + "/" + id)
+        Response response = client.target(URI_API_COMPUTER + "/" + id)
                 .request(MediaType.APPLICATION_JSON)
-                .get(ComputerDTO.class);
-        view.print(computer.toString());
+                .get();
+        if (response.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)) {
+            view.print(response.readEntity(ComputerDTO.class).toString());
+        } else {
+            view.print("Error. Computer not found. " + response.getStatus());
+        }
     }
 
     /**
@@ -345,9 +354,14 @@ public class CLIController {
         } while (choice == null || (!choice.toLowerCase().equals("yes") && !choice.toLowerCase().equals("no")));
 
         if (computer != null) {
-            client.target(URI_API_COMPUTER + "/" + idComputer)
+            Response response = client.target(URI_API_COMPUTER + "/" + idComputer)
                     .request(MediaType.APPLICATION_JSON)
-                    .put(Entity.entity(computer, MediaType.APPLICATION_JSON), ComputerDTO.class);
+                    .put(Entity.entity(computer, MediaType.APPLICATION_JSON), Response.class);
+            if (response.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)) {
+                view.print("Computer updated.");
+            } else {
+                view.print("Error on Computer updated. " + response.getStatus());
+            }
         }
     }
 
@@ -359,9 +373,14 @@ public class CLIController {
         // ask the user to chose an id
         String id = String.valueOf(view.printDeleteCompanyAction());
         try {
-            client.target(URI_API_COMPANY + "/" + id)
+            Response response = client.target(URI_API_COMPANY + "/" + id)
                     .request(MediaType.APPLICATION_JSON)
-                    .delete(CompanyDTO.class);
+                    .delete(Response.class);
+            if (response.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)) {
+                view.print("Company updated.");
+            } else {
+                view.print("Error on Company updated. " + response.getStatus());
+            }
         } catch (RuntimeException e) {
             view.print("\nError on deleting company");
             LOG.error("Error on delete company");
@@ -376,9 +395,14 @@ public class CLIController {
         // ask the user to chose an id
         String id = String.valueOf(view.printDeleteComputerAction());
         try {
-            client.target(URI_API_COMPUTER + "/" + id)
+            Response response = client.target(URI_API_COMPUTER + "/" + id)
                     .request(MediaType.APPLICATION_JSON)
-                    .delete(ComputerDTO.class);
+                    .delete(Response.class);
+            if (response.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)) {
+                view.print("Computer deleted.");
+            } else {
+                view.print("Error on Computer deleted. " + response.getStatus());
+            }
         } catch (RuntimeException e) {
             view.print("\nError on deleting computer");
             LOG.error("Error on delete computer");
