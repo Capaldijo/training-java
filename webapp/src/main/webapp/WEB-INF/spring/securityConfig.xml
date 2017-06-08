@@ -8,6 +8,17 @@
 
     <http security="none" pattern="/css/**" />
     <http security="none" pattern="/js/**" />
+
+    <http pattern="/api/**" create-session="stateless" >
+        <intercept-url pattern="/api/**" access="hasAnyRole('USER')" method="GET"/>
+        <intercept-url pattern="/api/**" access="hasAnyRole('USER')" method="DELETE"/>
+        <intercept-url pattern="/api/**" access="hasAnyRole('USER')" method="POST"/>
+        <intercept-url pattern="/api/**" access="hasAnyRole('USER')" method="PUT"/>
+        <!-- Basic Auth -->
+        <http-basic/>
+        <csrf disabled="true"/>
+    </http>
+
     <http use-expressions="true">
         <intercept-url pattern="/login" access="permitAll" />
         <intercept-url pattern="/**" access="hasRole('USER')" />
@@ -15,7 +26,6 @@
             authentication-failure-url="/login?error=true"/>
         <http-basic />
         <logout logout-success-url="/login?logout=true"/>
-        <csrf disabled="true" />
         <session-management>
             <concurrency-control max-sessions="1" />
         </session-management>
